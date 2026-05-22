@@ -245,7 +245,7 @@ export function AITutor({ state, setState, isOpen, onClose, seed, clearSeed }) {
               <Icon.Send className="w-5 h-5" />
             </button>
           </div>
-          <p className="text-[10px] text-slate-400 mt-2">Calls your local Langey backend → {state.provider} → ChromaDB-retrieved grammar excerpts.</p>
+          <p className="text-[10px] text-slate-400 mt-2">Calls your SprintDeutsch backend → {state.provider} → ChromaDB-retrieved grammar excerpts.</p>
         </div>
       </div>
     </div>

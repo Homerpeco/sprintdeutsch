@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: langey-backend
+    name: sprintdeutsch-backend
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt

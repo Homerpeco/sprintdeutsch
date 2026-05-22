@@ -30,7 +30,7 @@ export const CONTEXT_PRESET_LABELS = {
   none: "No domain context",
 };
 
-export const STORE_KEY = "langey_replica_v1";
+export const STORE_KEY = "sprintdeutsch_v1";
 
 export function loadState() {
   try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }

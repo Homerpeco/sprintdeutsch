@@ -34,7 +34,7 @@ import rag  # noqa: E402
 
 
 def parse_args():
-    ap = argparse.ArgumentParser(description="Ingest PDFs into Langey's vector library.")
+    ap = argparse.ArgumentParser(description="Ingest PDFs into SprintDeutsch's vector library.")
     ap.add_argument("--folder", help="Override PDF folder (defaults to $PDF_FOLDER).")
     ap.add_argument("--force", action="store_true", help="Re-ingest PDFs that are already in the store.")
     ap.add_argument("--only", help="Only ingest PDFs matching this glob (e.g. 'Hammer*.pdf').")

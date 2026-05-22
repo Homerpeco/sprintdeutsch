@@ -1,7 +1,7 @@
 """
 rag.py
 ------
-Shared retrieval + LLM logic for the Langey backend.
+Shared retrieval + LLM logic for the SprintDeutsch backend.
 
 Three pieces:
   1. PDF parsing & chunking (paragraph-aware, page-tagged)
@@ -188,7 +188,7 @@ def get_chroma():
 
 
 def get_collection():
-    """Returns the persistent ChromaDB collection used by Langey."""
+    """Returns the persistent ChromaDB collection used by SprintDeutsch."""
     client = get_chroma()
     # Cosine similarity. We embed externally (sentence-transformers),
     # so we tell Chroma not to apply its own embedding function.

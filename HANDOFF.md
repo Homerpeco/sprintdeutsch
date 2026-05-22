@@ -1,6 +1,6 @@
-# Langey — Handoff to Claude Code
+# SprintDeutsch — Handoff to Claude Code
 
-A clickable React prototype of a German learning app (replicating langey.com) is
+A clickable React prototype of a German learning app (building SprintDeutsch) is
 already built in this folder. Read this file before doing anything else, then
 open `index.html` in a browser to see the working state.
 
@@ -24,7 +24,7 @@ standalone + Tailwind CDN. Renders five top-level sections:
 - **Wiederholung** — SM-2 spaced-repetition queue for grammar topics
 - **Stats** — streak, learned verbs, practice activity
 
-**Data layer (`langey-data.js`)** — auto-generated from the user's 26 Excel files
+**Data layer (`sprintdeutsch-data.js`)** — auto-generated from the user's 26 Excel files
 in the project folder:
 - 500 verbs (100 per CEFR level) with conjugations
 - 117 Nomen-Verb-Verbindungen (Funktionsverbgefüge)
@@ -132,7 +132,7 @@ before running `python ingest.py`.
 replicate Langey/
 ├── HANDOFF.md            ← you are here
 ├── index.html            ← the React prototype (single file)
-├── langey-data.js        ← auto-generated data layer from Excel
+├── sprintdeutsch-data.js        ← auto-generated data layer from Excel
 ├── backend/
 │   ├── app.py
 │   ├── ingest.py

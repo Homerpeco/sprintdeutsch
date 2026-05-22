@@ -12,8 +12,8 @@ import { StatsView } from './views/StatsView.jsx';
 import { AITutor } from './views/AITutor.jsx';
 import { SettingsModal } from './views/SettingsModal.jsx';
 
-// langey-data.js is loaded via <script> in index.html and sets window.LANGEY_DATA.
-const LD = (typeof window !== "undefined" && window.LANGEY_DATA) ? window.LANGEY_DATA : {};
+// sprintdeutsch-data.js is loaded via <script> in index.html and sets window.SPRINTDEUTSCH_DATA.
+const LD = (typeof window !== "undefined" && window.SPRINTDEUTSCH_DATA) ? window.SPRINTDEUTSCH_DATA : {};
 const VERBS = (LD.verbs && LD.verbs.length) ? LD.verbs : SEED_VERBS;
 
 export function App() {
@@ -123,7 +123,7 @@ export function App() {
         {/* Main */}
         <main className="flex-1 min-w-0 pb-20 sm:pb-0" style={{backgroundColor:'#d4e8c2'}}>
           {view.section === "roadmap"      && <RoadmapView      state={state} setView={setView} verbs={VERBS} />}
-          {view.section === "lern"         && <LernView         state={state} setState={setState} view={view} setView={setView} openTutor={openTutor} verbs={VERBS} langeyData={LD} />}
+          {view.section === "lern"         && <LernView         state={state} setState={setState} view={view} setView={setView} openTutor={openTutor} verbs={VERBS} appData={LD} />}
           {view.section === "practice"     && <PracticeView     state={state} setState={setState} view={view} setView={setView} openTutor={openTutor} />}
           {view.section === "wiederholung" && <WiederholungView state={state} setState={setState} openTutor={openTutor} />}
           {view.section === "stats"        && <StatsView        state={state} verbs={VERBS} />}

@@ -1,6 +1,6 @@
-# Langey backend
+# SprintDeutsch backend
 
-A small Python service that powers the AI tutor in the Langey prototype.
+A small Python service that powers the AI tutor in the SprintDeutsch prototype.
 
 Three moving parts:
 

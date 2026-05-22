@@ -36,7 +36,7 @@ from pydantic import BaseModel, Field
 import rag  # noqa: E402
 
 
-app = FastAPI(title="Langey backend", version="0.1.0")
+app = FastAPI(title="SprintDeutsch backend", version="0.1.0")
 
 # CORS — the React app may run from file:// (origin "null") or a local dev
 # server. For a personal app, fully open is fine.
