@@ -1,0 +1,1 @@
+../../sprintdeutsch-data.js

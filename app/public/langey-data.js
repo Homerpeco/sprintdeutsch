@@ -1,1 +1,0 @@
-../../langey-data.js
