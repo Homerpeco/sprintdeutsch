@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+# chroma_db/ — intentionally tracked so the pre-built vector DB ships with the repo.
+# Remove the line below if you want to exclude it (RAG will return no results until re-ingested).
+# chroma_db/
+pdfs/

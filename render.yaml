@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: langey-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: LLM_PROVIDER
+        value: gemini          # change to "claude" if you prefer Anthropic
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-4-6
+      - key: EMBEDDING_MODEL
+        value: paraphrase-multilingual-MiniLM-L12-v2
+      - key: TOP_K
+        value: "6"
+      - key: MIN_SIMILARITY
+        value: "0.25"
+      - key: CHROMA_DIR
+        value: ./chroma_db
+      # Set these as secret env vars in the Render dashboard (do NOT put real keys here):
+      # GEMINI_API_KEY
+      # ANTHROPIC_API_KEY

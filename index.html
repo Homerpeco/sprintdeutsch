@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#4f46e5" />
+  <title>Langey Replica — Learn German</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./langey-data.js"></script>
+  <style>
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior-y: contain;
+    }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .fade-in { animation: fadeIn 0.18s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .card-flip { transition: transform 0.5s; transform-style: preserve-3d; }
+    .card-flip.flipped { transform: rotateY(180deg); }
+    .card-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .card-back { transform: rotateY(180deg); }
+    /* Chat bubble tails */
+    .bubble-user { border-bottom-right-radius: 4px; }
+    .bubble-ai { border-bottom-left-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+  /* eslint-disable */
+  const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+  /* ============================================================
+     SEED DATA — small fallback set, used only if langey-data.js
+     (auto-generated from your Excel files) isn't loaded.
+     ============================================================ */
+  const SEED_VERBS = [
+    // ---- A1 essentials ----
+    { v:"sein",      en:"to be",          lvl:"A1", present:"ich bin · du bist · er ist · wir sind",      prät:"war",      perf:"ist gewesen",   ex:"Ich bin müde." },
+    { v:"haben",     en:"to have",        lvl:"A1", present:"ich habe · du hast · er hat · wir haben",     prät:"hatte",    perf:"hat gehabt",    ex:"Ich habe Zeit." },
+    { v:"werden",    en:"to become",      lvl:"A1", present:"ich werde · du wirst · er wird · wir werden", prät:"wurde",    perf:"ist geworden",  ex:"Es wird kalt." },
+    { v:"können",    en:"can / be able",  lvl:"A1", present:"ich kann · du kannst · er kann · wir können", prät:"konnte",   perf:"hat gekonnt",   ex:"Ich kann schwimmen." },
+    { v:"müssen",    en:"must / have to", lvl:"A1", present:"ich muss · du musst · er muss · wir müssen",  prät:"musste",   perf:"hat gemusst",   ex:"Ich muss gehen." },
+    { v:"wollen",    en:"to want",        lvl:"A1", present:"ich will · du willst · er will · wir wollen", prät:"wollte",   perf:"hat gewollt",   ex:"Ich will Kaffee." },
+    { v:"sollen",    en:"should",         lvl:"A1", present:"ich soll · du sollst · er soll · wir sollen", prät:"sollte",   perf:"hat gesollt",   ex:"Du sollst lernen." },
+    { v:"dürfen",    en:"may / be allowed", lvl:"A1", present:"ich darf · du darfst · er darf · wir dürfen", prät:"durfte", perf:"hat gedurft",   ex:"Ich darf hier parken." },
+    { v:"mögen",     en:"to like",        lvl:"A1", present:"ich mag · du magst · er mag · wir mögen",     prät:"mochte",   perf:"hat gemocht",   ex:"Ich mag Schokolade." },
+    { v:"machen",    en:"to do / make",   lvl:"A1", present:"ich mache · du machst · er macht · wir machen", prät:"machte", perf:"hat gemacht",   ex:"Was machst du?" },
+    { v:"gehen",     en:"to go",          lvl:"A1", present:"ich gehe · du gehst · er geht · wir gehen",   prät:"ging",     perf:"ist gegangen",  ex:"Ich gehe nach Hause." },
+    { v:"kommen",    en:"to come",        lvl:"A1", present:"ich komme · du kommst · er kommt · wir kommen", prät:"kam",    perf:"ist gekommen",  ex:"Wann kommst du?" },
+    { v:"sehen",     en:"to see",         lvl:"A1", present:"ich sehe · du siehst · er sieht · wir sehen", prät:"sah",      perf:"hat gesehen",   ex:"Ich sehe dich." },
+    { v:"sagen",     en:"to say",         lvl:"A1", present:"ich sage · du sagst · er sagt · wir sagen",   prät:"sagte",    perf:"hat gesagt",    ex:"Was hast du gesagt?" },
+    { v:"geben",     en:"to give",        lvl:"A1", present:"ich gebe · du gibst · er gibt · wir geben",   prät:"gab",      perf:"hat gegeben",   ex:"Gib mir das Buch." },
+    { v:"nehmen",    en:"to take",        lvl:"A1", present:"ich nehme · du nimmst · er nimmt · wir nehmen", prät:"nahm",   perf:"hat genommen",  ex:"Ich nehme den Bus." },
+    { v:"finden",    en:"to find",        lvl:"A1", present:"ich finde · du findest · er findet · wir finden", prät:"fand", perf:"hat gefunden",  ex:"Ich finde es gut." },
+    { v:"bleiben",   en:"to stay",        lvl:"A1", present:"ich bleibe · du bleibst · er bleibt · wir bleiben", prät:"blieb", perf:"ist geblieben", ex:"Bleib hier!" },
+    { v:"heißen",    en:"to be called",   lvl:"A1", present:"ich heiße · du heißt · er heißt · wir heißen", prät:"hieß",   perf:"hat geheißen",  ex:"Wie heißt du?" },
+    { v:"wohnen",    en:"to live (reside)", lvl:"A1", present:"ich wohne · du wohnst · er wohnt · wir wohnen", prät:"wohnte", perf:"hat gewohnt", ex:"Ich wohne in Berlin." },
+    { v:"arbeiten",  en:"to work",        lvl:"A1", present:"ich arbeite · du arbeitest · er arbeitet · wir arbeiten", prät:"arbeitete", perf:"hat gearbeitet", ex:"Sie arbeitet viel." },
+    { v:"lernen",    en:"to learn",       lvl:"A1", present:"ich lerne · du lernst · er lernt · wir lernen", prät:"lernte", perf:"hat gelernt",   ex:"Ich lerne Deutsch." },
+    { v:"spielen",   en:"to play",        lvl:"A1", present:"ich spiele · du spielst · er spielt · wir spielen", prät:"spielte", perf:"hat gespielt", ex:"Wir spielen Fußball." },
+    { v:"essen",     en:"to eat",         lvl:"A1", present:"ich esse · du isst · er isst · wir essen",     prät:"aß",      perf:"hat gegessen",  ex:"Ich esse einen Apfel." },
+    { v:"trinken",   en:"to drink",       lvl:"A1", present:"ich trinke · du trinkst · er trinkt · wir trinken", prät:"trank", perf:"hat getrunken", ex:"Trinkst du Kaffee?" },
+    { v:"schlafen",  en:"to sleep",       lvl:"A1", present:"ich schlafe · du schläfst · er schläft · wir schlafen", prät:"schlief", perf:"hat geschlafen", ex:"Ich schlafe gut." },
+    { v:"sprechen",  en:"to speak",       lvl:"A1", present:"ich spreche · du sprichst · er spricht · wir sprechen", prät:"sprach", perf:"hat gesprochen", ex:"Sprichst du Deutsch?" },
+    { v:"verstehen", en:"to understand",  lvl:"A1", present:"ich verstehe · du verstehst · er versteht · wir verstehen", prät:"verstand", perf:"hat verstanden", ex:"Ich verstehe nicht." },
+    { v:"lesen",     en:"to read",        lvl:"A1", present:"ich lese · du liest · er liest · wir lesen", prät:"las",      perf:"hat gelesen",   ex:"Ich lese ein Buch." },
+    { v:"schreiben", en:"to write",       lvl:"A1", present:"ich schreibe · du schreibst · er schreibt · wir schreiben", prät:"schrieb", perf:"hat geschrieben", ex:"Ich schreibe eine E-Mail." },
+
+    // ---- A2 ----
+    { v:"denken",    en:"to think",       lvl:"A2", present:"ich denke · du denkst · er denkt · wir denken", prät:"dachte", perf:"hat gedacht",   ex:"Ich denke an dich." },
+    { v:"glauben",   en:"to believe",     lvl:"A2", present:"ich glaube · du glaubst · er glaubt · wir glauben", prät:"glaubte", perf:"hat geglaubt", ex:"Ich glaube dir." },
+    { v:"wissen",    en:"to know (fact)", lvl:"A2", present:"ich weiß · du weißt · er weiß · wir wissen",  prät:"wusste",  perf:"hat gewusst",   ex:"Ich weiß die Antwort." },
+    { v:"kennen",    en:"to know (be familiar)", lvl:"A2", present:"ich kenne · du kennst · er kennt · wir kennen", prät:"kannte", perf:"hat gekannt", ex:"Ich kenne ihn gut." },
+    { v:"fragen",    en:"to ask",         lvl:"A2", present:"ich frage · du fragst · er fragt · wir fragen", prät:"fragte", perf:"hat gefragt",  ex:"Darf ich dich etwas fragen?" },
+    { v:"antworten", en:"to answer",      lvl:"A2", present:"ich antworte · du antwortest · er antwortet · wir antworten", prät:"antwortete", perf:"hat geantwortet", ex:"Sie antwortet sofort." },
+    { v:"helfen",    en:"to help",        lvl:"A2", present:"ich helfe · du hilfst · er hilft · wir helfen", prät:"half",  perf:"hat geholfen",  ex:"Kannst du mir helfen?" },
+    { v:"erklären",  en:"to explain",     lvl:"A2", present:"ich erkläre · du erklärst · er erklärt · wir erklären", prät:"erklärte", perf:"hat erklärt", ex:"Erkläre es mir, bitte." },
+    { v:"vergessen", en:"to forget",      lvl:"A2", present:"ich vergesse · du vergisst · er vergisst · wir vergessen", prät:"vergaß", perf:"hat vergessen", ex:"Ich habe es vergessen." },
+    { v:"sich erinnern", en:"to remember",lvl:"A2", present:"ich erinnere mich · du erinnerst dich · er erinnert sich", prät:"erinnerte sich", perf:"hat sich erinnert", ex:"Ich erinnere mich an den Tag." },
+    { v:"treffen",   en:"to meet",        lvl:"A2", present:"ich treffe · du triffst · er trifft · wir treffen", prät:"traf", perf:"hat getroffen", ex:"Wir treffen uns um 8." },
+    { v:"besuchen",  en:"to visit",       lvl:"A2", present:"ich besuche · du besuchst · er besucht · wir besuchen", prät:"besuchte", perf:"hat besucht", ex:"Ich besuche meine Oma." },
+    { v:"einladen",  en:"to invite",      lvl:"A2", present:"ich lade ein · du lädst ein · er lädt ein · wir laden ein", prät:"lud ein", perf:"hat eingeladen", ex:"Ich lade dich ein." },
+    { v:"mitbringen",en:"to bring along", lvl:"A2", present:"ich bringe mit · du bringst mit · er bringt mit", prät:"brachte mit", perf:"hat mitgebracht", ex:"Bring bitte Wein mit." },
+    { v:"ankommen",  en:"to arrive",      lvl:"A2", present:"ich komme an · du kommst an · er kommt an",     prät:"kam an",  perf:"ist angekommen", ex:"Wann kommst du an?" },
+    { v:"abfahren",  en:"to depart",      lvl:"A2", present:"ich fahre ab · du fährst ab · er fährt ab",     prät:"fuhr ab", perf:"ist abgefahren", ex:"Der Zug fährt um 9 ab." },
+    { v:"aufstehen", en:"to get up",      lvl:"A2", present:"ich stehe auf · du stehst auf · er steht auf",  prät:"stand auf", perf:"ist aufgestanden", ex:"Ich stehe um 7 auf." },
+    { v:"anfangen",  en:"to begin",       lvl:"A2", present:"ich fange an · du fängst an · er fängt an",     prät:"fing an", perf:"hat angefangen", ex:"Der Kurs fängt morgen an." },
+    { v:"aufhören",  en:"to stop",        lvl:"A2", present:"ich höre auf · du hörst auf · er hört auf",     prät:"hörte auf", perf:"hat aufgehört", ex:"Hör auf zu reden!" },
+    { v:"gefallen",  en:"to please / be liked", lvl:"A2", present:"es gefällt mir · es gefällt dir",        prät:"gefiel",  perf:"hat gefallen",  ex:"Das Buch gefällt mir." },
+
+    // ---- B1 ----
+    { v:"entwickeln", en:"to develop",    lvl:"B1", present:"ich entwickle · er entwickelt",                prät:"entwickelte", perf:"hat entwickelt", ex:"Wir entwickeln eine App." },
+    { v:"entscheiden",en:"to decide",     lvl:"B1", present:"ich entscheide · er entscheidet",              prät:"entschied",   perf:"hat entschieden", ex:"Ich habe mich entschieden." },
+    { v:"erwarten",   en:"to expect",     lvl:"B1", present:"ich erwarte · er erwartet",                    prät:"erwartete",   perf:"hat erwartet",   ex:"Ich erwarte deine Antwort." },
+    { v:"erreichen",  en:"to reach / achieve", lvl:"B1", present:"ich erreiche · er erreicht",              prät:"erreichte",   perf:"hat erreicht",   ex:"Sie hat ihr Ziel erreicht." },
+    { v:"empfehlen",  en:"to recommend",  lvl:"B1", present:"ich empfehle · du empfiehlst · er empfiehlt",  prät:"empfahl",     perf:"hat empfohlen",  ex:"Ich empfehle dir dieses Buch." },
+    { v:"vorschlagen",en:"to suggest",    lvl:"B1", present:"ich schlage vor · du schlägst vor",            prät:"schlug vor",  perf:"hat vorgeschlagen", ex:"Ich schlage einen Plan vor." },
+    { v:"behaupten",  en:"to claim",      lvl:"B1", present:"ich behaupte · er behauptet",                  prät:"behauptete",  perf:"hat behauptet",  ex:"Er behauptet, er sei krank." },
+    { v:"vermuten",   en:"to suppose / suspect", lvl:"B1", present:"ich vermute · er vermutet",             prät:"vermutete",   perf:"hat vermutet",   ex:"Ich vermute, dass er recht hat." },
+    { v:"erlauben",   en:"to allow",      lvl:"B1", present:"ich erlaube · er erlaubt",                     prät:"erlaubte",    perf:"hat erlaubt",    ex:"Er erlaubt mir, zu gehen." },
+    { v:"verbieten",  en:"to forbid",     lvl:"B1", present:"ich verbiete · er verbietet",                  prät:"verbot",      perf:"hat verboten",   ex:"Rauchen ist verboten." },
+    { v:"gelingen",   en:"to succeed",    lvl:"B1", present:"es gelingt mir",                               prät:"gelang",      perf:"ist gelungen",   ex:"Das Projekt ist gelungen." },
+    { v:"scheitern",  en:"to fail",       lvl:"B1", present:"ich scheitere · er scheitert",                 prät:"scheiterte",  perf:"ist gescheitert",ex:"Der Plan ist gescheitert." },
+    { v:"berücksichtigen", en:"to take into account", lvl:"B1", present:"ich berücksichtige",               prät:"berücksichtigte", perf:"hat berücksichtigt", ex:"Wir berücksichtigen deine Meinung." },
+    { v:"vereinbaren",en:"to agree on",   lvl:"B1", present:"ich vereinbare · er vereinbart",               prät:"vereinbarte", perf:"hat vereinbart", ex:"Wir vereinbaren einen Termin." },
+    { v:"sich kümmern",en:"to take care of",lvl:"B1", present:"ich kümmere mich · er kümmert sich",         prät:"kümmerte sich", perf:"hat sich gekümmert", ex:"Ich kümmere mich darum." },
+    { v:"sich beschäftigen", en:"to be busy with", lvl:"B1", present:"ich beschäftige mich",                prät:"beschäftigte sich", perf:"hat sich beschäftigt", ex:"Er beschäftigt sich mit Kunst." },
+    { v:"sich gewöhnen", en:"to get used to", lvl:"B1", present:"ich gewöhne mich",                         prät:"gewöhnte sich", perf:"hat sich gewöhnt", ex:"Ich gewöhne mich an das Klima." },
+    { v:"übernehmen", en:"to take over",  lvl:"B1", present:"ich übernehme · du übernimmst · er übernimmt", prät:"übernahm",    perf:"hat übernommen", ex:"Sie übernimmt die Leitung." },
+    { v:"durchführen",en:"to carry out",  lvl:"B1", present:"ich führe durch · er führt durch",             prät:"führte durch",perf:"hat durchgeführt", ex:"Wir führen das Experiment durch." },
+    { v:"vorstellen", en:"to introduce / imagine", lvl:"B1", present:"ich stelle vor · er stellt vor",      prät:"stellte vor", perf:"hat vorgestellt",ex:"Ich stelle dir meinen Bruder vor." }
+  ];
+
+  // Live data from langey-data.js (auto-generated from your Excel files)
+  const LD = (typeof window !== "undefined" && window.LANGEY_DATA) ? window.LANGEY_DATA : {};
+  const VERBS = (LD.verbs && LD.verbs.length) ? LD.verbs : SEED_VERBS;
+
+  /* ============================================================
+     Grammar topics by level — enriched at B2/C1 from your Excel
+     library (NVV, Passiv, Reflexive+Präp, Adj+Präp, Modalpartikeln,
+     Separable verbs, etc.). Each topic can declare a dataKey so the
+     UI surfaces "X examples from your material".
+     ============================================================ */
+  const GRAMMAR = {
+    A1: [
+      { topic:"Personal Pronouns (Nominative)",     desc:"The subject pronouns: ich, du, er / sie / es, wir, ihr, sie / Sie. Formal vs informal you." },
+      { topic:"The Nominative Case & Articles",     desc:"Definite der / die / das vs. indefinite ein / eine. Used for the subject of the sentence: Der Mann ist müde." },
+      { topic:"Present Tense Regular Verbs",        desc:"Endings -e, -st, -t, -en, -t, -en. machen → ich mache, du machst, er macht, wir machen, ihr macht, sie machen." },
+      { topic:"Strong / Irregular Verbs (Present)", desc:"Vowel-changing stems in du / er / sie / es: sehen → du siehst, fahren → du fährst, lesen → du liest, geben → du gibst." },
+      { topic:"Basic Sentence Structure",           desc:"Conjugated verb in second position. Subject-Verb-Object, plus the TeKaMoLo rule for adverbs (Time → Cause → Manner → Place)." },
+      { topic:"Question Formation (W-Fragen & Ja/Nein)", desc:"W-Fragen: was, wer, wie, wann, wo, warum, woher, wohin. Ja/Nein-Fragen: move the conjugated verb to position 1 — Kommst du?" },
+      { topic:"Numbers & Telling Time",             desc:"Cardinal numbers eins–hunderttausend. Es ist drei Uhr. Halb zehn = 9:30. Viertel nach / vor." },
+      { topic:"Ordinal Numbers & Dates",            desc:"der erste, der zweite, der dritte … Heute ist der 15. März. Am 3. Januar." },
+      { topic:"Negation (Nicht vs. Kein)",          desc:"nicht negates verbs, adverbs, or whole sentences. kein negates nouns that take ein / eine or no article: Ich habe kein Auto. Ich fahre nicht." },
+      { topic:"The Accusative Case & Articles",     desc:"Direct object. den / die / das, einen / eine / ein. Only the masculine form changes from nominative: Ich sehe den Mann." },
+      { topic:"Personal Pronouns (Accusative)",     desc:"mich, dich, ihn, sie, es, uns, euch, sie / Sie. Er sieht mich. Ich kenne dich gut." },
+      { topic:"Accusative Prepositions",            desc:"durch, für, gegen, ohne, um (plus bis, entlang) always take the accusative: für den Mann, ohne dich." },
+      { topic:"The Dative Case & Articles",         desc:"Indirect object. dem / der / dem, einem / einer / einem. Ich gebe dem Mann das Buch." },
+      { topic:"Personal Pronouns (Dative)",         desc:"mir, dir, ihm, ihr, ihm, uns, euch, ihnen / Ihnen. Er hilft mir. Das gefällt dir." },
+      { topic:"Dative Prepositions",                desc:"aus, bei, mit, nach, seit, von, zu (plus gegenüber) always take the dative: mit dem Bus, bei meiner Oma." },
+      { topic:"Possessive Articles (Nom / Akk / Dat)", desc:"mein, dein, sein, ihr, unser, euer, ihr, Ihr. Endings follow the case: mein Bruder → meinen Bruder → meinem Bruder." },
+      { topic:"Modal Verbs",                        desc:"können, müssen, wollen, sollen, dürfen, mögen / möchten. Modal is conjugated; main verb goes to the end: Ich kann gut Deutsch sprechen." },
+      { topic:"Separable Verbs",                    desc:"Prefix splits off and moves to the end in main clauses: anrufen → Ich rufe dich an. Common: aufstehen, einkaufen, mitkommen, ankommen.", dataKey:"separable" },
+      { topic:"Coordinating Conjunctions",          desc:"und, aber, oder, denn, sondern. They link two main clauses and do NOT change word order: Ich bleibe zu Hause, denn ich bin müde." },
+      { topic:"The Imperative",                     desc:"Commands: du-form drops the -st (Komm!), ihr-form keeps the -t (Kommt!), Sie-form keeps Sie (Kommen Sie!). Negative: Mach das nicht!" },
+      { topic:"Past Tense of sein and haben",       desc:"Präteritum is used for these two in everyday speech: ich war, du warst, er war, wir waren … / ich hatte, du hattest, er hatte, wir hatten …" },
+      { topic:"Present Perfect Tense (Perfekt)",    desc:"haben / sein + Partizip II, used as the spoken past for most verbs: Ich habe gegessen. Ich bin nach Berlin gefahren. Movement / change verbs take sein." }
+    ],
+    A2: [
+      { topic:"Two-Way Prepositions (Wechselpräpositionen)", desc:"an, auf, hinter, in, neben, über, unter, vor, zwischen. Accusative for direction (wohin? — Ich gehe in die Schule). Dative for location (wo? — Ich bin in der Schule). Same word, two cases." },
+      { topic:"Verbs with Two Objects",                      desc:"Dative + accusative together: schenken, geben, schicken, zeigen, bringen, sagen, erklären. Person in dative, thing in accusative — Ich gebe dem Mann das Buch. Pronoun rule: accusative pronoun comes before dative noun." },
+      { topic:"Reflexive Verbs",                             desc:"sich waschen, sich freuen, sich entscheiden. Reflexive pronoun (mich, dich, sich, uns, euch, sich) refers back to the subject. Mostly accusative; some are dative (Ich putze mir die Zähne).", dataKey:"reflexive" },
+      { topic:"Verbs with Fixed Prepositions",               desc:"Some verbs always pair with a specific preposition + case: denken an+Akk, warten auf+Akk, sprechen über+Akk, träumen von+Dat, helfen bei+Dat. Memorise verb + preposition + case as one chunk.", dataKey:"verb_prep" },
+      { topic:"Da-Words and Wo-Words",                       desc:"Pronominal adverbs for things, not people: damit, davon, darüber, dafür / womit, wovon, worüber, wofür. Insert an -r- before vowels: darauf, worauf. Use a real pronoun for people: mit ihm, von ihr." },
+      { topic:"Subordinating Conjunctions",                  desc:"dass, weil, wenn, ob, obwohl, damit, falls. The conjugated verb is pushed to the end of the clause: Ich bleibe zu Hause, weil ich krank bin." },
+      { topic:"Indirect Questions",                          desc:"Embedded questions inside another clause. Ich weiß nicht, wo er wohnt. Yes/no embeds with ob: Sie fragt, ob du kommst. Same subordinate word order — verb at the end." },
+      { topic:"Temporal Conjunctions",                       desc:"als (a single past event), wenn (general or repeated), wann (in questions), während (parallel), bevor (before), nachdem (after), seit/seitdem (since), sobald, bis. Easy to confuse als vs. wenn — drill them." },
+      { topic:"Adverbial Connectors",                        desc:"deshalb, deswegen, darum, also, trotzdem, dennoch, außerdem, danach. These are adverbs, not conjunctions — they sit in position 1 and the verb stays in position 2: Ich bin müde, deshalb gehe ich ins Bett." },
+      { topic:"Infinitive Clauses with zu",                  desc:"zu + Infinitiv after verbs of trying, hoping, etc.: Ich versuche, Deutsch zu lernen. Special connectors: um…zu (purpose), ohne…zu (without), (an)statt…zu (instead of). Comma before the zu-clause." },
+      { topic:"Degrees of Comparison",                       desc:"Komparativ -er, Superlativ am -sten / der -ste. schnell → schneller → am schnellsten. Irregulars: gut/besser/am besten, gern/lieber/am liebsten, viel/mehr/am meisten, hoch/höher/am höchsten." },
+      { topic:"Adjective Declension after Definite Articles",   desc:"Weak declension — only two endings, -e and -en. der gute Mann, den guten Mann, dem guten Mann, die guten Männer. The article does the heavy lifting." },
+      { topic:"Adjective Declension after Indefinite Articles", desc:"Mixed declension. Where ein/eine doesn't mark gender/case (nominative masc, neuter; accusative neuter), the adjective takes the strong ending: ein guter Mann, eine gute Frau, ein gutes Kind, einen guten Mann." },
+      { topic:"Adjective Declension without Article",           desc:"Strong declension. With no article, the adjective itself carries the case ending — same endings as the definite article: guter Wein, gute Milch, gutes Brot, mit gutem Wein, frische Brötchen." },
+      { topic:"Indefinite Pronouns",                            desc:"man (one / people in general — always nominative), jemand / niemand (decline: jemanden, jemandem), etwas / nichts (no declension), jeder, alle, einige, viele, wenige. man is grammatically masculine: man hilft seinem Freund." },
+      { topic:"The Genitive Case",                              desc:"Possession and origin: das Auto des Mannes, der Titel des Buches. Masculine and neuter nouns add -s / -es. Genitive prepositions: wegen, trotz, während, (an)statt — in writing always genitive, in everyday speech often dative." },
+      { topic:"Relative Clauses",                               desc:"der, die, das as relative pronouns — gender/number match the noun they describe; case is set by their role in the relative clause. Der Mann, der dort steht, ist mein Onkel. The book das ich lese (acc.) ist gut." },
+      { topic:"Modal Verbs in the Simple Past",                 desc:"Präteritum of modals is preferred even in spoken German: ich konnte, musste, wollte, sollte, durfte, mochte. Umlaut drops out: können → konnte, müssen → musste, dürfen → durfte." },
+      { topic:"The Passive Voice (Vorgangspassiv)",             desc:"werden + Partizip II — focuses on what happens, not who does it. Das Buch wird gelesen. Past: wurde gelesen. Perfekt: ist gelesen worden. Agent comes in with von+Dat (people) or durch+Akk (means).", dataKey:"passive" }
+    ],
+    B1: [
+      { topic:"Simple Past Tense (Präteritum)",                desc:"The written past for most verbs (spoken German prefers Perfekt except for sein, haben, modals). Weak: -te, -test, -te, -ten, -tet, -ten. Strong verbs change the stem: gehen → ging, fahren → fuhr, kommen → kam. Mixed: bringen → brachte, denken → dachte." },
+      { topic:"The Past Perfect (Plusquamperfekt)",            desc:"hatte / war + Partizip II — describes an event that happened before another past event. Almost always paired with nachdem: Nachdem ich gegessen hatte, ging ich ins Bett." },
+      { topic:"Temporal Conjunctions Deep Dive (nachdem / bevor / seitdem)", desc:"Tense agreement is the trap. nachdem demands Plusquamperfekt (or Perfekt) + Präteritum/Präsens in the main clause. bevor and während keep both clauses in the same tense. seit(dem): both present if ongoing, both past if finished." },
+      { topic:"The Future Tense (Futur I)",                    desc:"werden (conjugated) + Infinitiv at the end: Ich werde nach Berlin fahren. Also expresses prediction or strong assumption about the present: Er wird (wohl) zuhause sein. In everyday speech often replaced by Präsens + time word." },
+      { topic:"Genitive Prepositions",                         desc:"wegen, trotz, während, (an)statt, dank, außerhalb / innerhalb / oberhalb / unterhalb. Written register; in speech often shift to dative (wegen dem Wetter). Also laut, gemäß, entsprechend — these now take dative in modern usage." },
+      { topic:"n-Deklination (Weak Masculine Nouns)",          desc:"A class of masculine nouns (many ending in -e, plus -ent, -ist, -ant, -oge, -ot) take -n / -en in every case except nominative singular: der Junge → den Jungen, dem Jungen, des Jungen. Common: Mensch, Herr, Kollege, Student, Polizist, Tourist, Biologe." },
+      { topic:"Purpose Clauses (damit vs. um…zu)",             desc:"Both mean 'in order to'. Use um…zu when the two clauses share a subject: Ich lerne Deutsch, um nach Berlin zu ziehen. Use damit when the subjects differ: Ich helfe dir, damit du schneller fertig wirst." },
+      { topic:"Infinitive Clauses (ohne…zu, (an)statt…zu)",    desc:"Building on the A2 zu-Infinitiv. ohne…zu = without doing: Er ging, ohne mich zu fragen. (an)statt…zu = instead of doing: Statt zu lernen, hat er ferngesehen. Same-subject rule applies — switch to ohne dass / anstatt dass if subjects differ." },
+      { topic:"Two-Part Connectors (zweiteilige Konnektoren)", desc:"entweder…oder, weder…noch, sowohl…als auch, nicht nur…sondern auch, zwar…aber, einerseits…andererseits, mal…mal. Each pair has its own word-order rules — drill them as fixed units." },
+      { topic:"Comparative Connectors (Je…desto / Je…umso)",   desc:"Express proportional change. The je-clause has subordinate word order (verb at end); the desto-clause is inverted (comparative + verb + subject): Je mehr ich übe, desto besser spreche ich Deutsch." },
+      { topic:"Participles as Adjectives",                     desc:"Partizip I (stem + -end) = doing / active: der lesende Mann. Partizip II = done / passive: das gelesene Buch. Both decline like normal adjectives in attributive position. They compress relative clauses: der Mann, der liest → der lesende Mann." },
+      { topic:"Dative Relative Clauses",                       desc:"Relative pronouns in the dative: dem (masc/neut), der (fem), denen (plural). Case is set by the pronoun's role inside the relative clause, not by the antecedent: Der Mann, dem ich helfe, ist mein Nachbar." },
+      { topic:"Genitive Relative Clauses",                     desc:"dessen (masc / neut singular), deren (fem singular, all plurals). Marks possession across the clause boundary: Der Mann, dessen Auto kaputt ist, ärgert sich. Die Frau, deren Sohn studiert, ist stolz." },
+      { topic:"Advanced Relative Clauses (Prepositions & wa-)",desc:"Preposition + relative pronoun: der Stift, mit dem ich schreibe. wo for places (Die Stadt, wo ich wohne). was as a relative pronoun referring to alles / etwas / nichts or to a whole previous clause: Das, was du sagst, ist wichtig." },
+      { topic:"Konjunktiv II (Present / Gegenwart)",           desc:"Hypothetical, polite, or unreal. würde + Infinitiv for most verbs (Ich würde gerne kommen). Original forms for auxiliaries and modals: hätte, wäre, könnte, müsste, sollte, dürfte. Polite requests: Könnten Sie mir bitte helfen?" },
+      { topic:"Konjunktiv II in the Past (Vergangenheit)",     desc:"hätte / wäre + Partizip II — never würde here. Wenn ich das gewusst hätte, wäre ich gekommen. With modals (double-infinitive): Ich hätte das machen können / sollen / müssen." },
+      { topic:"The Passive Voice in the Past",                 desc:"Präteritum-Passiv: wurde + Partizip II → Das Buch wurde gelesen. Perfekt-Passiv: ist + Partizip II + worden → Das Buch ist gelesen worden. In practice Präteritum is the natural past tense for the passive.", dataKey:"passive" },
+      { topic:"State Passive (Zustandspassiv)",                desc:"sein + Partizip II — focuses on the resulting state, not the process. Die Tür ist geschlossen (state, now) vs. Die Tür wird geschlossen (action in progress). Same Partizip, different passive.", dataKey:"passive" },
+      { topic:"Directional Adverbs (hin und her)",             desc:"hin = away from the speaker / toward a goal. her = toward the speaker / from a source. Question words woher / wohin. As separable prefixes: hinkommen, herkommen, herauskommen, hinaufgehen, herübergehen. Position in the sentence carries the meaning." },
+      { topic:"Alternative Verb Constructions",                desc:"Ways to replace passive or modal-verb structures. lassen + Inf (Ich lasse mir die Haare schneiden — have my hair cut). sich lassen + Inf = passive possibility (Das lässt sich machen). sein + zu + Inf = passive necessity / ability (Das ist zu lesen). Common in formal German." }
+    ],
+    B2: [
+      { topic:"Adjektivdeklination (B2 Überblick)",            desc:"All three patterns reviewed and unified — schwach (after der/die/das), gemischt (after ein/eine), stark (no article) — plus the tricky cases: indefinite quantifiers (viele, einige, manche, andere), adjective endings after personal pronouns (wir armen Studenten), two stacked adjectives, predicative vs. attributive use." },
+      { topic:"Modalverben (objektiv und subjektiv)",          desc:"Recap of the objective use (Fähigkeit, Pflicht, Erlaubnis), then the subjective use that begins at B2: muss = strong probability, kann = possibility, soll = it is said that, will = the subject claims, dürfte = likely. Also werden + wohl. Position rules with double-Infinitiv in Nebensätzen." },
+      { topic:"Vergangenheitsformen der Verben (Überblick)",   desc:"All four past tenses in one frame: Perfekt (spoken default), Präteritum (written narrative + sein/haben/modals), Plusquamperfekt (past-before-past), historisches Präsens for vivid storytelling. Which one to use when — register, narrative distance, conjunction partners." },
+      { topic:"Lokalangaben (Wechsel- / Richtungs- / Ortsangaben)", desc:"Wechselpräpositionen at full depth: an, auf, hinter, in, neben, über, unter, vor, zwischen — direction (Akk: wohin?) vs. location (Dat: wo?). Pure direction: nach, zu, in, auf. Pure location: bei, an. Less common locals: außerhalb, innerhalb, oberhalb, unterhalb, jenseits, diesseits, längs." },
+      { topic:"Das Passiv: Zeitformen, mit Modalverb, im Nebensatz", desc:"Vorgangspassiv across all tenses — Präsens (wird gemacht), Präteritum (wurde gemacht), Perfekt (ist gemacht worden), Plusquamperfekt (war gemacht worden), Futur (wird gemacht werden). Passiv mit Modalverb: Das muss gemacht werden. Passiv im Nebensatz — finite verb at the end.", dataKey:"passive" },
+      { topic:"Wortbildung der Nomen",                          desc:"Building German nouns at scale. Komposita (Schreibtisch, Hausaufgabe). Suffixe: -ung (action/result), -heit/-keit (abstract quality), -er (agent), -chen/-lein (diminutive), -schaft (collective), -tum, -nis. Präfixe: Un-, Miss-, Ur-. Recognizing a noun's gender from its suffix is a B2 superpower." },
+      { topic:"n-Deklination der Nomen (B2)",                   desc:"A class of masculine nouns ending in -e, -ent, -ant, -ist, -oge, -ot, plus Herr, Mensch, Bauer, Nachbar. They take -n in singular non-nominative + all plural cases. Plus the -ens-Wörter exception (das Herz: des Herzens, dem Herzen)." },
+      { topic:"Kausal- und Konsekutivangaben",                  desc:"Reasons (warum?): weil (Nebensatz), denn (Hauptsatz), nämlich (mid-sentence), wegen + Gen, aufgrund + Gen, infolge + Gen. Consequences (Folgen): also, deswegen, deshalb (Adverbien), sodass (Nebensatz). Conversion between verbal and nominal forms is core B2 skill." },
+      { topic:"Verben mit präpositionalem Kasus (B2)",          desc:"Verbs locked to a preposition + case as a unit: sich freuen auf+Akk (anticipation) vs. sich freuen über+Akk (current joy). denken an+Akk, träumen von+Dat, sich kümmern um+Akk, sich beschäftigen mit+Dat, bestehen aus+Dat / auf+Dat / in+Dat (three meanings).", dataKey:"verb_prep" },
+      { topic:"Adjektive mit Präposition",                      desc:"Adjective collocations locked to a specific preposition + case: abhängig von+Dat, stolz auf+Akk, einverstanden mit+Dat, böse auf+Akk, fähig zu+Dat, glücklich / traurig über+Akk, verliebt in+Akk, überzeugt von+Dat, eifersüchtig auf+Akk. Memorise as Adjektiv + Präp + Kasus.", dataKey:"adj_prep" },
+      { topic:"Konjunktiv II: Höflichkeit und Irrealität",      desc:"Höflichkeit: Könnten Sie …? Würden Sie …? Irreal Gegenwart: Wenn ich Zeit hätte, würde ich kommen. Vergangenheit: Wenn ich Zeit gehabt hätte, wäre ich gekommen. Mit Modalverben: hätte machen können / sollen / müssen. Pure forms (käme, ginge, wüsste, bräuchte) for higher register." },
+      { topic:"Temporalangaben (Präpositionen + Nebensätze)",   desc:"Temporale Präpositionen: vor, nach, seit, bis, ab, während (+ Gen), innerhalb / außerhalb (+ Gen), gegen, um. Temporale Nebensätze: als, wenn, wann, während, bevor, nachdem, seit(dem), sobald, bis, sooft. Aspect (action vs. state) drives tense agreement." },
+      { topic:"Konditionalangaben (Verbal- und Nominalform)",   desc:"Verbalform: wenn-Sätze (real + irreal), falls, sofern, vorausgesetzt(,) dass, es sei denn. Nominalform: bei + Dat (Bei Regen bleiben wir zuhause), im Falle + Gen, unter der Bedingung + Gen. Switching between Nebensatz and Präpositionalphrase is a B2 prüfungs-classic." },
+      { topic:"Konjunktiv I: Indirekte Rede",                   desc:"Reporting what others said in journalistic / formal register. Gegenwart: sei, habe, gehe, komme. Vergangenheit: sei gegangen, habe gemacht. Einleitungen: laut, zufolge, nach Angaben von, wie X mitteilt. Perspektivenwechsel (pronouns, time adverbs). In Umgangssprache replaced by Indikativ or Konjunktiv II." },
+      { topic:"\"sollen\" zur Weitergabe von Informationen",     desc:"The hearsay use of sollen: Er soll sehr reich sein = It is said that he is very rich. Distinct from sollen for advice (Du sollst pünktlich sein) and external obligation. Often paired with angeblich, gerüchteweise, allem Anschein nach." },
+      { topic:"Nomen-Verb-Verbindungen (Funktionsverbgefüge)",  desc:"Fixed noun-verb pairs that work as a single verbal predicate, mostly formal/written: zur Sprache bringen (= ansprechen), in Frage stellen (= bezweifeln), Bezug nehmen auf (= sich beziehen auf), eine Entscheidung treffen (= entscheiden), zur Verfügung stehen. High-leverage register signal.", dataKey:"nvv" },
+      { topic:"Passiv und Passiversatzformen",                  desc:"Recap of Vorgangs- vs. Zustandspassiv, then the Ersatzformen. Möglichkeit / Nicht-Möglichkeit: sich lassen + Inf (Das lässt sich machen), Adjektiv auf -bar (lesbar, machbar, unverzichtbar). Notwendigkeit: sein + zu + Inf (Das ist zu erledigen), Adjektiv auf -lich (unausweichlich).", dataKey:"passive" },
+      { topic:"Komparation der Adjektive (B2)",                 desc:"Standard Komparativ / Superlativ recapped. The tricky bits at B2: comparison with als / wie (gleich … wie, schöner als), absolute Komparativform (eine bessere Lösung = simply a good one, not literally 'better'), Superlativ + Genitiv (der größte aller Berge), Doppelformen (am besten / der beste)." },
+      { topic:"Partizipien als Adjektive (B2)",                 desc:"Partizip I (Stamm + -end) = active, simultaneous: der lesende Mann (= der Mann, der liest). Partizip II = passive or completed: das gelesene Buch. Both decline like ordinary adjectives in attributive position. They compress relative clauses — see also Erweiterte Partizipien below." },
+      { topic:"Partizipien als Nomen",                          desc:"Substantivierte Partizipien: der/die Reisende (a traveler), das Geschriebene (what was written), der/die Vorsitzende, die Angestellten, der/die Bekannte. Decline like adjectives but capitalize like nouns. Frequent in formal, legal, and journalistic German." },
+      { topic:"Modalangaben",                                   desc:"Adverbials of manner — how does the action happen? Verbalform: indem-Sätze (Er hilft, indem er zuhört). Adverbien (gerne, schnell, mühelos). Nominalform: mit + Dat (mit großer Sorgfalt), durch + Akk (durch hartes Üben), ohne + Akk (ohne Mühe). Don't confuse with Modalpartikeln (next card)." },
+      { topic:"Modalpartikeln (denn, doch, ja, mal, eben, halt, wohl, schon)", desc:"Tiny words that color tone — never the focus of a sentence. denn (warmth in questions: Was machst du denn?), doch (mild push-back: Komm doch mit!), ja (shared knowledge: Du weißt ja, dass …), mal (softens an imperative: Komm mal her!), eben / halt (resignation: Das ist eben so), wohl (uncertainty: Er ist wohl krank), schon (reassurance: Das wird schon klappen). The hardest thing for textbooks to teach, the most natural-sounding when you nail them.", dataKey:"modalpartikeln" },
+      { topic:"Konzessivangaben",                               desc:"'Although / despite / nevertheless.' Konjunktionen: obwohl, obgleich, obschon, wenngleich (Nebensatz). Adverbien: trotzdem, dennoch, gleichwohl, nichtsdestotrotz (Hauptsatz). Präpositionen: trotz + Gen, ungeachtet + Gen. Practice converting: Obwohl es regnet → Trotz des Regens." },
+      { topic:"Erweiterte Partizipien (Erweitertes Attribut)",  desc:"A compressed relative clause — participle plus its modifiers, all squeezed between article and noun: das von dem Autor geschriebene Buch (= das Buch, das von dem Autor geschrieben wurde), der seit Jahren in Berlin lebende Künstler. Very dense — typical of academic and journalistic German." },
+      { topic:"Die Funktionen von werden",                      desc:"Four distinct roles. (1) Vollverb (to become): Er wird Lehrer. (2) Hilfsverb für Futur I/II: Er wird kommen / wird gekommen sein. (3) Hilfsverb für Vorgangspassiv: Es wird gemacht. (4) Marker of subjective probability: Er wird wohl zuhause sein. Distinguishing the four is a B2 milestone." }
+    ],
+    C1: [
+      { topic:"Vergangenheitsformen der Verben (Wiederholung)", desc:"C1 polish on tense choice: Perfekt vs. Präteritum (oral vs. literary register), Plusquamperfekt in narrative chains, the rare historisches Präsens for dramatic effect, Konjunktiv II der Vergangenheit when retelling counterfactuals. Verbs that resist Präteritum in speech, verbs that resist Perfekt in writing." },
+      { topic:"Lokale und temporale Präpositionen (Wiederholung)", desc:"Full review with edge cases. Lokal: bei vs. zu (Ich bin beim Arzt vs. Ich gehe zum Arzt), in vs. auf (in der Stadt vs. auf dem Land), Wechselpräpositionen with abstract / idiomatic meanings (in Frage kommen, auf Vorschlag von). Temporal: subtle distinctions between vor / nach / seit / ab / bis." },
+      { topic:"Adverbiale Neben- und Infinitivsätze (Wiederholung)", desc:"All adverbial clauses (kausal, konsekutiv, final, konditional, konzessiv, modal, temporal) reviewed in one frame with their nominal-form equivalents. Infinitivsätze (um / ohne / (an)statt … zu) and what to do when the subjects differ (dass / ohne dass / anstatt dass)." },
+      { topic:"Positive und Negative Gefühle",                  desc:"Vocabulary + grammar for expressing feelings precisely. Verbs: sich freuen, sich ärgern, sich grämen, schwärmen, sich begeistern, sich aufregen, bedauern. Adjectives: erfreut, entrüstet, frustriert, beglückt, niedergeschlagen. Common Präpositionalkasus and nominal alternatives (zur Freude, zu meinem Bedauern)." },
+      { topic:"Adjektive mit präpositionalem Kasus (C1)",       desc:"Advanced adjective + preposition collocations beyond the B2 set. abhängig von+Dat, stolz auf+Akk, einverstanden mit+Dat, fähig zu+Dat, bewusst (+Gen, formal), eifersüchtig auf+Akk, gespannt auf+Akk, dankbar für+Akk. Some take Genitiv in formal register (eingedenk + Gen, fähig + Gen, gewahr + Gen).", dataKey:"adj_prep" },
+      { topic:"Zweiteilige Verbindungen (additiv / alternativ / konzessiv-adversativ)", desc:"Pair connectors with C1-level semantic precision. Additiv (Aufzählung): nicht nur … sondern auch, sowohl … als auch, sowie. Alternativ (Ersatz): entweder … oder, weder … noch. Konzessiv-adversativ (Einschränkung / Gegensatz): zwar … aber, einerseits … andererseits, einesteils … andererseits." },
+      { topic:"Satzverbindungen: Hauptsätze (Wiederholung)",    desc:"Recap of coordinating connectors (und, aber, oder, denn, sondern) plus the adverbial connectors that don't change main-clause word order (deshalb, trotzdem, dennoch, außerdem, allerdings). Asyndetic linking (no conjunction at all) for tight C1-style prose: short sentences, sharp punctuation." },
+      { topic:"Modalverben: Weitergabe von Informationen mit wollen / sollen", desc:"The reportive / hearsay use. sollen: it is said / they say (Er soll reich sein). wollen: the subject claims (Er will reich sein — but maybe not). Across all tenses, including Vergangenheit (Er soll geflohen sein / Er will alles gewusst haben). Compare with Konjunktiv I and with subjektiver Gebrauch der Modalverben." },
+      { topic:"Konjunktiv II: Reine Formen (käme, ginge, bräuchte …)", desc:"At C1 the goal is breaking the würde-crutch. German has a full Konjunktiv II for nearly every strong verb, built from the Präteritum stem + Umlaut + -e endings. Common forms to internalize: kommen → käme, gehen → ginge, finden → fände, geben → gäbe, nehmen → nähme, lesen → läse, sehen → sähe, bleiben → bliebe, wissen → wüsste, bieten → böte, fliegen → flöge, lassen → ließe, treffen → träfe, brauchen → bräuchte. Pattern: a→ä, o→ö, u→ü. Where würde + Inf is grammatical but flat, the pure form lifts your register one step — polite hedging, hypotheticals, indirekte Rede when the K-I form coincides with the Indikativ." },
+      { topic:"Präpositionen mit dem Genitiv (C1)",             desc:"Comprehensive C1 set: wegen, trotz, während, (an)statt, dank, hinsichtlich, bezüglich, mittels, kraft, infolge, anlässlich, zugunsten, zuungunsten, jenseits, diesseits, außerhalb, innerhalb, oberhalb, unterhalb, längs, abseits, anstelle. Mostly formal; some shift to Dativ in modern speech (laut, dank)." },
+      { topic:"Vermutungen ausdrücken",                         desc:"Many ways to grade probability. Modalverben (subjektiv): muss (strong), dürfte (likely), könnte (possible), mag. Adverbien: vermutlich, wahrscheinlich, möglicherweise, vielleicht, wohl, anscheinend, offensichtlich, augenscheinlich. Konstruktionen: Es ist gut möglich, dass … / Ich vermute, dass … Comparing strength of certainty is itself a C1 skill." },
+      { topic:"Relativsätze (C1 Vertiefung)",                   desc:"Full review plus the harder cases: was / wo as relative pronouns referring to whole clauses or to alles / etwas / nichts; weshalb / weswegen / wofür / wovon as relative adverbs; Präposition + dessen / deren (mit dem Mann … vs. mit dessen Hilfe …); compressing relative clauses into pre-modifiers (see Partizipialattribute)." },
+      { topic:"Partizipialattribute",                           desc:"Erweiterte Partizipien at full depth. Partizip I (-end, active, simultaneous): der seit Tagen anhaltende Regen. Partizip II (passive or completed): das von dem Autor letzte Woche geschriebene Buch. zu + Partizip I (Gerundivum, necessity / possibility): die zu lesenden Bücher. Squeeze long modifications between article and noun." },
+      { topic:"Deklination der Adjektive (C1 Feinheiten)",      desc:"Recap of all three patterns plus the edge cases C1 should master: endings after indefinite quantifiers (manche, einige, mehrere, andere, viele, wenige — each behaves slightly differently), after numerals, after personal pronouns (wir Studenten, wir armen Studenten), substantivized adjectives mid-sentence." },
+      { topic:"Besondere Attribute",                            desc:"Non-standard noun modifications. Genitivattribut (das Auto meines Vaters), Präpositionalattribut (das Buch von Goethe / über Goethe), Apposition (Herr Müller, mein Nachbar, …), erweiterte Attribute, embedded relative clauses. How each changes register and emphasis." },
+      { topic:"Adjektive mit Umlaut im Komparativ und Superlativ", desc:"Adjectives that umlaut their stem: alt → älter → am ältesten. Same for arm, dumm, grob, jung, kalt, klug, krank, kurz, lang, scharf, schwach, schwarz, stark, warm, hart. Plus the highly irregular bunch: gut → besser → am besten, viel → mehr → am meisten, gern → lieber → am liebsten, hoch → höher → am höchsten, nah → näher → am nächsten." },
+      { topic:"Adversativangaben",                              desc:"Contrast adverbials, distinct from Konzessivangaben. Konjunktionen: aber, doch, sondern, allein. Adverbien: dagegen, hingegen, jedoch, im Gegensatz dazu, demgegenüber, vielmehr. Präpositionen: im Vergleich zu+Dat, im Unterschied zu+Dat. Often paired (zwar … aber, einerseits … andererseits)." },
+      { topic:"Nomen-Verb-Verbindungen (C1 Vertiefung)",        desc:"Deep dive on Funktionsverbgefüge by semantic group. NVV der Veränderung (zur Sprache kommen, ins Gespräch kommen). Der Verursachung (zum Ausdruck bringen, in Bewegung setzen). Des Vergleichs (in Beziehung setzen, in Frage stellen). Recognize when the NVV reads more idiomatic / formal than its single-verb equivalent.", dataKey:"nvv" },
+      { topic:"Partizipien und Adjektive als Nomen",            desc:"Substantivized participles and adjectives at full C1 depth: der/die Reisende, der/die Vorsitzende, der/die Angestellte, das Gute, das Schöne, der/die Verletzte, das Folgende, das Geschriebene. Adjective endings still apply (eine Bekannte vs. die Bekannte). Frequent in administrative, legal, and journalistic German." },
+      { topic:"Konjunktiv I (Indirekte Rede C1)",               desc:"Konjunktiv I across all tenses (sei, habe gemacht, werde gehen). When Indikativ and Konjunktiv I coincide → switch to Konjunktiv II (sie hätten instead of sie haben). Einleitungen: laut, zufolge, nach Angaben von, wie X mitteilt. Common in journalism and academic citation." },
+      { topic:"Imperativ (Wiederholung)",                       desc:"All four imperative forms recapped (du, ihr, Sie, wir) plus polite / softened variants (Konjunktiv II in commands: Könntest du …?), the impersonal Infinitiv-as-command (Bitte nicht rauchen!), and the elided Sie-forms common in signage (Bitte einsteigen!)." },
+      { topic:"Nominalisierung",                                desc:"Verb → Nomen and Adjektiv → Nomen for formal / written German. -ung (Entscheidung), -heit / -keit (Genauigkeit), -nis (Erkenntnis), -ion (Diskussion). Effect on register: a sentence loaded with Nominalisierungen reads academic. Converting a relative-clause + verb construction into a Nominalphrase is a core C1 written-language skill." },
+      { topic:"Passiv und Passiversatzformen (C1)",             desc:"All passive grammar revisited with the Ersatzformen at C1 depth. sich lassen + Inf (Das lässt sich machen). sein + zu + Inf (Das ist zu erledigen). -bar adjective (machbar, unverzichtbar). bekommen / kriegen-Passiv (Er hat ein Buch geschenkt bekommen — dative shift). When to choose each, and how each shifts register.", dataKey:"passive" },
+      { topic:"Besondere Nomen",                                desc:"Unusual noun classes. -ens-Nouns (das Herz: des Herzens, dem Herzen). Feminine -in for professions (die Ärztin, die Studentin). Nouns with two genders / meanings (der/das See — lake / sea; der/das Band — bond / volume). Pluraletantum (die Eltern, die Leute), Singularetantum (das Obst, der Verkehr), and irregular plurals." },
+      { topic:"Dual-Präfixe (durch- / über- / um- / unter-)",   desc:"By C1 the trennbar / untrennbar distinction is automatic — except for these four prefixes, which can be either, with different meanings AND different stress. ÚMfahren (sep., 'run over') vs. umFÁHren (insep., 'drive around'). ÚBERsetzen (sep., 'ferry across') vs. überSÉTzen (insep., 'translate'). DÚRCHsprechen (sep., 'talk through') vs. durchQUÉren (insep., 'traverse / cross'). ÚNTERgehen (sep., 'sink / set') vs. unterHÁLten (insep., 'entertain / maintain'). Reliable tell: prefix-stress = separable; root-stress = inseparable. Same goes for Partizip II — gone with the inseparable, kept with the separable. Less common dual prefixes worth knowing: hinter-, wider-, voll-." }
+    ]
+  };
+
+  /* ============================================================
+     Roadmap milestones (cumulative goals per level)
+     ============================================================ */
+  const ROADMAP = {
+    A1: { vocab:600,  verbs:100, grammar:22, hours:80,  desc:"Survival German: introductions, daily routine, simple needs." },
+    A2: { vocab:1200, verbs:100, grammar:19, hours:160, desc:"Everyday topics: family, work, travel, past events." },
+    B1: { vocab:2400, verbs:100, grammar:20, hours:300, desc:"Independent user: opinions, plans, narratives." },
+    B2: { vocab:4000, verbs:100, grammar:25, hours:500, desc:"Fluent on abstract topics, clear arguments, nuanced discussion." },
+    C1: { vocab:6000, verbs:100, grammar:25, hours:800, desc:"Effective for academic / professional / nuanced use." }
+  };
+
+  /* ============================================================
+     Reading + listening passages (short, level-graded)
+     ============================================================ */
+  const PASSAGES = {
+    A1: [
+      { title:"Mein Tag", text:"Ich stehe um sieben Uhr auf. Ich trinke Kaffee und esse ein Brötchen. Dann gehe ich zur Arbeit. Am Abend lese ich ein Buch und schlafe um elf.", q:"Wann steht die Person auf?" }
+    ],
+    A2: [
+      { title:"Im Restaurant", text:"Gestern war ich mit meinem Freund in einem italienischen Restaurant. Wir haben Pizza und Salat gegessen. Das Essen war sehr lecker, aber der Kellner war ein bisschen unfreundlich.", q:"Wie war der Kellner?" }
+    ],
+    B1: [
+      { title:"Umzug nach Berlin", text:"Vor zwei Jahren bin ich nach Berlin gezogen. Am Anfang war es nicht einfach, weil ich niemanden kannte. Heute habe ich viele Freunde und ich kann mir nicht vorstellen, woanders zu leben.", q:"Warum war der Anfang schwer?" }
+    ],
+    B2: [
+      { title:"Künstliche Intelligenz", text:"Künstliche Intelligenz verändert viele Bereiche unseres Lebens. Während die einen darin enorme Chancen sehen, befürchten andere, dass dadurch zahlreiche Arbeitsplätze verloren gehen könnten.", q:"Was befürchten Kritiker?" }
+    ],
+    C1: [
+      { title:"Sprachwandel", text:"Der ständige Wandel der Sprache lässt sich kaum aufhalten, denn Sprache spiegelt gesellschaftliche Entwicklungen wider. Was einst als Fehler galt, kann nach einigen Jahrzehnten zur akzeptierten Norm werden.", q:"Wovon wird Sprache geprägt?" }
+    ]
+  };
+
+  const WRITING_PROMPTS = {
+    A1: "Beschreibe deinen Morgen in 3–5 Sätzen.",
+    A2: "Was hast du am Wochenende gemacht? (5–7 Sätze)",
+    B1: "Erzähle von einer Reise, die dir wichtig war (8–10 Sätze).",
+    B2: "Diskutiere Vor- und Nachteile des Homeoffice (10–12 Sätze).",
+    C1: "Argumentiere für oder gegen ein Tempolimit auf deutschen Autobahnen (12–15 Sätze)."
+  };
+
+  const SPEAKING_PROMPTS = {
+    A1: "Stell dich vor: Name, Alter, woher du kommst.",
+    A2: "Erzähle, was du gestern gemacht hast.",
+    B1: "Beschreibe deinen Traumurlaub und begründe deine Wahl.",
+    B2: "Sprich zwei Minuten über die Rolle der sozialen Medien.",
+    C1: "Halte einen kurzen Vortrag zu einem aktuellen politischen Thema."
+  };
+
+  const LEVELS = ["A1","A2","B1","B2","C1"];
+
+  /* ============================================================
+     Storage helpers
+     ============================================================ */
+  const STORE_KEY = "langey_replica_v1";
+  const loadState = () => {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+    catch { return {}; }
+  };
+  const saveState = (s) => localStorage.setItem(STORE_KEY, JSON.stringify(s));
+
+  const initialState = () => {
+    const stored = loadState();
+    return {
+      level: stored.level || "B1",
+      backendUrl: stored.backendUrl || "http://localhost:8000",
+      provider: stored.provider || "gemini",
+      contextDomain: stored.contextDomain != null ? stored.contextDomain : CONTEXT_PRESETS.manufacturing,
+      apiKey: stored.apiKey || "",                // direct-API fallback only
+      verbsKnown: stored.verbsKnown || {},        // {sein: {seen, correct}}
+      grammarSeen: stored.grammarSeen || {},      // {"A2-Dative case": true}
+      srs: stored.srs || {},                      // {"<level>::<topic>": {ease, interval, repetitions, due, lastReviewed, successCount, failCount}}
+      verbMatrixSrs: stored.verbMatrixSrs || {},  // keyed by infinitive, same SM-2 shape — for the Verb Matrix drill
+      practice: stored.practice || { speaking:0, writing:0, reading:0, listening:0 },
+      streak: stored.streak || { current:0, longest:0, lastDate:null },
+      sessions: stored.sessions || 0,
+      tutorPersona: stored.tutorPersona || "default"
+    };
+  };
+
+  /* ============================================================
+     Spaced Repetition (SM-2) helpers
+     ============================================================ */
+  const DAY_MS = 86400000;
+  const srsKey   = (level, topic) => `${level}::${topic}`;
+  const splitKey = (k) => {
+    const i = k.indexOf("::");
+    return i < 0 ? { level: "?", topic: k } : { level: k.slice(0, i), topic: k.slice(i + 2) };
+  };
+
+  // quality: 1 = Wieder (failed), 3 = Schwer (hard pass), 5 = Gut (clean)
+  function srsUpdate(prev, quality) {
+    const now = Date.now();
+    const p = prev || { ease: 2.5, interval: 0, repetitions: 0, successCount: 0, failCount: 0 };
+    let { ease, interval, repetitions } = p;
+    if (quality < 3) {
+      repetitions = 0;
+      interval = 1;
+    } else {
+      repetitions = (repetitions || 0) + 1;
+      if (repetitions === 1) interval = 1;
+      else if (repetitions === 2) interval = 6;
+      else interval = Math.max(1, Math.round((interval || 1) * ease));
+    }
+    ease = Math.max(1.3, ease + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
+    return {
+      ease,
+      interval,
+      repetitions,
+      lastReviewed: now,
+      due: now + interval * DAY_MS,
+      successCount: (p.successCount || 0) + (quality >= 3 ? 1 : 0),
+      failCount:    (p.failCount    || 0) + (quality <  3 ? 1 : 0),
+    };
+  }
+
+  function dueIn(srs) { return srs && srs.due ? srs.due - Date.now() : null; }
+  function dueLabel(ms) {
+    if (ms == null) return null;
+    const days = ms / DAY_MS;
+    if (days <= 0) {
+      const overdue = -days;
+      if (overdue < 1) return "Fällig — heute";
+      if (overdue < 2) return "1 Tag überfällig";
+      return `${Math.floor(overdue)} Tage überfällig`;
+    }
+    if (days < 1) return "Heute fällig";
+    if (days < 2) return "Morgen fällig";
+    if (days < 7) return `In ${Math.ceil(days)} Tagen`;
+    if (days < 30) return `In ${Math.ceil(days/7)} Wochen`;
+    return `In ${Math.ceil(days/30)} Monaten`;
+  }
+
+  /* ============================================================
+     Prompts seeded by the "Mit KI lernen" / "Quiz starten" buttons.
+     They include the user's professional context for example sentences
+     (editable in Settings → Context Domain) and ground the AI in their
+     PDF library via the rag_query parameter.
+     ============================================================ */
+  const CONTEXT_PRESETS = {
+    manufacturing: [
+      "Use professional vocabulary in example sentences — pick whichever fits each grammar point most naturally, and rotate across the response:",
+      "  • Data science: algorithms, machine learning, neural networks, feature engineering, model training",
+      "  • Supply-chain optimization: inventory, lead time, throughput, bottleneck, logistics, demand forecasting",
+      "  • Manufacturing — injection molding (Spritzgießen): Werkzeug, Zykluszeit, Kunststoffgranulat, Wartung, Ausschuss"
+    ].join("\n"),
+
+    academic: [
+      "Use vocabulary from academic / thesis-writing contexts in example sentences — pick whichever fits each grammar point most naturally:",
+      "  • Research methodology: Hypothese, Stichprobe, Untersuchung, Befund, Variable, Kontrollgruppe",
+      "  • Argumentation: These, Begründung, Gegenargument, Erörterung, Schlussfolgerung",
+      "  • Academic writing: Quellenangabe, Zitat, Paraphrase, Literaturverzeichnis, Diskussion"
+    ].join("\n"),
+
+    software: [
+      "Use vocabulary from software development contexts in example sentences — pick whichever fits each grammar point most naturally:",
+      "  • Programming: Funktion, Variable, Schleife, Datenstruktur, Algorithmus, Fehler, Bibliothek",
+      "  • Engineering practice: Code-Review, Testabdeckung, Refaktorisierung, Versionskontrolle, Dokumentation",
+      "  • System design: Architektur, Skalierbarkeit, Latenz, Datenbankzugriff, Sicherheit, Bereitstellung"
+    ].join("\n"),
+
+    none: ""
+  };
+
+  const CONTEXT_PRESET_LABELS = {
+    manufacturing: "Manufacturing / DS / Supply-chain",
+    academic: "Academic thesis writing",
+    software: "Software development",
+    none: "No domain context"
+  };
+
+  function detectPreset(text) {
+    for (const k of Object.keys(CONTEXT_PRESETS)) {
+      if ((CONTEXT_PRESETS[k] || "") === (text || "")) return k;
+    }
+    return "custom";
+  }
+
+  function buildLearnPrompt(level, topic, contextBlock) {
+    const parts = [
+      `Teach me the German grammar topic "${topic}" at ${level} level.`,
+      "",
+      "What I need:",
+      "1. A clear English explanation of the structural mechanics (no German prose explaining grammar).",
+      "2. 3 example sentences in German, each followed by its English translation on the same line (em-dash separator).",
+      "3. 2 common mistakes English speakers make on this topic.",
+      "4. End with one short produce-it task: ask me to write one sentence using this structure."
+    ];
+    if (contextBlock && contextBlock.trim()) {
+      parts.push("", contextBlock);
+    }
+    parts.push("", "Ground your explanation in the retrieved grammar excerpts from my PDF library when relevant; cite source + page.");
+    return parts.join("\n");
+  }
+
+  function buildQuizPrompt(level, topic, contextBlock) {
+    const parts = [
+      `Quiz me on the German grammar topic "${topic}" at ${level} level.`,
+      "",
+      "QUIZ FORMAT:",
+      "1. Ask 5 questions, one at a time. Wait for my answer before sending the next question.",
+      "2. Test the STRUCTURAL MECHANICS of this topic — endings, word order, case selection, form pairs — not just vocabulary.",
+      "3. After each of my answers: corrected German sentence in bold WITH its English translation, then one English sentence explaining what rule was tested.",
+      "4. After question 5, give a one-paragraph summary in English of what I should review."
+    ];
+    if (contextBlock && contextBlock.trim()) {
+      parts.push("", "QUESTION SOURCING:", contextBlock);
+    }
+    parts.push(
+      "",
+      "Ground your questions in the German grammar excerpts retrieved from my PDF library. If retrieval is empty or off-topic, say so in one short line and proceed from your own knowledge.",
+      "",
+      "Start with question 1."
+    );
+    return parts.join("\n");
+  }
+
+  function todayStr() { return new Date().toISOString().slice(0,10); }
+
+  function bumpStreak(state) {
+    const today = todayStr();
+    const last = state.streak.lastDate;
+    if (last === today) return state;
+    let current = 1;
+    if (last) {
+      const d = new Date(today) - new Date(last);
+      if (d <= 1000*60*60*24*1.5) current = state.streak.current + 1;
+    }
+    return { ...state, streak: { current, longest: Math.max(current, state.streak.longest), lastDate: today } };
+  }
+
+  /* ============================================================
+     Tiny utility components
+     ============================================================ */
+  const Icon = {
+    Roadmap:  ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l-6 3V5l6-3 6 3 6-3v16l-6 3z"/><path d="M9 2v16M15 5v16"/></svg>,
+    Book:     ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+    Mic:      ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M19 10a7 7 0 0 1-14 0M12 19v3"/></svg>,
+    Stats:    ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>,
+    Chat:     ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>,
+    Cog:      ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 4.6h0A1.7 1.7 0 0 0 10 3.1V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>,
+    Volume:   ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>,
+    Send:     ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+    X:        ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+    Sparkle:  ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/><path d="M5 17l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2zM19 17l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z"/></svg>,
+    Check:    ({className=""}) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  };
+
+  function Pill({ active, children, onClick, className="" }) {
+    return (
+      <button onClick={onClick}
+        className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${active ? "bg-indigo-600 text-white shadow-sm" : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"} ${className}`}>
+        {children}
+      </button>
+    );
+  }
+
+  function Card({ children, className="" }) {
+    return <div className={`bg-white rounded-2xl border border-slate-200 shadow-sm ${className}`}>{children}</div>;
+  }
+
+  function Progress({ value, max=100, color="bg-indigo-500" }) {
+    const pct = Math.min(100, (value / max) * 100);
+    return (
+      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+        <div className={`h-full ${color} transition-all`} style={{ width: `${pct}%` }} />
+      </div>
+    );
+  }
+
+  /* ============================================================
+     Roadmap view
+     ============================================================ */
+  function RoadmapView({ state, setView }) {
+    const target = ROADMAP[state.level];
+    const verbsKnownAtLevel = VERBS.filter(v => v.lvl <= state.level && state.verbsKnown[v.v]?.correct >= 1).length;
+    const grammarSeen = (GRAMMAR[state.level] || []).filter(g => state.grammarSeen[`${state.level}-${g.topic}`]).length;
+
+    return (
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto fade-in">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Your Roadmap — {state.level}</h1>
+        <p className="text-slate-600 mb-6">{target.desc}</p>
+
+        <div className="grid sm:grid-cols-2 gap-4 mb-6">
+          <Card className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold">Verbs at this level</h3>
+              <span className="text-sm text-slate-500">{verbsKnownAtLevel} / {target.verbs}</span>
+            </div>
+            <Progress value={verbsKnownAtLevel} max={target.verbs} color="bg-emerald-500" />
+            <button onClick={() => setView({ section:"lern", tab:"vocab" })} className="mt-4 text-sm font-medium text-indigo-600 hover:text-indigo-700">Practice verbs →</button>
+          </Card>
+
+          <Card className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold">Grammar topics</h3>
+              <span className="text-sm text-slate-500">{grammarSeen} / {(GRAMMAR[state.level]||[]).length}</span>
+            </div>
+            <Progress value={grammarSeen} max={(GRAMMAR[state.level]||[]).length || 1} color="bg-fuchsia-500" />
+            <button onClick={() => setView({ section:"lern", tab:"grammar" })} className="mt-4 text-sm font-medium text-indigo-600 hover:text-indigo-700">Browse grammar →</button>
+          </Card>
+        </div>
+
+        <h2 className="text-lg font-semibold mb-3">Path to fluency</h2>
+        <div className="space-y-3">
+          {LEVELS.map((lvl, i) => {
+            const isCurrent = lvl === state.level;
+            const isPast = LEVELS.indexOf(state.level) > i;
+            return (
+              <div key={lvl} className={`flex items-start gap-4 p-4 rounded-xl border ${isCurrent ? "border-indigo-500 bg-indigo-50" : "border-slate-200 bg-white"}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shrink-0 ${isPast ? "bg-emerald-500" : isCurrent ? "bg-indigo-600" : "bg-slate-300"}`}>{lvl}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium">{lvl} — {ROADMAP[lvl].desc}</div>
+                  <div className="text-sm text-slate-500 mt-0.5">{ROADMAP[lvl].vocab} words · {ROADMAP[lvl].verbs} verbs · ~{ROADMAP[lvl].hours}h study</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  /* ============================================================
+     Lern view — Vocabulary + Grammar tabs
+     ============================================================ */
+  function LernView({ state, setState, view, setView, openTutor }) {
+    const tab = view.tab || "vocab";
+    return (
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto fade-in">
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <Pill active={tab==="vocab"}   onClick={()=>setView({...view, tab:"vocab"})}>Vocabulary</Pill>
+          <Pill active={tab==="matrix"}  onClick={()=>setView({...view, tab:"matrix"})}>Verb Matrix</Pill>
+          <Pill active={tab==="grammar"} onClick={()=>setView({...view, tab:"grammar"})}>Grammar</Pill>
+        </div>
+        {tab==="vocab"   && <VocabDrill state={state} setState={setState} />}
+        {tab==="matrix"  && <MatrixDrill state={state} setState={setState} />}
+        {tab==="grammar" && <GrammarList state={state} setState={setState} openTutor={openTutor} />}
+      </div>
+    );
+  }
+
+  function VocabDrill({ state, setState }) {
+    // Cards: verbs at or below current level, prioritising unseen
+    const deck = useMemo(() => {
+      const order = ["A1","A2","B1","B2","C1"];
+      const cap = order.indexOf(state.level);
+      const filtered = VERBS.filter(v => order.indexOf(v.lvl) <= cap);
+      return filtered.sort((a,b) => {
+        const sa = state.verbsKnown[a.v]?.correct || 0;
+        const sb = state.verbsKnown[b.v]?.correct || 0;
+        return sa - sb;
+      });
+    }, [state.level, state.verbsKnown]);
+
+    const [idx, setIdx] = useState(0);
+    const [flipped, setFlipped] = useState(false);
+    const card = deck[idx % deck.length];
+    if (!card) return <div className="text-slate-500">No verbs at this level yet.</div>;
+
+    function mark(known) {
+      const cur = state.verbsKnown[card.v] || { seen:0, correct:0 };
+      const updated = { ...state.verbsKnown, [card.v]: { seen: cur.seen+1, correct: cur.correct + (known?1:0) } };
+      setState(bumpStreak({ ...state, verbsKnown: updated }));
+      setFlipped(false);
+      setIdx(i => i+1);
+    }
+
+    function speak(text) {
+      if (!("speechSynthesis" in window)) return;
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "de-DE"; u.rate = 0.9;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    }
+
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-3 text-sm text-slate-500">
+          <span>Card {idx+1} of {deck.length}</span>
+          <span>{card.lvl} verb</span>
+        </div>
+        <div className="[perspective:1200px] mb-4">
+          <div className={`card-flip relative bg-white rounded-3xl border border-slate-200 shadow-sm min-h-[260px] cursor-pointer ${flipped ? "flipped" : ""}`} onClick={() => setFlipped(f => !f)}>
+            <div className="card-face absolute inset-0 p-6 flex flex-col items-center justify-center">
+              <div className="text-xs font-medium text-indigo-600 uppercase tracking-wide mb-2">{card.lvl}</div>
+              <div className="text-4xl sm:text-5xl font-bold mb-2">{card.v}</div>
+              <button onClick={(e)=>{e.stopPropagation(); speak(card.v);}} className="text-slate-400 hover:text-indigo-600 mt-2"><Icon.Volume className="w-6 h-6" /></button>
+              <div className="text-xs text-slate-400 mt-6">Tap card to flip</div>
+            </div>
+            <div className="card-face card-back absolute inset-0 p-6 overflow-auto scrollbar-thin">
+              <div className="text-sm text-slate-500 mb-1">{card.en}</div>
+              <div className="text-xl font-semibold mb-3">{card.v}</div>
+              <div className="space-y-2 text-sm">
+                <div><span className="font-medium text-slate-500">Present:</span> {card.present}</div>
+                <div><span className="font-medium text-slate-500">Präteritum:</span> {card.prät}</div>
+                <div><span className="font-medium text-slate-500">Perfekt:</span> {card.perf}</div>
+                <div className="pt-2 italic text-slate-700">"{card.ex}"</div>
+              </div>
+              <button onClick={(e)=>{e.stopPropagation(); speak(card.ex);}} className="text-slate-400 hover:text-indigo-600 mt-3"><Icon.Volume className="w-5 h-5" /></button>
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={()=>mark(false)} className="flex-1 py-3 rounded-xl bg-rose-50 text-rose-700 font-medium hover:bg-rose-100 border border-rose-200">Didn't know</button>
+          <button onClick={()=>mark(true)}  className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-600">I knew it</button>
+        </div>
+        <p className="mt-4 text-xs text-slate-400 text-center">Progress is saved locally on this device.</p>
+      </div>
+    );
+  }
+
+  function SRSRatingButtons({ srs, onRate }) {
+    const lastResult = srs && srs.lastReviewed
+      ? (srs.failCount && (!srs.successCount || srs.lastReviewed)) // we don't store last quality directly; show streak instead
+      : null;
+    return (
+      <div className="flex items-center gap-1 ml-auto">
+        {srs && srs.lastReviewed && (
+          <span className="text-[10px] text-slate-400 mr-1">
+            {srs.successCount}✓ · {srs.failCount}✗
+          </span>
+        )}
+        <button onClick={() => onRate(1)} title="Wieder — ich konnte es nicht"
+          className="text-xs px-2 py-1 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200">Wieder</button>
+        <button onClick={() => onRate(3)} title="Schwer — geschafft, aber mit Mühe"
+          className="text-xs px-2 py-1 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200">Schwer</button>
+        <button onClick={() => onRate(5)} title="Gut — saß"
+          className="text-xs px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200">Gut</button>
+      </div>
+    );
+  }
+
+  /* ============================================================
+     Verb Matrix — rapid-fire principal-parts + rektion drill
+     ============================================================ */
+  const VERB_MATRIX_SEED = [
+    { en:"to become",            inf:"werden",              prät:"wurde",            perf:"geworden",   aux:"sein",  rektion:"-",                 note:"No fixed preposition. Common patterns: Er wird Lehrer (Nominativ) or Er wurde zum Vater (zu + Dativ)." },
+    { en:"to know (a fact)",     inf:"wissen",              prät:"wusste",           perf:"gewusst",    aux:"haben", rektion:"von + Dativ",       rektionAlt:["über + Akk"], note:"Mixed verb: irregular stem (wuss-), weak -te ending. über + Akk also works for detailed knowledge about a topic." },
+    { en:"to remember",          inf:"sich erinnern",       prät:"erinnerte sich",   perf:"erinnert",   aux:"haben", rektion:"an + Akkusativ",    note:"Reflexive; sich is accusative. Wo? = Dat; here it's an + Akk because you direct your memory toward the event." },
+    { en:"to think (of/about)",  inf:"denken",              prät:"dachte",           perf:"gedacht",    aux:"haben", rektion:"an + Akkusativ",    note:"Mixed verb. Stem-change a→u, but -te ending. an + Akk because you direct your thought toward something." },
+    { en:"to wait (for)",        inf:"warten",              prät:"wartete",          perf:"gewartet",   aux:"haben", rektion:"auf + Akkusativ",   note:"Direction (Akk), never location. You direct your waiting toward something coming." },
+    { en:"to consist of",        inf:"bestehen",            prät:"bestand",          perf:"bestanden",  aux:"haben", rektion:"aus + Dativ",       rektionAlt:["auf + Dat","in + Dat"], note:"Three meanings: aus + Dat = consist of; auf + Dat = insist on; in + Dat = consist in (more formal). Same principal parts, different prepositions = different verb." },
+    { en:"to look forward to",   inf:"sich freuen",         prät:"freute sich",      perf:"gefreut",    aux:"haben", rektion:"auf + Akkusativ",   rektionAlt:["über + Akk"], note:"auf + Akk = anticipation (future); über + Akk = joy about something happening or completed. The distinction is a B1 classic." },
+    { en:"to get used to",       inf:"sich gewöhnen",       prät:"gewöhnte sich",    perf:"gewöhnt",    aux:"haben", rektion:"an + Akkusativ",    note:"Directional an — you move yourself into the habit." },
+    { en:"to take care of",      inf:"sich kümmern",        prät:"kümmerte sich",    perf:"gekümmert",  aux:"haben", rektion:"um + Akkusativ",    note:"um — surrounding, taking responsibility around something." },
+    { en:"to be interested in",  inf:"sich interessieren",  prät:"interessierte sich", perf:"interessiert", aux:"haben", rektion:"für + Akkusativ", note:"für + Akk — directional, what you turn your interest toward." }
+  ];
+
+  // ----- normalization for forgiving input matching -----
+  function _norm(s) { return (s || "").toLowerCase().trim().replace(/\s+/g, " "); }
+  function _stripReflexive(s) {
+    return _norm(s).replace(/\s*\bsich\b\s*/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function _normRektion(s) {
+    if (!s) return "";
+    return s.toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/\+/g, "")
+      .replace(/[.,]/g, "")
+      .replace(/akkusativ/g, "akk")
+      .replace(/dativ/g, "dat")
+      .replace(/genitiv/g, "gen")
+      .replace(/nominativ/g, "nom");
+  }
+  function _isNoRektion(s) {
+    const n = (s || "").toLowerCase().trim();
+    return n === "" || n === "-" || n === "—" || n === "none" || n === "keine" || n === "kein" || n === "–";
+  }
+
+  function checkMatrixAnswer(input, card) {
+    const out = {};
+    // Infinitive: accept with or without "sich"
+    out.inf  = _stripReflexive(input.inf) === _stripReflexive(card.inf);
+    // Präteritum & Partizip II: accept reflexive variants
+    out.prät = _stripReflexive(input.prät) === _stripReflexive(card.prät);
+    out.perf = _stripReflexive(input.perf) === _stripReflexive(card.perf);
+    // Aux: haben / sein / h / s
+    const aux = _norm(input.aux);
+    out.aux  = (aux === card.aux) || (aux === card.aux[0]); // "h" or "s"
+    // Rektion: forgiving — handle "-" / empty, normalize prep + case
+    if (_isNoRektion(card.rektion)) {
+      out.rektion = _isNoRektion(input.rektion);
+    } else {
+      const expected = _normRektion(card.rektion);
+      const alts = (card.rektionAlt || []).map(_normRektion);
+      const userN = _normRektion(input.rektion);
+      out.rektion = userN === expected || alts.includes(userN);
+    }
+    out.allCorrect = out.inf && out.prät && out.perf && out.aux && out.rektion;
+    return out;
+  }
+
+  // ----- deck ordering: overdue → never-seen → upcoming -----
+  function buildMatrixDeck(verbMatrixSrs) {
+    const now = Date.now();
+    return VERB_MATRIX_SEED
+      .map(v => ({ ...v, srs: verbMatrixSrs?.[v.inf] || null }))
+      .sort((a, b) => {
+        const aOverdue = a.srs && a.srs.due <= now;
+        const bOverdue = b.srs && b.srs.due <= now;
+        if (aOverdue && !bOverdue) return -1;
+        if (!aOverdue && bOverdue) return 1;
+        if (aOverdue && bOverdue) return a.srs.due - b.srs.due;
+        if (!a.srs && b.srs) return -1;
+        if (a.srs && !b.srs) return 1;
+        if (a.srs && b.srs) return a.srs.due - b.srs.due;
+        return 0;
+      });
+  }
+
+  function MatrixField({ label, value, onChange, result, expected, placeholder, autoFocus, inputRef }) {
+    const ok = result === true;
+    const bad = result === false;
+    return (
+      <div className="mb-3">
+        <label className="block text-xs font-medium text-slate-500 mb-1">{label}</label>
+        <input
+          ref={inputRef}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder || ""}
+          autoFocus={autoFocus}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
+          disabled={result !== undefined && result !== null}
+          className={`w-full px-3 py-2 rounded-xl border text-sm font-mono focus:outline-none focus:ring-2 ${
+            ok  ? "bg-emerald-50 border-emerald-300 text-emerald-800 focus:ring-emerald-200" :
+            bad ? "bg-rose-50 border-rose-300 text-rose-800 focus:ring-rose-200" :
+                  "bg-white border-slate-200 focus:border-indigo-400 focus:ring-indigo-200"
+          }`}
+        />
+        {bad && (
+          <div className="text-xs text-rose-600 mt-1 pl-1">
+            Erwartet: <span className="font-mono font-medium">{expected || "—"}</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  function MatrixDrill({ state, setState }) {
+    const deck = useMemo(() => buildMatrixDeck(state.verbMatrixSrs || {}), [state.verbMatrixSrs]);
+    const [idx, setIdx] = useState(0);
+    const [input, setInput] = useState({ inf:"", prät:"", perf:"", aux:"", rektion:"" });
+    const [result, setResult] = useState(null);
+    const firstInputRef = useRef(null);
+
+    const card = deck[idx % deck.length];
+    if (!card) return <div className="text-slate-500">No verbs available.</div>;
+
+    function reset() {
+      setInput({ inf:"", prät:"", perf:"", aux:"", rektion:"" });
+      setResult(null);
+      // refocus first field on next paint
+      setTimeout(() => firstInputRef.current && firstInputRef.current.focus(), 0);
+    }
+    function check() {
+      if (result) return;
+      setResult(checkMatrixAnswer(input, card));
+    }
+    function rate(quality) {
+      const k = card.inf;
+      const next = srsUpdate(state.verbMatrixSrs?.[k], quality);
+      setState({ ...state, verbMatrixSrs: { ...state.verbMatrixSrs, [k]: next } });
+      reset();
+      setIdx(i => i + 1);
+    }
+    function reveal() {
+      // Mark as failure-equivalent so the user can read all expected forms
+      setResult({ inf:false, prät:false, perf:false, aux:false, rektion:false, allCorrect:false, revealed:true });
+      setInput({
+        inf: card.inf,
+        prät: card.prät,
+        perf: card.perf,
+        aux: card.aux,
+        rektion: card.rektion
+      });
+    }
+
+    const dueLbl = card.srs ? dueLabel(dueIn(card.srs)) : null;
+
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-3 text-sm">
+          <span className="text-slate-500">Verb {idx+1} of {deck.length}</span>
+          {card.srs && (
+            <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${card.srs.due <= Date.now() ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-500"}`}>
+              {dueLbl} · {card.srs.successCount || 0}✓ {card.srs.failCount || 0}✗
+            </span>
+          )}
+        </div>
+
+        <Card className="p-5 sm:p-6">
+          <div className="text-xs font-medium text-indigo-600 uppercase tracking-wide mb-1">English meaning</div>
+          <div className="text-2xl sm:text-3xl font-bold mb-5">{card.en}</div>
+
+          <form onSubmit={(e) => { e.preventDefault(); check(); }}>
+            <MatrixField label="Infinitive"              inputRef={firstInputRef} autoFocus value={input.inf}     onChange={v => setInput({...input, inf:v})}     result={result?.inf}     expected={card.inf}     placeholder="z. B. sich erinnern" />
+            <MatrixField label="Präteritum"              value={input.prät}   onChange={v => setInput({...input, prät:v})}   result={result?.prät}   expected={card.prät}   placeholder="3. Person Sg." />
+            <MatrixField label="Partizip II"             value={input.perf}   onChange={v => setInput({...input, perf:v})}   result={result?.perf}   expected={card.perf}   placeholder="ohne Hilfsverb" />
+            <MatrixField label="Hilfsverb (haben/sein)"  value={input.aux}    onChange={v => setInput({...input, aux:v})}    result={result?.aux}    expected={card.aux}    placeholder="haben oder sein (auch h / s)" />
+            <MatrixField label="Rektion (Präp. + Kasus)" value={input.rektion} onChange={v => setInput({...input, rektion:v})} result={result?.rektion} expected={card.rektion} placeholder='z. B. an + Akkusativ — oder "-" wenn keine' />
+
+            {!result ? (
+              <div className="flex flex-wrap gap-2 mt-2">
+                <button type="submit" className="px-4 py-2 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700">Check (Enter)</button>
+                <button type="button" onClick={reveal} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-sm">Show answer</button>
+              </div>
+            ) : (
+              <div className="mt-2">
+                <div className={`p-3 rounded-xl mb-3 text-sm ${result.allCorrect ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-amber-50 text-amber-800 border border-amber-200"}`}>
+                  <div className="font-semibold mb-1">
+                    {result.allCorrect ? "Alles richtig." : result.revealed ? "Antwort eingeblendet." : "Teilweise richtig — überprüfe die markierten Felder."}
+                  </div>
+                  {card.note && <div className="text-xs leading-relaxed opacity-90"><span className="font-medium">Note:</span> {card.note}</div>}
+                </div>
+                <div className="text-xs text-slate-500 mb-2">Wie ist es gelaufen?</div>
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" onClick={() => rate(1)} className="px-3 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-sm font-medium">Wieder</button>
+                  <button type="button" onClick={() => rate(3)} className="px-3 py-2 rounded-xl bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 text-sm font-medium">Schwer</button>
+                  <button type="button" onClick={() => rate(5)} className="px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-sm font-medium">Gut</button>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-3">Wieder → fällig morgen. Gut → längeres Intervall (SM-2 mit Leichtigkeitsfaktor).</p>
+              </div>
+            )}
+          </form>
+        </Card>
+
+        <p className="mt-4 text-xs text-slate-400 text-center">Tab springt zwischen den Feldern. Enter = Check. „Show answer" reicht ein.</p>
+      </div>
+    );
+  }
+
+  function GrammarList({ state, setState, openTutor }) {
+    const topics = GRAMMAR[state.level] || [];
+    function toggle(topic) {
+      const key = `${state.level}-${topic}`;
+      const updated = { ...state.grammarSeen, [key]: !state.grammarSeen[key] };
+      setState({ ...state, grammarSeen: updated });
+    }
+    function rate(topic, quality) {
+      const k = srsKey(state.level, topic);
+      const next = srsUpdate(state.srs?.[k], quality);
+      setState({ ...state, srs: { ...state.srs, [k]: next } });
+    }
+    function exampleCount(dataKey) {
+      if (!dataKey || !LD[dataKey]) return 0;
+      return LD[dataKey].length;
+    }
+    function preview(dataKey) {
+      const arr = LD[dataKey];
+      if (!arr || !arr.length) return null;
+      const sample = arr.slice(0, 3);
+      if (dataKey === "nvv")             return sample.map(x => x.nvv).join(" · ");
+      if (dataKey === "modalpartikeln")  return sample.map(x => x.p).join(" · ");
+      if (dataKey === "passive")         return sample.map(x => `${x.type}: ${x.pattern}`).join(" · ");
+      if (dataKey === "adj_prep")        return sample.map(x => `${x.adj} (${x.prep})`).join(" · ");
+      if (dataKey === "verb_prep")       return sample.map(x => x.v).join(" · ");
+      if (dataKey === "reflexive")       return sample.map(x => x.v).join(" · ");
+      if (dataKey === "separable")       return sample.map(x => x.v).join(" · ");
+      return null;
+    }
+    return (
+      <div className="space-y-3">
+        {topics.map(t => {
+          const key = `${state.level}-${t.topic}`;
+          const done = !!state.grammarSeen[key];
+          const count = exampleCount(t.dataKey);
+          const sample = preview(t.dataKey);
+          const srs = state.srs?.[srsKey(state.level, t.topic)];
+          const ms = dueIn(srs);
+          const overdue = srs && ms != null && ms <= 0;
+          return (
+            <div key={t.topic} className={`p-4 rounded-xl border ${overdue ? "border-rose-300 bg-rose-50" : done ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-white"}`}>
+              <div className="flex items-start gap-4">
+                <button onClick={() => toggle(t.topic)} className={`mt-0.5 w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 ${done ? "bg-emerald-500 border-emerald-500 text-white" : "border-slate-300 bg-white"}`}>
+                  {done && <Icon.Check className="w-4 h-4" />}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <div className="font-medium">{t.topic}</div>
+                    {srs && (
+                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${overdue ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-500"}`}>
+                        {dueLabel(ms)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm text-slate-500 mt-0.5">{t.desc}</div>
+                  {count > 0 && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                        <Icon.Book className="w-3 h-3" /> {count} Beispiele aus deinem Material
+                      </span>
+                      {sample && <span className="text-xs text-slate-500 italic truncate max-w-full">{sample}</span>}
+                    </div>
+                  )}
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button onClick={() => openTutor && openTutor(buildLearnPrompt(state.level, t.topic, state.contextDomain), t.topic)}
+                      className="text-xs font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-50 border border-indigo-100">
+                      <Icon.Sparkle className="w-3 h-3" /> Mit KI lernen
+                    </button>
+                    <button onClick={() => openTutor && openTutor(buildQuizPrompt(state.level, t.topic, state.contextDomain), t.topic)}
+                      className="text-xs font-medium text-fuchsia-600 hover:text-fuchsia-700 flex items-center gap-1 px-2 py-1 rounded-lg bg-fuchsia-50 border border-fuchsia-100">
+                      <Icon.Sparkle className="w-3 h-3" /> Quiz starten
+                    </button>
+                    <SRSRatingButtons srs={srs} onRate={(q) => rate(t.topic, q)} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        {topics.length === 0 && <p className="text-slate-500">No grammar topics defined for this level yet.</p>}
+      </div>
+    );
+  }
+
+  /* ============================================================
+     Practice view — Speaking, Writing, Reading, Listening
+     ============================================================ */
+  function PracticeView({ state, setState, view, setView, openTutor }) {
+    const tab = view.tab || "speaking";
+    return (
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto fade-in">
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          {["speaking","writing","reading","listening"].map(s => (
+            <Pill key={s} active={tab===s} onClick={()=>setView({...view, tab:s})}>{s[0].toUpperCase()+s.slice(1)}</Pill>
+          ))}
+        </div>
+        {tab==="speaking"  && <SpeakingPractice  state={state} setState={setState} openTutor={openTutor} />}
+        {tab==="writing"   && <WritingPractice   state={state} setState={setState} openTutor={openTutor} />}
+        {tab==="reading"   && <ReadingPractice   state={state} setState={setState} openTutor={openTutor} />}
+        {tab==="listening" && <ListeningPractice state={state} setState={setState} openTutor={openTutor} />}
+      </div>
+    );
+  }
+
+  function SpeakingPractice({ state, setState, openTutor }) {
+    const prompt = SPEAKING_PROMPTS[state.level];
+    function complete() {
+      setState(bumpStreak({ ...state, practice:{ ...state.practice, speaking: state.practice.speaking+1 } }));
+    }
+    return (
+      <Card className="p-6">
+        <div className="text-sm font-medium text-indigo-600 mb-2">Speaking · {state.level}</div>
+        <p className="text-xl mb-6 font-medium">{prompt}</p>
+        <div className="p-4 rounded-xl bg-slate-50 mb-4 text-sm text-slate-600">
+          Record yourself answering (in your phone's voice memo or any recorder), then tell the AI tutor your answer in chat for live correction.
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <button onClick={complete} className="px-4 py-2 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-600">Mark complete</button>
+          <button onClick={()=>openTutor(`Please act as my speaking coach. The prompt was: "${prompt}". I'll send you my answer in German next.`)} className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center gap-2">
+            <Icon.Sparkle className="w-4 h-4" /> Ask AI tutor
+          </button>
+        </div>
+      </Card>
+    );
+  }
+
+  function WritingPractice({ state, setState, openTutor }) {
+    const prompt = WRITING_PROMPTS[state.level];
+    const [text, setText] = useState("");
+    function submit() {
+      if (!text.trim()) return;
+      setState(bumpStreak({ ...state, practice:{ ...state.practice, writing: state.practice.writing+1 } }));
+      openTutor(`Please correct my German writing and explain any errors. Prompt: "${prompt}"\n\nMy answer:\n${text}`);
+    }
+    return (
+      <Card className="p-6">
+        <div className="text-sm font-medium text-indigo-600 mb-2">Writing · {state.level}</div>
+        <p className="text-xl mb-4 font-medium">{prompt}</p>
+        <textarea value={text} onChange={e=>setText(e.target.value)} rows={7}
+          placeholder="Schreibe hier auf Deutsch…"
+          className="w-full p-3 rounded-xl border border-slate-200 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+        <div className="flex justify-between items-center mt-3">
+          <span className="text-xs text-slate-400">{text.split(/\s+/).filter(Boolean).length} words</span>
+          <button onClick={submit} className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center gap-2">
+            <Icon.Sparkle className="w-4 h-4" /> Get feedback
+          </button>
+        </div>
+      </Card>
+    );
+  }
+
+  function ReadingPractice({ state, setState, openTutor }) {
+    const passage = (PASSAGES[state.level] || PASSAGES.B1)[0];
+    const [answered, setAnswered] = useState(false);
+    function done() {
+      setAnswered(true);
+      setState(bumpStreak({ ...state, practice:{ ...state.practice, reading: state.practice.reading+1 } }));
+    }
+    return (
+      <Card className="p-6">
+        <div className="text-sm font-medium text-indigo-600 mb-2">Reading · {state.level}</div>
+        <h3 className="text-xl font-semibold mb-3">{passage.title}</h3>
+        <p className="text-slate-700 leading-relaxed mb-5 whitespace-pre-line">{passage.text}</p>
+        <div className="p-4 rounded-xl bg-slate-50 mb-4">
+          <div className="text-xs font-medium text-slate-500 mb-1">Question</div>
+          <div className="font-medium">{passage.q}</div>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <button onClick={done} className="px-4 py-2 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-600">{answered ? "Done ✓" : "Mark read"}</button>
+          <button onClick={()=>openTutor(`Help me understand this passage. I want a translation, then key vocabulary and any grammar I should notice:\n\n"${passage.text}"`)} className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center gap-2">
+            <Icon.Sparkle className="w-4 h-4" /> Explain with AI
+          </button>
+        </div>
+      </Card>
+    );
+  }
+
+  function ListeningPractice({ state, setState, openTutor }) {
+    const passage = (PASSAGES[state.level] || PASSAGES.B1)[0];
+    const [revealed, setRevealed] = useState(false);
+    function play() {
+      if (!("speechSynthesis" in window)) return;
+      const u = new SpeechSynthesisUtterance(passage.text);
+      u.lang = "de-DE"; u.rate = 0.85;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    }
+    function done() {
+      setState(bumpStreak({ ...state, practice:{ ...state.practice, listening: state.practice.listening+1 } }));
+    }
+    return (
+      <Card className="p-6">
+        <div className="text-sm font-medium text-indigo-600 mb-2">Listening · {state.level}</div>
+        <h3 className="text-xl font-semibold mb-3">{passage.title}</h3>
+        <button onClick={play} className="px-5 py-3 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center gap-2 mb-5">
+          <Icon.Volume className="w-5 h-5" /> Play passage
+        </button>
+        <div className="p-4 rounded-xl bg-slate-50 mb-3">
+          <div className="text-xs font-medium text-slate-500 mb-1">Question</div>
+          <div className="font-medium">{passage.q}</div>
+        </div>
+        <button onClick={()=>setRevealed(r=>!r)} className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
+          {revealed ? "Hide transcript" : "Show transcript"}
+        </button>
+        {revealed && <p className="mt-3 p-4 rounded-xl bg-white border border-slate-200 text-slate-700 leading-relaxed">{passage.text}</p>}
+        <div className="flex flex-wrap gap-3 mt-5">
+          <button onClick={done} className="px-4 py-2 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-600">Mark complete</button>
+          <button onClick={()=>openTutor(`Help me practice listening at ${state.level}. Suggest 3 short German audio resources I can use today and what to listen for.`)} className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center gap-2">
+            <Icon.Sparkle className="w-4 h-4" /> Ask AI for tips
+          </button>
+        </div>
+        <p className="mt-4 text-xs text-slate-400">Uses your browser's built-in German voice. Quality varies by device.</p>
+      </Card>
+    );
+  }
+
+  /* ============================================================
+     Wiederholung view — dynamic SRS queue
+     ============================================================ */
+  function WiederholungView({ state, setState, openTutor }) {
+    // Build all-cards index across every level
+    const allCards = useMemo(() => {
+      const out = [];
+      for (const lvl of LEVELS) {
+        for (const t of (GRAMMAR[lvl] || [])) {
+          const k = srsKey(lvl, t.topic);
+          out.push({ level: lvl, topic: t.topic, desc: t.desc, dataKey: t.dataKey, key: k, srs: state.srs?.[k] });
+        }
+      }
+      return out;
+    }, [state.srs]);
+
+    const now = Date.now();
+    const studied = allCards.filter(c => c.srs);
+    const due     = studied.filter(c => c.srs.due <= now).sort((a, b) => a.srs.due - b.srs.due);
+    const upcoming = studied.filter(c => c.srs.due > now).sort((a, b) => a.srs.due - b.srs.due).slice(0, 6);
+    const unstudied = allCards.filter(c => !c.srs);
+
+    const totalSuccess = studied.reduce((n, c) => n + (c.srs.successCount || 0), 0);
+    const totalFail    = studied.reduce((n, c) => n + (c.srs.failCount || 0), 0);
+    const totalRatings = totalSuccess + totalFail;
+    const accuracy = totalRatings ? Math.round(100 * totalSuccess / totalRatings) : 0;
+
+    function rate(card, quality) {
+      const next = srsUpdate(card.srs, quality);
+      setState({ ...state, srs: { ...state.srs, [card.key]: next } });
+    }
+
+    return (
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto fade-in">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-1">Wiederholung</h1>
+        <p className="text-slate-600 mb-6">Spaced-repetition queue. Topics surface as you start to forget them.</p>
+
+        {/* Library stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <Card className="p-4">
+            <div className="text-2xl font-bold">{due.length}</div>
+            <div className="text-xs text-slate-500">Fällig jetzt</div>
+          </Card>
+          <Card className="p-4">
+            <div className="text-2xl font-bold">{studied.length}</div>
+            <div className="text-xs text-slate-500">Im System</div>
+          </Card>
+          <Card className="p-4">
+            <div className="text-2xl font-bold">{unstudied.length}</div>
+            <div className="text-xs text-slate-500">Noch nicht angefangen</div>
+          </Card>
+          <Card className="p-4">
+            <div className="text-2xl font-bold">{totalRatings ? `${accuracy}%` : "—"}</div>
+            <div className="text-xs text-slate-500">Trefferquote ({totalRatings} Bewertungen)</div>
+          </Card>
+        </div>
+
+        {/* Due queue */}
+        {due.length > 0 ? (
+          <>
+            <h2 className="text-lg font-semibold mb-3">Fällig ({due.length})</h2>
+            <div className="space-y-3 mb-6">
+              {due.map(c => (
+                <div key={c.key} className="p-4 rounded-xl border border-rose-300 bg-rose-50">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="text-xs font-medium text-indigo-600 bg-white px-2 py-0.5 rounded">{c.level}</span>
+                    <div className="font-medium">{c.topic}</div>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">{dueLabel(dueIn(c.srs))}</span>
+                  </div>
+                  <div className="text-sm text-slate-600 mt-1">{c.desc}</div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button onClick={() => openTutor && openTutor(buildQuizPrompt(c.level, c.topic, state.contextDomain), c.topic)}
+                      className="text-xs font-medium text-fuchsia-600 hover:text-fuchsia-700 flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-fuchsia-200">
+                      <Icon.Sparkle className="w-3 h-3" /> Quiz mit KI starten
+                    </button>
+                    <button onClick={() => openTutor && openTutor(buildLearnPrompt(c.level, c.topic, state.contextDomain), c.topic)}
+                      className="text-xs font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-indigo-200">
+                      <Icon.Sparkle className="w-3 h-3" /> Nochmal erklären
+                    </button>
+                    <SRSRatingButtons srs={c.srs} onRate={(q) => rate(c, q)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <Card className="p-5 mb-6 bg-emerald-50 border-emerald-200">
+            <div className="font-semibold text-emerald-700">Alles aktuell — nichts fällig.</div>
+            <p className="text-sm text-emerald-700/80 mt-1">
+              {studied.length === 0
+                ? "Bewerte ein Thema in der Grammar-Liste mit Wieder / Schwer / Gut, um es ins SRS aufzunehmen."
+                : "Nächste Wiederholungen siehst du unten."}
+            </p>
+          </Card>
+        )}
+
+        {/* Upcoming */}
+        {upcoming.length > 0 && (
+          <>
+            <h2 className="text-lg font-semibold mb-3">Demnächst</h2>
+            <div className="space-y-2 mb-6">
+              {upcoming.map(c => (
+                <div key={c.key} className="px-4 py-2 rounded-lg bg-white border border-slate-200 flex items-center gap-3 text-sm">
+                  <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{c.level}</span>
+                  <span className="flex-1 truncate">{c.topic}</span>
+                  <span className="text-slate-500 text-xs whitespace-nowrap">{dueLabel(dueIn(c.srs))}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Hint about getting started */}
+        {studied.length === 0 && (
+          <Card className="p-5 bg-slate-50 border-slate-200">
+            <h3 className="font-semibold mb-2">So funktioniert's</h3>
+            <ol className="text-sm text-slate-600 space-y-1 list-decimal pl-5">
+              <li>Geh zu <span className="font-medium">Lern → Grammar</span> auf deinem aktuellen Level.</li>
+              <li>Klick <span className="font-medium">Quiz starten</span> oder <span className="font-medium">Mit KI lernen</span> auf einem Thema.</li>
+              <li>Nach dem Quiz: bewerte dich mit <span className="text-rose-600 font-medium">Wieder</span> / <span className="text-amber-600 font-medium">Schwer</span> / <span className="text-emerald-600 font-medium">Gut</span>.</li>
+              <li>SM-2 setzt den nächsten Termin. Fehlversuche → morgen. Klare Treffer → 6 Tage, dann ×Leichtigkeit.</li>
+            </ol>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  /* ============================================================
+     Stats view
+     ============================================================ */
+  function StatsView({ state }) {
+    const totalVerbs = VERBS.length;
+    const learned = Object.values(state.verbsKnown).filter(v => v.correct >= 1).length;
+    const target = ROADMAP[state.level];
+    return (
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto fade-in">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6">Your stats</h1>
+
+        <div className="grid sm:grid-cols-3 gap-4 mb-6">
+          <Card className="p-5">
+            <div className="text-sm text-slate-500">Current streak</div>
+            <div className="text-3xl font-bold mt-1">{state.streak.current} <span className="text-base font-normal text-slate-500">days</span></div>
+            <div className="text-xs text-slate-400 mt-1">Longest: {state.streak.longest}</div>
+          </Card>
+          <Card className="p-5">
+            <div className="text-sm text-slate-500">Verbs learned</div>
+            <div className="text-3xl font-bold mt-1">{learned} <span className="text-base font-normal text-slate-500">/ {totalVerbs}</span></div>
+            <Progress value={learned} max={totalVerbs} color="bg-emerald-500" />
+          </Card>
+          <Card className="p-5">
+            <div className="text-sm text-slate-500">Current level target</div>
+            <div className="text-3xl font-bold mt-1">{state.level}</div>
+            <div className="text-xs text-slate-400 mt-1">{target.verbs} verbs · {target.vocab} words</div>
+          </Card>
+        </div>
+
+        <Card className="p-5 mb-6">
+          <h3 className="font-semibold mb-4">Practice activity</h3>
+          {["speaking","writing","reading","listening"].map(skill => (
+            <div key={skill} className="mb-3 last:mb-0">
+              <div className="flex justify-between text-sm mb-1">
+                <span className="capitalize">{skill}</span>
+                <span className="text-slate-500">{state.practice[skill]} sessions</span>
+              </div>
+              <Progress value={state.practice[skill]} max={Math.max(20, state.practice[skill])} color="bg-indigo-500" />
+            </div>
+          ))}
+        </Card>
+
+        <Card className="p-5">
+          <h3 className="font-semibold mb-3">Verbs you've struggled with</h3>
+          {(() => {
+            const struggled = Object.entries(state.verbsKnown)
+              .filter(([_, s]) => s.seen >= 2 && s.correct / s.seen < 0.5)
+              .map(([v]) => v);
+            if (!struggled.length) return <p className="text-sm text-slate-500">Nothing here yet. Keep drilling!</p>;
+            return (
+              <div className="flex flex-wrap gap-2">
+                {struggled.map(v => <span key={v} className="px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 text-sm border border-rose-200">{v}</span>)}
+              </div>
+            );
+          })()}
+        </Card>
+      </div>
+    );
+  }
+
+  /* ============================================================
+     AI assistant — chat panel using Claude API direct from browser
+     ============================================================ */
+  const TUTOR_SYSTEM = `You are an expert, encouraging German tutor.
+
+LEARNER PROFILE
+- Current level: {LEVEL}
+- Goal: become fluent in German
+- Stated weakness: needs to expand verb vocabulary, especially A1→B1 verbs
+
+HOW TO HELP
+- Reply primarily in German at the learner's level, but use brief English to explain grammar when it speeds understanding.
+- When the learner sends German text, correct it: show the corrected sentence in bold, then list each error with a short reason.
+- When asked about a verb, give: meaning, principal parts (Präsens/Präteritum/Perfekt), one B1 example sentence, and one common collocation or preposition.
+- Recommend 1–3 new verbs at the end of any vocabulary discussion to keep the learner extending their range.
+- Keep replies under ~180 words unless the learner explicitly asks for more.`;
+
+  function SourcesBlock({ sources, provider, ragUsed }) {
+    const [open, setOpen] = useState(false);
+    const grounded = sources && sources.length > 0;
+    return (
+      <div className="text-[11px] text-slate-500 ml-1 mt-1">
+        {grounded ? (
+          <button onClick={()=>setOpen(o=>!o)} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
+            <Icon.Book className="w-3 h-3" /> {sources.length} Quellen
+            {provider && <span className="text-slate-400">· {provider}</span>}
+          </button>
+        ) : (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+            <Icon.Sparkle className="w-3 h-3" /> {provider || "model"} · no library hit
+          </span>
+        )}
+        {open && grounded && (
+          <ul className="mt-2 space-y-2">
+            {sources.map((s, idx) => (
+              <li key={idx} className="p-2 rounded-lg bg-white border border-slate-200">
+                <div className="font-medium text-slate-700">{idx+1}. {s.citation}</div>
+                <div className="text-slate-500 mt-0.5">{s.preview}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  }
+
+  function AITutor({ state, setState, isOpen, onClose, seed, clearSeed }) {
+    const [messages, setMessages] = useState([
+      { role:"assistant", content:"Hallo! Ich bin dein KI-Tutor und ziehe Antworten direkt aus deiner Grammatik-Bibliothek. Frag mich z.B. nach Konjunktiv II der Vergangenheit oder lass mich deinen Text korrigieren. Womit fangen wir an?" }
+    ]);
+    const [input, setInput] = useState("");
+    const [busy, setBusy] = useState(false);
+    const [libraryStats, setLibraryStats] = useState(null);
+    const [healthErr, setHealthErr] = useState("");
+    const [nextRagQuery, setNextRagQuery] = useState("");
+    const scrollRef = useRef(null);
+
+    const cleanUrl = (state.backendUrl || "").replace(/\/$/, "");
+
+    useEffect(() => {
+      if (seed && seed.prompt) {
+        setInput(seed.prompt);
+        setNextRagQuery(seed.ragQuery || "");
+        clearSeed();
+      }
+    }, [seed && seed.prompt]);
+
+    useEffect(() => {
+      if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }, [messages, busy]);
+
+    // Ping backend when the panel opens to surface stats / connection issues early
+    useEffect(() => {
+      if (!isOpen) return;
+      let cancelled = false;
+      (async () => {
+        try {
+          const [h, s] = await Promise.all([
+            fetch(`${cleanUrl}/health`).then(r => r.ok ? r.json() : null),
+            fetch(`${cleanUrl}/library/stats`).then(r => r.ok ? r.json() : null),
+          ]);
+          if (cancelled) return;
+          setLibraryStats(s);
+          setHealthErr(h ? "" : "Backend reachable but /health returned non-ok.");
+        } catch (e) {
+          if (cancelled) return;
+          setLibraryStats(null);
+          setHealthErr(`Couldn't reach ${cleanUrl}. Is the server running?`);
+        }
+      })();
+      return () => { cancelled = true; };
+    }, [isOpen, cleanUrl]);
+
+    async function send() {
+      const text = input.trim();
+      if (!text || busy) return;
+      const next = [...messages, { role:"user", content: text }];
+      setMessages(next);
+      setInput("");
+      setBusy(true);
+      try {
+        const res = await fetch(`${cleanUrl}/chat`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            messages: next.map(m => ({ role: m.role, content: m.content })),
+            level: state.level,
+            provider: state.provider,
+            use_rag: true,
+            rag_query: nextRagQuery || undefined
+          })
+        });
+        setNextRagQuery("");
+        if (!res.ok) {
+          const err = await res.text();
+          setMessages([...next, { role:"assistant", content:`Backend error (${res.status}).\n${err.slice(0,400)}\n\nCheck the server logs.` }]);
+        } else {
+          const data = await res.json();
+          setMessages([...next, {
+            role: "assistant",
+            content: data.reply,
+            sources: data.sources || [],
+            provider: data.provider,
+            ragUsed: !!data.rag_used
+          }]);
+        }
+      } catch (e) {
+        setMessages([...next, { role:"assistant", content:`Couldn't reach backend at ${cleanUrl}.\n\n${e.message}\n\nIs uvicorn running? Try:\n  cd backend && uvicorn app:app --reload --port 8000` }]);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    return (
+      <div className={`fixed inset-0 z-40 ${isOpen ? "" : "pointer-events-none"}`}>
+        <div className={`absolute inset-0 bg-slate-900/40 transition-opacity ${isOpen ? "opacity-100" : "opacity-0"}`} onClick={onClose} />
+        <div className={`absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col transition-transform ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
+          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-fuchsia-500 flex items-center justify-center text-white shrink-0"><Icon.Sparkle className="w-4 h-4" /></div>
+              <div className="min-w-0">
+                <div className="font-semibold truncate">AI Tutor · {state.level}</div>
+                <div className="text-xs text-slate-500 truncate">
+                  {libraryStats
+                    ? <>📚 {libraryStats.source_count} PDFs · {libraryStats.chunks} chunks · {state.provider}</>
+                    : healthErr ? <span className="text-rose-600">{healthErr}</span> : <>Verbinde mit Backend…</>}
+                </div>
+              </div>
+            </div>
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100"><Icon.X className="w-5 h-5" /></button>
+          </div>
+
+          {healthErr && (
+            <div className="m-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+              {healthErr} <br/>Set the backend URL in Settings (gear, top right), or run:<br/>
+              <code className="text-xs">cd backend && uvicorn app:app --reload --port 8000</code>
+            </div>
+          )}
+
+          <div ref={scrollRef} className="flex-1 overflow-auto px-4 py-3 space-y-4 scrollbar-thin">
+            {messages.map((m, i) => (
+              <div key={i}>
+                <div className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${m.role==="user" ? "ml-auto bg-indigo-600 text-white bubble-user" : "bg-slate-100 text-slate-800 bubble-ai"}`}>
+                  {m.content}
+                </div>
+                {m.role === "assistant" && (m.sources || m.provider) && (
+                  <SourcesBlock sources={m.sources} provider={m.provider} ragUsed={m.ragUsed} />
+                )}
+              </div>
+            ))}
+            {busy && <div className="bg-slate-100 text-slate-500 text-sm px-3.5 py-2.5 rounded-2xl bubble-ai w-fit">…thinking</div>}
+          </div>
+
+          <div className="p-3 border-t border-slate-200">
+            <div className="flex items-end gap-2">
+              <textarea value={input} onChange={e=>setInput(e.target.value)} rows={2}
+                onKeyDown={(e)=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); }}}
+                placeholder="Schreib auf Deutsch oder Englisch…"
+                className="flex-1 resize-none p-2.5 rounded-xl border border-slate-200 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 text-sm" />
+              <button onClick={send} disabled={busy || !input.trim()} className="p-2.5 rounded-xl bg-indigo-600 text-white disabled:bg-slate-300 hover:bg-indigo-700">
+                <Icon.Send className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-[10px] text-slate-400 mt-2">Calls your local Langey backend → {state.provider} → ChromaDB-retrieved grammar excerpts.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ============================================================
+     Settings modal
+     ============================================================ */
+  function SettingsModal({ state, setState, isOpen, onClose }) {
+    const [backendUrl, setBackendUrl] = useState(state.backendUrl || "http://localhost:8000");
+    const [provider, setProvider] = useState(state.provider || "gemini");
+    const [contextDomain, setContextDomain] = useState(state.contextDomain != null ? state.contextDomain : CONTEXT_PRESETS.manufacturing);
+    const [probing, setProbing] = useState(false);
+    const [probeResult, setProbeResult] = useState(null);
+    if (!isOpen) return null;
+
+    const activePreset = detectPreset(contextDomain);
+
+    async function probe() {
+      setProbing(true);
+      setProbeResult(null);
+      const url = backendUrl.replace(/\/$/, "");
+      try {
+        const [h, s] = await Promise.all([
+          fetch(`${url}/health`).then(r => r.ok ? r.json() : Promise.reject(`HTTP ${r.status}`)),
+          fetch(`${url}/library/stats`).then(r => r.ok ? r.json() : null),
+        ]);
+        setProbeResult({ ok:true, health:h, stats:s });
+      } catch (e) {
+        setProbeResult({ ok:false, error:String(e) });
+      } finally {
+        setProbing(false);
+      }
+    }
+
+    function save() {
+      setState({ ...state, backendUrl: backendUrl.trim(), provider, contextDomain });
+      onClose();
+    }
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-slate-900/50" onClick={onClose} />
+        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-auto scrollbar-thin">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Settings</h2>
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100"><Icon.X className="w-5 h-5" /></button>
+          </div>
+
+          <label className="block text-sm font-medium mb-1">Backend URL</label>
+          <input value={backendUrl} onChange={e=>setBackendUrl(e.target.value)} placeholder="http://localhost:8000"
+            className="w-full p-2.5 rounded-xl border border-slate-200 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 text-sm font-mono" />
+          <p className="text-xs text-slate-500 mt-2">Run the Python backend: <code className="bg-slate-100 px-1 rounded">cd backend && uvicorn app:app --reload --port 8000</code></p>
+
+          <button onClick={probe} disabled={probing} className="mt-3 px-3 py-1.5 text-sm rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-50">
+            {probing ? "Probing…" : "Test connection"}
+          </button>
+          {probeResult && (
+            <div className={`mt-3 p-3 rounded-xl text-xs ${probeResult.ok ? "bg-emerald-50 border border-emerald-200 text-emerald-800" : "bg-rose-50 border border-rose-200 text-rose-800"}`}>
+              {probeResult.ok ? (
+                <>
+                  <div className="font-medium">✓ Connected</div>
+                  <div>Default provider: {probeResult.health.default_provider}</div>
+                  <div>Embedding: {probeResult.health.embedding_model}</div>
+                  <div>Providers configured: {Object.entries(probeResult.health.providers_configured).filter(([,v])=>v).map(([k])=>k).join(", ") || "(none)"}</div>
+                  {probeResult.stats && <div className="mt-1">Library: {probeResult.stats.chunks} chunks · {probeResult.stats.source_count} PDFs</div>}
+                </>
+              ) : (
+                <div>✗ {probeResult.error}</div>
+              )}
+            </div>
+          )}
+
+          <div className="mt-5">
+            <label className="block text-sm font-medium mb-2">AI provider</label>
+            <div className="flex gap-2">
+              {["gemini","claude"].map(p => (
+                <button key={p} onClick={()=>setProvider(p)}
+                  className={`flex-1 py-2 rounded-xl border text-sm font-medium ${provider===p ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}>
+                  {p === "gemini" ? "Gemini Flash" : "Claude Sonnet"}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-slate-500 mt-2">Provider keys live on the backend (in <code>.env</code>), not in this browser.</p>
+          </div>
+
+          <div className="mt-5">
+            <label className="block text-sm font-medium mb-2">Context Domain</label>
+            <p className="text-xs text-slate-500 mb-2">
+              The AI uses this block as the source of example-sentence vocabulary when you click <span className="font-medium">Quiz starten</span> or <span className="font-medium">Mit KI lernen</span>. Pick a preset or edit freely.
+            </p>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {Object.keys(CONTEXT_PRESETS).map(k => (
+                <button key={k}
+                  onClick={() => setContextDomain(CONTEXT_PRESETS[k])}
+                  className={`text-xs px-2.5 py-1 rounded-full border ${activePreset===k ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}>
+                  {CONTEXT_PRESET_LABELS[k]}
+                </button>
+              ))}
+              {activePreset === "custom" && (
+                <span className="text-xs px-2.5 py-1 rounded-full border bg-amber-50 text-amber-700 border-amber-200">Custom</span>
+              )}
+            </div>
+            <textarea value={contextDomain} onChange={e=>setContextDomain(e.target.value)} rows={6}
+              placeholder="Leave blank for no domain context. The AI will pick neutral examples."
+              className="w-full p-2.5 rounded-xl border border-slate-200 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 text-xs font-mono leading-relaxed" />
+            <p className="text-[10px] text-slate-400 mt-1">Saved locally. Used for Quiz + Lern prompts; general chat is not affected.</p>
+          </div>
+
+          <div className="mt-5 pt-5 border-t border-slate-200">
+            <label className="block text-sm font-medium mb-2">Danger zone</label>
+            <button onClick={()=>{ if(confirm("Reset all progress?")) { localStorage.removeItem(STORE_KEY); location.reload(); }}} className="text-sm text-rose-600 hover:text-rose-700">Reset all progress</button>
+          </div>
+
+          <button onClick={save} className="mt-6 w-full py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700">Save</button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ============================================================
+     Root App
+     ============================================================ */
+  function App() {
+    const [state, _setState] = useState(initialState);
+    const setState = (s) => { _setState(s); saveState(s); };
+
+    const [view, setView] = useState({ section:"roadmap", tab:null });
+    const [tutorOpen, setTutorOpen] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const [seed, setSeed] = useState({ prompt:"", ragQuery:"" });
+
+    function openTutor(prompt, ragQuery) {
+      if (prompt) setSeed({ prompt, ragQuery: ragQuery || "" });
+      setTutorOpen(true);
+    }
+
+    // Count of due SRS cards across the whole library — shown as a badge on the nav item
+    const dueCount = useMemo(() => {
+      const now = Date.now();
+      return Object.values(state.srs || {}).filter(s => s && s.due && s.due <= now).length;
+    }, [state.srs]);
+
+    const navItems = [
+      { id:"roadmap",     label:"Roadmap",      icon: Icon.Roadmap },
+      { id:"lern",        label:"Lern",         icon: Icon.Book },
+      { id:"practice",    label:"Practice",     icon: Icon.Mic },
+      { id:"wiederholung",label:"Wiederholung", icon: Icon.Sparkle, badge: dueCount },
+      { id:"stats",       label:"Stats",        icon: Icon.Stats },
+    ];
+
+    return (
+      <div className="min-h-screen flex flex-col">
+        {/* Header */}
+        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
+            <div className="flex items-center gap-2 mr-auto">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-fuchsia-500 text-white flex items-center justify-center font-bold">L</div>
+              <span className="font-bold text-lg hidden sm:inline">Langey</span>
+            </div>
+            <div className="hidden md:flex items-center gap-1">
+              {LEVELS.map(l => (
+                <Pill key={l} active={state.level===l} onClick={()=>setState({...state, level:l})}>{l}</Pill>
+              ))}
+            </div>
+            <select value={state.level} onChange={e=>setState({...state, level:e.target.value})} className="md:hidden bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-medium">
+              {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+            </select>
+            <button onClick={()=>openTutor()} className="ml-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-fuchsia-500 text-white text-sm font-medium hover:opacity-90 flex items-center gap-1.5">
+              <Icon.Sparkle className="w-4 h-4" /> <span className="hidden sm:inline">AI Tutor</span>
+            </button>
+            <button onClick={()=>setSettingsOpen(true)} className="p-2 rounded-lg hover:bg-slate-100" title="Settings"><Icon.Cog className="w-5 h-5 text-slate-500" /></button>
+          </div>
+        </header>
+
+        <div className="flex-1 flex">
+          {/* Sidebar (desktop) */}
+          <nav className="hidden sm:flex flex-col gap-1 p-4 w-52 border-r border-slate-200 bg-white">
+            {navItems.map(n => {
+              const Icn = n.icon;
+              const active = view.section === n.id;
+              return (
+                <button key={n.id} onClick={()=>setView({ section:n.id, tab:null })}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition ${active ? "bg-indigo-50 text-indigo-700" : "text-slate-600 hover:bg-slate-50"}`}>
+                  <Icn className="w-5 h-5" />
+                  <span className="flex-1 text-left">{n.label}</span>
+                  {n.badge ? <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-500 text-white">{n.badge}</span> : null}
+                </button>
+              );
+            })}
+            <div className="mt-auto pt-6 text-xs text-slate-400">
+              <div className="font-semibold text-slate-600 mb-1">Streak</div>
+              <div>{state.streak.current} day{state.streak.current===1?"":"s"} 🔥</div>
+            </div>
+          </nav>
+
+          {/* Main */}
+          <main className="flex-1 min-w-0 pb-20 sm:pb-0">
+            {view.section==="roadmap"      && <RoadmapView state={state} setView={setView} />}
+            {view.section==="lern"         && <LernView state={state} setState={setState} view={view} setView={setView} openTutor={openTutor} />}
+            {view.section==="practice"     && <PracticeView state={state} setState={setState} view={view} setView={setView} openTutor={openTutor} />}
+            {view.section==="wiederholung" && <WiederholungView state={state} setState={setState} openTutor={openTutor} />}
+            {view.section==="stats"        && <StatsView state={state} />}
+          </main>
+        </div>
+
+        {/* Bottom nav (mobile) */}
+        <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30">
+          <div className="flex">
+            {navItems.map(n => {
+              const Icn = n.icon;
+              const active = view.section === n.id;
+              return (
+                <button key={n.id} onClick={()=>setView({ section:n.id, tab:null })}
+                  className={`relative flex-1 py-2 flex flex-col items-center gap-0.5 text-[10px] ${active ? "text-indigo-600" : "text-slate-500"}`}>
+                  <Icn className="w-5 h-5" />
+                  <span className="truncate max-w-[80%]">{n.label}</span>
+                  {n.badge ? <span className="absolute top-1 right-1/2 translate-x-4 text-[9px] font-bold px-1 py-0.5 rounded-full bg-rose-500 text-white min-w-[16px] text-center">{n.badge}</span> : null}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+
+        <AITutor state={state} setState={setState} isOpen={tutorOpen} onClose={()=>setTutorOpen(false)} seed={seed} clearSeed={()=>setSeed({ prompt:"", ragQuery:"" })} />
+        <SettingsModal state={state} setState={setState} isOpen={settingsOpen} onClose={()=>setSettingsOpen(false)} />
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

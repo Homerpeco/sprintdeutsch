@@ -1,0 +1,10 @@
+fastapi>=0.115
+uvicorn[standard]>=0.32
+pydantic>=2.9
+python-dotenv>=1.0
+pymupdf>=1.24                # PDF text extraction (preserves layout)
+chromadb>=0.5                # Local vector store
+sentence-transformers>=3.0   # Local multilingual embeddings (no API needed)
+google-genai>=0.3            # Gemini SDK (new unified package)
+anthropic>=0.39              # Claude SDK
+tqdm>=4.66                   # Progress bars in ingest
