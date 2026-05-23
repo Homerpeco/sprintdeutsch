@@ -122,6 +122,20 @@ function VocabDrill({ state, setState, verbs }) {
               <span className="text-[11px] text-slate-400 uppercase tracking-wide self-center">Perf.</span>
               <span className="text-sm font-semibold text-slate-800">{card.perf}</span>
             </div>
+
+            {/* Verbformen link */}
+            <a
+              href={verbformenUrl(card.v)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="inline-flex items-center gap-1 mt-4 text-[11px] font-medium text-indigo-500 hover:text-indigo-700 hover:underline"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              Full conjugation on verbformen.com
+            </a>
           </div>
         </div>
       </div>
@@ -252,6 +266,12 @@ function MatrixField({ label, value, onChange, result, expected, placeholder, au
   );
 }
 
+// Returns the verbformen.com URL for a given infinitive (strips reflexive "sich")
+function verbformenUrl(inf) {
+  const base = (inf || "").replace(/^sich\s+/i, "").trim();
+  return `https://www.verbformen.com/conjugation/?w=${encodeURIComponent(base)}`;
+}
+
 function MatrixDrill({ state, setState }) {
   const deck = useMemo(() => buildMatrixDeck(state.verbMatrixSrs || {}), [state.verbMatrixSrs]);
   const [idx, setIdx] = useState(0);
@@ -322,6 +342,17 @@ function MatrixDrill({ state, setState }) {
                   {result.allCorrect ? "Alles richtig." : result.revealed ? "Antwort eingeblendet." : "Teilweise richtig — überprüfe die markierten Felder."}
                 </div>
                 {card.note && <div className="text-xs leading-relaxed opacity-90"><span className="font-medium">Note:</span> {card.note}</div>}
+                <a
+                  href={verbformenUrl(card.inf)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Full conjugation on verbformen.com
+                </a>
               </div>
               <div className="text-xs text-slate-500 mb-2">Wie ist es gelaufen?</div>
               <div className="flex flex-wrap gap-2">
@@ -342,8 +373,13 @@ function MatrixDrill({ state, setState }) {
 
 // ─── TheoryRenderer ──────────────────────────────────────────────────────────
 // Classifies each line of the raw theory text and renders it with distinct
-// visual treatments: numbered sections, example sentences, word-breakdown
-// chips, rule callouts, definition pills, and plain body paragraphs.
+// visual treatments: numbered sections, bilingual example pairs (German then
+// English), word-breakdown chips, rule callouts, definition pills, and plain
+// body paragraphs.
+//
+// Pedagogical principle: German is always shown first and prominently; the
+// English translation is secondary — separated below a hairline divider so
+// the learner reads the German structure before checking the meaning.
 
 function classifyLine(line) {
   const t = line.trim();
@@ -363,31 +399,79 @@ function classifyLine(line) {
   if (/^[\wäöüÄÖÜß\s\-\/]+(\([^)]*\))?\s*:\s+[^\s]/.test(t) && t.length < 320 && !/^\d/.test(t)) return 'definition';
 
   // Example sentence: short line that ends with (English translation)
-  // Must not be a breakdown or definition already caught above
   if (/\([^)]{4,}\)[.,]?\s*$/.test(t) && t.length < 200) return 'example';
 
   return 'body';
 }
 
+// Returns true if the line is identifiably German (special chars or common
+// German-only function/content words that never appear as standalone English words).
+function looksGerman(s) {
+  if (/[äöüÄÖÜß]/.test(s)) return true;
+  return /\b(der|die|das|des|dem|den|ein|eine|einer|einen|einem|eines|ich|du|er|wir|ihr|mir|ihn|ihm|mich|dich|nicht|kein|keine|ist|sind|sein|seine|mein|viel|aber|auch|noch|doch|oder|auf|aus|bei|bis|durch|gegen|ohne|vor|nach|seit|zu|zum|zur|beim|ins|ans|und)\b/i.test(s);
+}
+
 function TheoryRenderer({ text }) {
   if (!text) return null;
 
-  const lines = text.split('\n').filter(l => l.trim());
+  const rawLines = text.split('\n').filter(l => l.trim());
+
+  // ── Pre-process: merge consecutive German + English lines into bilingual
+  // tokens so German is always rendered first and English below, never inline.
+  const tokens = [];
+  let i = 0;
+  while (i < rawLines.length) {
+    const line = rawLines[i].trim();
+    const nextLine = i + 1 < rawLines.length ? rawLines[i + 1].trim() : null;
+    const type = classifyLine(line);
+
+    // Only attempt pairing on body-type lines (structured types handle themselves)
+    if (type === 'body' && nextLine) {
+      const nextType = classifyLine(nextLine);
+      // Pair when: current line is German, next line is NOT German, and next
+      // line is still a loose text line (body or old-style example ending with parens)
+      if (looksGerman(line) && !looksGerman(nextLine) &&
+          (nextType === 'body' || nextType === 'example')) {
+        tokens.push({ type: 'bilingual', de: line, en: nextLine });
+        i += 2;
+        continue;
+      }
+    }
+
+    tokens.push({ type, text: line });
+    i++;
+  }
 
   return (
     <div className="pb-4">
-      {lines.map((raw, i) => {
-        const t = raw.trim();
-        const type = classifyLine(t);
+      {tokens.map((token, idx) => {
+        const t = token.text || '';
+        const type = token.type;
         if (type === 'empty') return null;
+
+        // ── Bilingual example (new separate-line DE / EN format) ─────────
+        // German sits on top, bold and full-size. English sits below a
+        // hairline — visible but clearly secondary, so the learner processes
+        // the German structure first.
+        if (type === 'bilingual') {
+          return (
+            <div key={idx} className="flex items-start gap-2.5 my-2 px-3 py-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl">
+              <span className="text-amber-500 font-bold text-sm shrink-0 mt-0.5">▸</span>
+              <div className="min-w-0 w-full">
+                <p className="font-semibold text-slate-900 text-sm leading-snug">{token.de}</p>
+                <p className="text-slate-400 text-xs italic mt-1.5 pt-1.5 border-t border-amber-200 leading-relaxed">{token.en}</p>
+              </div>
+            </div>
+          );
+        }
 
         // ── Numbered section header ──────────────────────────────────────
         if (type === 'section') {
           const m = t.match(/^(\d+)\.\s+(.+)/);
-          const num  = m?.[1] ?? '';
+          const num   = m?.[1] ?? '';
           const title = m?.[2] ?? t;
           return (
-            <div key={i} className="flex items-center gap-3 mt-7 mb-3">
+            <div key={idx} className="flex items-center gap-3 mt-7 mb-3">
               <span className="shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shadow-sm">
                 {num}
               </span>
@@ -397,24 +481,42 @@ function TheoryRenderer({ text }) {
         }
 
         // ── Word-by-word breakdown chips ─────────────────────────────────
+        // German morpheme chips on top; reconstructed English below the
+        // divider — the learner sees the word-building pattern before the
+        // meaning.
         if (type === 'breakdown') {
-          // Tokenise: "word (gloss)" pairs + bare punctuation
-          const tokens = t.split(/(?<=\))\s+/).map(tok => {
+          const arrowIdx = t.indexOf('→');
+          const germanPart  = arrowIdx >= 0 ? t.slice(0, arrowIdx).trim() : t;
+          const englishPart = arrowIdx >= 0 ? t.slice(arrowIdx + 1).trim() : null;
+
+          const chips = germanPart.split(/(?<=\))\s+/).map(tok => {
             const m = tok.match(/^(.+?)\s+\((.+?)\)([.,]?)$/);
             if (m) return { word: m[1], gloss: m[2], punct: m[3] };
             return { word: tok, gloss: null, punct: '' };
           });
+
+          const english = englishPart
+            || chips.filter(c => c.gloss).map(c => c.gloss + (c.punct || '')).join(' ').trim();
+
           return (
-            <div key={i} className="flex flex-wrap gap-1.5 my-2 px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl">
-              {tokens.map((tok, j) =>
-                tok.gloss ? (
-                  <span key={j} className="inline-flex flex-col items-center bg-white border border-indigo-100 shadow-sm rounded-lg px-2 py-0.5 text-xs leading-tight">
-                    <span className="font-semibold text-slate-800">{tok.word}</span>
-                    <span className="text-slate-600 text-[11px] font-medium">{tok.gloss}</span>
-                  </span>
-                ) : (
-                  <span key={j} className="text-slate-400 text-xs self-end pb-0.5">{tok.word}</span>
-                )
+            <div key={idx} className="my-2 px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl">
+              {/* German morpheme chips — no English inside */}
+              <div className="flex flex-wrap gap-1.5 mb-2.5">
+                {chips.map((chip, j) =>
+                  chip.gloss ? (
+                    <span key={j} className="inline-flex items-center bg-white border border-indigo-100 shadow-sm rounded-lg px-2.5 py-1 text-sm font-semibold text-slate-800">
+                      {chip.word}{chip.punct}
+                    </span>
+                  ) : chip.word ? (
+                    <span key={j} className="text-slate-500 text-xs self-center">{chip.word}</span>
+                  ) : null
+                )}
+              </div>
+              {/* English translation — once, clearly separated below */}
+              {english && (
+                <div className="border-t border-slate-200 pt-2 text-xs text-slate-500 italic leading-relaxed">
+                  → {english}
+                </div>
               )}
             </div>
           );
@@ -427,20 +529,16 @@ function TheoryRenderer({ text }) {
           const isCrucial   = /crucial|important/i.test(t);
           let style, icon;
           if (isException) {
-            style = 'bg-rose-50 border-rose-400 text-rose-900';
-            icon  = '⚠';
+            style = 'bg-rose-50 border-rose-400 text-rose-900'; icon = '⚠';
           } else if (isStructure) {
-            style = 'bg-sky-50 border-sky-400 text-sky-900';
-            icon  = '⌘';
+            style = 'bg-sky-50 border-sky-400 text-sky-900'; icon = '⌘';
           } else if (isCrucial) {
-            style = 'bg-amber-50 border-amber-400 text-amber-900';
-            icon  = '★';
+            style = 'bg-amber-50 border-amber-400 text-amber-900'; icon = '★';
           } else {
-            style = 'bg-emerald-50 border-emerald-500 text-emerald-900';
-            icon  = '✓';
+            style = 'bg-emerald-50 border-emerald-500 text-emerald-900'; icon = '✓';
           }
           return (
-            <div key={i} className={`flex items-start gap-2.5 px-4 py-3 my-2 border-l-4 rounded-r-xl ${style}`}>
+            <div key={idx} className={`flex items-start gap-2.5 px-4 py-3 my-2 border-l-4 rounded-r-xl ${style}`}>
               <span className="font-bold text-sm shrink-0 mt-0.5">{icon}</span>
               <p className="text-sm leading-relaxed font-medium">{t}</p>
             </div>
@@ -453,7 +551,7 @@ function TheoryRenderer({ text }) {
           const term = m?.[1]?.trim() ?? '';
           const body = m?.[2]?.trim() ?? t;
           return (
-            <div key={i} className="flex flex-wrap items-baseline gap-2 my-2 pl-1">
+            <div key={idx} className="flex flex-wrap items-baseline gap-2 my-2 pl-1">
               <span className="shrink-0 bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded-full leading-none">
                 {term}
               </span>
@@ -462,19 +560,20 @@ function TheoryRenderer({ text }) {
           );
         }
 
-        // ── Example sentence ─────────────────────────────────────────────
+        // ── Example sentence (old inline format: "German. (English.)") ───
+        // Same visual treatment as bilingual: German bold on top, English
+        // secondary below the divider.
         if (type === 'example') {
-          // Split "German sentence. (English translation.)"
           const m = t.match(/^(.*?)\s*(\([^)]{4,}\)[.,]?)$/s);
           const german  = m?.[1]?.trim() ?? t;
           const english = m?.[2]?.trim() ?? '';
           return (
-            <div key={i} className="flex items-start gap-2.5 my-1.5 px-3 py-2.5 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl">
+            <div key={idx} className="flex items-start gap-2.5 my-2 px-3 py-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-xl">
               <span className="text-amber-500 font-bold text-sm shrink-0 mt-0.5">▸</span>
-              <div className="min-w-0">
-                <span className="font-semibold text-slate-800 text-sm">{german}</span>
+              <div className="min-w-0 w-full">
+                <p className="font-semibold text-slate-900 text-sm leading-snug">{german}</p>
                 {english && (
-                  <span className="text-slate-500 text-xs ml-2 italic">{english}</span>
+                  <p className="text-slate-400 text-xs italic mt-1.5 pt-1.5 border-t border-amber-200 leading-relaxed">{english}</p>
                 )}
               </div>
             </div>
@@ -483,7 +582,7 @@ function TheoryRenderer({ text }) {
 
         // ── Body paragraph ───────────────────────────────────────────────
         return (
-          <p key={i} className="text-sm text-slate-700 leading-relaxed my-1.5 pl-1">{t}</p>
+          <p key={idx} className="text-sm text-slate-700 leading-relaxed my-1.5 pl-1">{t}</p>
         );
       })}
     </div>
