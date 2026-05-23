@@ -14,7 +14,7 @@ const C = {
   pastBg:       '#e8f3de',
 };
 
-export function RoadmapView({ state, setView, verbs }) {
+export function RoadmapView({ state, setState, setView, verbs }) {
   const target = ROADMAP[state.level];
   const verbsKnownAtLevel = verbs.filter(
     v => v.lvl <= state.level && state.verbsKnown[v.v]?.correct >= 1
@@ -87,10 +87,14 @@ export function RoadmapView({ state, setView, verbs }) {
           const subtitleStyle = { color: isCurrent ? 'rgba(255,255,255,0.75)' : C.forestMid };
 
           return (
-            <div
+            <button
               key={lvl}
-              className="flex items-center gap-4 p-4 rounded-xl border"
+              className="flex items-center gap-4 p-4 rounded-xl border w-full text-left transition-opacity hover:opacity-90 cursor-pointer"
               style={cardStyle}
+              onClick={() => {
+                setState({ ...state, level: lvl });
+                setView({ section: "lern", tab: "grammar" });
+              }}
             >
               {/* Level badge */}
               <div
@@ -118,7 +122,7 @@ export function RoadmapView({ state, setView, verbs }) {
                   Current
                 </span>
               )}
-            </div>
+            </button>
           );
         })}
       </div>

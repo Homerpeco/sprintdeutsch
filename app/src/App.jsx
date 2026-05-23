@@ -122,7 +122,7 @@ export function App() {
 
         {/* Main */}
         <main className="flex-1 min-w-0 pb-20 sm:pb-0" style={{backgroundColor:'#d4e8c2'}}>
-          {view.section === "roadmap"      && <RoadmapView      state={state} setView={setView} verbs={VERBS} />}
+          {view.section === "roadmap"      && <RoadmapView      state={state} setState={setState} setView={setView} verbs={VERBS} />}
           {view.section === "lern"         && <LernView         state={state} setState={setState} view={view} setView={setView} openTutor={openTutor} verbs={VERBS} appData={LD} />}
           {view.section === "practice"     && <PracticeView     state={state} setState={setState} view={view} setView={setView} openTutor={openTutor} />}
           {view.section === "wiederholung" && <WiederholungView state={state} setState={setState} openTutor={openTutor} />}
