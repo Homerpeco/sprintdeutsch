@@ -58,7 +58,20 @@ def parse_docx(docx_path: Path, canonical: dict) -> dict:
     from docx import Document
     doc = Document(docx_path)
 
-    # Build reverse lookup: norm_key -> canonical_topic (per level)
+    # Build reverse lookups: exact (lowercase, level-suffix stripped) first,
+    # then parenthetical-stripped fallback.  Exact wins so that topics like
+    # "Personal Pronouns (Nominative)" and "Personal Pronouns (Accusative)"
+    # are never collapsed into the same stripped key "personal pronouns".
+    def _norm_exact(s: str) -> str:
+        """Lowercase + strip trailing level tag only — keep parentheticals."""
+        s = s.strip()
+        s = re.sub(r'\s+[A-C][12]\s*$', '', s).strip()
+        return s.lower()
+
+    exact_to_canon = {
+        level: {_norm_exact(t): t for t in topics}
+        for level, topics in canonical.items()
+    }
     norm_to_canon = {
         level: {_norm(t): t for t in topics}
         for level, topics in canonical.items()
@@ -98,9 +111,10 @@ def parse_docx(docx_path: Path, canonical: dict) -> dict:
             # ── Topic title (any style, for any level) ───────────────────────
             # Also handles: H2, Normal, Normal (Web), even H1 non-level headers
             # (e.g., B1 "Comparative Connectors" mistakenly tagged H1)
+            # Try exact match first (preserves parentheticals), then stripped fallback.
             if current_level:
-                norm = _norm(text)
-                canon = norm_to_canon.get(current_level, {}).get(norm)
+                canon = (exact_to_canon.get(current_level, {}).get(_norm_exact(text))
+                         or norm_to_canon.get(current_level, {}).get(_norm(text)))
                 if canon:
                     flush()
                     current_topic = canon

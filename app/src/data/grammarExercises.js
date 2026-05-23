@@ -4,7 +4,56 @@
 export const GRAMMAR_EXERCISES = {
   A1: {
     "Personal Pronouns (Nominative)": {
-      theory: ``,
+      theory: `1. The Syntactic Function: The Subject of the Clause
+The nominative case is the base, uninflected form of a noun or pronoun (the form you find in a dictionary). Mechanically, a nominative pronoun serves two primary functions in a sentence:
+The Subject: The nominative pronoun represents the "doer" or the agent carrying out the action of the verb.
+Verb Agreement: The nominative subject mechanically dictates the conjugation (the ending) of the finite verb in the sentence.
+Examples:
+Ich lerne Deutsch. → I am learning German.
+Wir wohnen in Frankfurt. → We live in Frankfurt.
+(Note: German does not capitalize the pronoun ich (I) unless it stands at the absolute beginning of a sentence.)
+2. The Morphological Paradigm: Nominative Forms
+You must memorize the following grid, as these pronouns form the core architecture of German syntax.
+Singular Pronouns
+1st Person: ich (I)
+2nd Person (Familiar): du (you)
+3rd Person (Masculine): er (he / it)
+3rd Person (Feminine): sie (she / it)
+3rd Person (Neuter): es (it / he / she)
+Plural Pronouns
+1st Person: wir (we)
+2nd Person (Familiar): ihr (you all / you guys)
+3rd Person (All Genders): sie (they)
+2nd Person (Formal Singular & Plural): Sie (you)
+3. The Third-Person Rule: Grammatical vs. Natural Gender
+The most critical hurdle for English speakers is the treatment of third-person singular pronouns (er, sie, es). In English, we use "he" or "she" for people and animals, and "it" universally for inanimate objects. German completely rejects this biological logic.
+The Rule of Antecedent Agreement: In German, a pronoun must rigidly adopt the exact grammatical gender and number of the noun it replaces (its antecedent). Because inanimate objects in German can be masculine, feminine, or neuter, the pronouns "he" and "she" are frequently used to refer to objects.
+Examples of Grammatical Gender Agreement:
+Replacing a Masculine Noun (der):
+Der Tisch ist zu klein. Er ist zu klein. → The table is too small. It (He) is too small.
+Der Wagen ist neu. Er ist teuer. → The car is new. It (He) is expensive.
+Replacing a Feminine Noun (die):
+Die Tür ist auf. Sie ist auf. → The door is open. It (She) is open.
+Die Garage ist groß. Sie ist groß. → The garage is large. It (She) is large.
+Replacing a Neuter Noun (das):
+Das Fenster ist zu. Es ist zu. → The window is closed. It is closed.
+Das Mädchen ist klein. Es ist klein. → The girl is small. She (It) is small. (Because "Mädchen" is grammatically neuter, it mechanically takes the neuter pronoun "es," though natural gender often takes over in casual speech.)
+4. The Sociolinguistic Divide: du, ihr, and Sie
+In English, the pronoun "you" is universal. German syntax forces you to make a strict sociolinguistic calculation every time you address someone. There are three separate words for "you," depending on the level of intimacy, authority, and the number of people being addressed.
+A. The Familiar Singular: du
+The pronoun du is used to address exactly one person with whom you have a close or informal relationship.
+Rule of Use: Use du with family members, close friends, children, fellow students, and animals.
+Example: Kommst du mit ins Kino? → Are you coming along to the cinema?
+B. The Familiar Plural: ihr
+The pronoun ihr is the exact plural equivalent of du. It is used when addressing two or more people whom you would individually address as du (e.g., a group of friends or children).
+Example: Also, was wollt ihr heute Abend essen? → So, what do you (plural) want to eat tonight?
+C. The Formal (Singular & Plural): Sie
+The pronoun Sie establishes social distance, politeness, and respect.
+Rule of Use: Use Sie when addressing adult strangers, colleagues in professions, authorities, or anyone you do not know well.
+The Capitalization Rule: The formal Sie must always be capitalized, no matter where it appears in a sentence. This is the only way to distinguish it in writing from the pronoun sie (she/they).
+The Plural Conjugation Rule: Mechanically, the formal Sie utilizes third-person plural verb conjugations, regardless of whether you are speaking to one single person or a crowd of fifty people.
+Example (Addressing one stranger): Woher kommen Sie? → Where do you come from?
+Example (Addressing a group of strangers): Was haben Sie gesagt? → What did you say?`,
       instruction: `Fill in the blank.`,
       exercises: [
       ],
@@ -71,10 +120,7 @@ Er war ein guter Arzt. → He was a good doctor.`,
       ],
     },
     "Present Tense Regular Verbs": {
-      theory: `Mechanics of German Present Tense Regular Verbs (Schwache Verben)
-At the A1 proficiency level, understanding the mechanics of the present tense is the fundamental building block of German sentence construction. While English has a highly complex present tense system, German relies on a highly streamlined, singular present tense form.
-To conjugate verbs correctly, you must master the morphological rules of extracting the verb stem and applying the correct personal endings based on the subject. Below is a robust, structural breakdown of how regular (often called "weak") verbs operate in the present tense.
-1. Pragmatic Function: The "Three-in-One" Tense
+      theory: `1. Pragmatic Function: The "Three-in-One" Tense
 The most critical conceptual difference between English and German verb systems is that German possesses only one present tense form. German absolutely rejects the English progressive ("I am doing") and emphatic ("I do do") tense structures.
 Mechanically, a single German present tense sentence directly translates to all three English present tense forms, depending on the context.
 Ich spiele Fußball. → I play football. (Habitual)
@@ -408,10 +454,7 @@ Ich stehe um 7.00 Uhr auf. → I get up at 7:00.`,
       ],
     },
     "Ordinal Numbers & Dates": {
-      theory: `Mechanics of German Ordinal Numbers and Dates: Ordinalzahlen und das Datum
-At the A1 proficiency level, expressing sequence, rank, and dates requires the use of ordinal numbers (first, second, third, etc.). In English, ordinal numbers are relatively static. In German, however, ordinal numbers function grammatically as adjectives. This means they are mechanically bound by the rules of German declension and must take endings based on gender, number, and case.
-Below is a robust, structural breakdown of how to form ordinal numbers, the orthographic rules for writing them, and the specific syntax required to express dates and years in German.
-1. Morphological Formation: Numbers 1 to 19
+      theory: `1. Morphological Formation: Numbers 1 to 19
 To transform a standard cardinal number (1, 2, 3) into an ordinal number (1st, 2nd, 3rd) for numbers up to 19, German utilizes a strict suffixation rule.
 The Suffix Rule: You take the base cardinal number and attach the suffix -t, followed immediately by the appropriate adjective ending (most commonly -e in their basic nominative form).
 A. The Regular Forms
@@ -597,7 +640,61 @@ Sie fahren jeden Morgen mit der Straßenbahn. → They go by tram every morning.
       ],
     },
     "Personal Pronouns (Accusative)": {
-      theory: ``,
+      theory: `1. The Syntactic Function: The Direct Object
+The primary function of the accusative case is to mark the direct object of a sentence. The direct object is the entity (person, animal, or thing) that is directly affected by or receives the action of a transitive verb.
+If the nominative case answers the question "Who is acting?", the accusative case answers the question "Who(m) or what is being acted upon?" (Wen oder was?).
+When a pronoun replaces the noun that receives the action, it must be shifted into the accusative case.
+Noun as object: Die Lehrerin lobt den Schüler. → The teacher praises the pupil.
+Pronoun as object: Die Lehrerin lobt ihn. → The teacher praises him.
+2. The Morphological Paradigm: Accusative Forms
+You must memorize the following pronoun transformations. Notice the mechanical pattern: only the 1st person, 2nd person, and 3rd person masculine pronouns actually change their form. The feminine, neuter, plural, and formal pronouns remain completely identical to their nominative forms.
+Singular Pronouns
+1st Person: ich (I) → mich (me)
+2nd Person (Familiar): du (you) → dich (you)
+3rd Person (Masculine): er (he) → ihn (him / it)
+3rd Person (Feminine): sie (she) → sie (her / it)
+3rd Person (Neuter): es (it) → es (it)
+Plural Pronouns
+1st Person: wir (we) → uns (us)
+2nd Person (Familiar): ihr (you all) → euch (you all)
+3rd Person (All Genders): sie (they) → sie (them)
+2nd Person (Formal Singular & Plural): Sie (you) → Sie (you)
+The Rule of Antecedent Agreement
+Remember that in German, a pronoun must rigidly adopt the exact grammatical gender of the noun it replaces (its antecedent). Because inanimate objects can be masculine or feminine, you will frequently use ihn (him) or sie (her) to translate the English word "it".
+A: Wo ist mein Pass? → Where is my passport?
+B: Er liegt auf dem Tisch. Ich sehe ihn. → It (He) is lying on the table. I see it (him). (Self-generated second clause based on structural rules).
+3. Grammatical Triggers for the Accusative
+There are two primary structural triggers that mechanically lock a personal pronoun into the accusative case.
+A. Transitive Verbs
+The vast majority of German verbs are transitive, meaning they can take a direct object. When a personal pronoun is the target of these verbs, it becomes accusative.
+Kennst du mich nicht? → Don't you know me?
+Niemand kann dich verstehen. → No one can understand you.
+Wir sehen ihn nächste Woche. → We'll be seeing him next week.
+Herr Bauer hat sie gegrüßt. → Mr. Bauer said hello to her.
+Unsere Eltern lieben uns sehr. → Our parents love us a lot.
+Professor Schmidt wird Sie jetzt prüfen. → Professor Schmidt will quiz you now.
+B. Accusative Prepositions
+Certain prepositions in German are completely rigid: they always govern the accusative case, regardless of the pronoun's role in the broader action. If a personal pronoun immediately follows one of these prepositions, you must automatically apply the accusative form.
+The core A1 accusative prepositions are: durch (through), für (for), gegen (against), ohne (without), and um (around/at).
+Dieses Geschenk ist für dich. → This present is for you. (Self-generated based on structural rules).
+Ohne ihn kann ich nicht gehen. → Without him I cannot go. (Self-generated based on structural rules).
+4. Clause Topology: Pronoun Placement
+German word order (Satzbau) is highly regulated when personal pronouns are involved. Because pronouns are "light" grammatical elements, they tend to gravitate immediately toward the conjugated verb.
+A. Standard Position
+In a standard declarative sentence, the accusative pronoun is placed immediately after the conjugated finite verb (Position 3).
+Der Lehrer tadelt ihn. → The teacher criticizes him.
+Ich liebe dich und gebe dir deshalb einen Kuss. → I love you and therefore give you a kiss.
+B. Interacting with Modal Verbs
+When the sentence contains a modal verb (like wollen, können, or müssen), the sentence forms a verb bracket. The accusative pronoun strictly comes immediately after the conjugated modal verb, while the infinitive is pushed to the absolute end of the sentence.
+Wir wollen Sie nicht mehr sehen. → We don't want to see you anymore.
+C. The "Pronoun over Noun" Rule
+If a sentence features two objects (for example, a dative indirect object and an accusative direct object), German syntax enforces a strict hierarchy based on what type of word represents the object. A pronoun must always precede a noun, regardless of case.
+Kathrin schenkt ihm ein Fahrrad. → Kathrin gives him a bicycle. (Here, the dative pronoun 'ihm' precedes the accusative noun 'ein Fahrrad').
+D. The "Accusative before Dative" Rule
+If both objects in the sentence are personal pronouns, the hierarchy flips to prioritize the case. The accusative pronoun must always precede the dative pronoun. (A helpful mnemonic for English speakers is PAD: Pronoun Accusative Dative).
+Kathrin schenkt es ihm. → Kathrin gives it to him.
+Sie hat es ihm gegeben. → She gave it to him.
+Paul hat es dir auch schon erklärt. → Paul has already explained it to you too.`,
       instruction: `Fill in the blank.`,
       exercises: [
       ],
@@ -799,11 +896,7 @@ Zieh dir die Jacke aus. → Take your jacket off.`,
       ],
     },
     "Dative Prepositions": {
-      theory: `Mechanics of German Dative Prepositions: Präpositionen mit dem Dativ
-At the A1 proficiency level, prepositions are essential tools for building complex sentences. Prepositions define relationships of time, space, or logic between different elements in a sentence (e.g., with, to, after, from).
-In English, a preposition simply precedes a noun without altering it. In German grammar, however, prepositions act as absolute structural triggers. They mechanically dictate—or "govern"—the grammatical case of the noun, pronoun, or article that immediately follows them,,.
-Below is a robust, mechanical breakdown of the dative prepositions, their syntactic behaviors, and the morphological rules governing their application.
-1. The Core Mechanical Rule: The Prepositional Override
+      theory: `1. The Core Mechanical Rule: The Prepositional Override
 The most important concept to grasp is the Prepositional Override. Normally, the dative case is used to mark the indirect object (the receiver of an action),. However, when a dative preposition is introduced, it entirely overrides the verb's normal case assignment,.
 If a noun phrase follows a dative preposition, it is absolutely locked into the dative case, regardless of its logical function in the sentence,.
 A Morphological Review of the Dative Case
@@ -873,11 +966,7 @@ Ihrem Akzent nach stammt sie aus Schwaben. → Judging by her accent she comes f
       ],
     },
     "Possessive Articles (Nom / Akk / Dat)": {
-      theory: `Mechanics of German Possessive Articles (Nominative, Accusative, Dative)
-At the A1 proficiency level, expressing ownership or association requires mastering the Possessive Articles (die Possessivartikel, traditionally called possessive adjectives). These are words like my, your, his, her, and our.
-In English, possessive adjectives are entirely static (e.g., "my" never changes regardless of what is owned or its place in the sentence). German, however, enforces a strict two-step mechanical agreement process. First, the identity of the "owner" dictates the base stem of the word. Second, the grammatical properties of the "owned" object (its gender, number, and case) dictate the ending attached to that stem.
-Below is a robust, structural breakdown of how to select the correct possessive stem and how to decline it through the Nominative, Accusative, and Dative cases.
-1. Step One: Selecting the Base Stem (The "Owner")
+      theory: `1. Step One: Selecting the Base Stem (The "Owner")
 Before you can add any case endings, you must select the correct base word. The choice of the possessive article is dictated strictly by the person or thing doing the possessing.
 You must memorize the following mechanical mapping between the personal pronoun (the owner) and the possessive stem:
 ich (I) → mein- (my)
@@ -938,11 +1027,7 @@ Habt ihr eure Tasche gefunden? → Have you found your bag?`,
       ],
     },
     "Modal Verbs": {
-      theory: `Mechanics of German Modal Verbs: Die Modalverben
-At the A1 proficiency level, transitioning from simple declarative sentences to expressing ability, permission, obligation, and desire requires mastering Modal Verbs (Modalverben).
-Mechanically, a modal verb is an auxiliary (helping) verb that pairs with the infinitive form of another verb. While the main verb describes what the action is, the modal verb dictates the attitude or the modality of the subject toward that action (e.g., whether the subject must, can, or wants to perform it).
-Below is a robust, structural breakdown of the six primary German modal verbs, their precise morphological conjugation rules, and the strict topological rules governing their placement within a clause.
-1. The Pragmatic Functions: The Six Modals
+      theory: `1. The Pragmatic Functions: The Six Modals
 German possesses exactly six true modal verbs, plus one highly frequent derivative. You must memorize the specific modality each verb expresses, as they do not map perfectly onto their English counterparts.
 können (can / to be able to): Expresses physical or mental ability, skill, or possibility.
 Sie kann sehr gut schwimmen. → She can swim very well.
@@ -1373,7 +1458,50 @@ Wir sehen uns am Donnerstag. (We see each other on Thursday.) -> am = an dem (Da
       ],
     },
     "Verbs with Two Objects": {
-      theory: ``,
+      theory: `1. Semantic Roles: The "Thing" vs. The "Receiver"
+When a German verb governs two objects, it splits them into two distinct grammatical cases to indicate their function in the sentence.
+The Accusative Case (Direct Object): This represents the "patient" or the "thing" that is directly being acted upon, transferred, or moved.
+The Dative Case (Indirect Object): This represents the "beneficiary" or the "receiver" of the action. This is almost always a person.
+Common Ditransitive Verbs: Verbs involving an act of giving, showing, telling, or transferring typically take both a dative and an accusative object.
+geben (to give)
+schenken (to gift / to give as a present)
+zeigen (to show)
+erklären (to explain)
+bringen (to bring)
+Example in Context:
+Der Lehrer gibt dem Schüler den Apfel. $\\rightarrow$ The teacher gives the pupil the apple. (Mechanics: "der Apfel" is the thing being given, so it shifts to the accusative "den Apfel". "Der Schüler" is the person receiving it, so it shifts to the dative "dem Schüler".)
+2. Clause Topology: The Hierarchical Word Order Rules
+In English, you can change the word order by adding the preposition "to" (e.g., "I gave the man the money" vs. "I gave the money to the man"). German relies entirely on case endings and follows three strict hierarchical word order rules based on whether the objects are nouns or pronouns.
+Rule A: Noun + Noun $\\rightarrow$ Dative before Accusative
+When both objects in the sentence are expressed as full nouns, the dative indirect object must mechanically precede the accusative direct object.
+Sie gab ihrer Freundin das Kleid. $\\rightarrow$ She gave her friend the dress.
+Ich habe dem Portier den Zimmerschlüssel gegeben. $\\rightarrow$ I have given the room key to the desk clerk.
+Die Mutter gibt ihrer Tochter die Tasche. $\\rightarrow$ The mother gives her daughter the bag.
+Rule B: Pronoun + Noun $\\rightarrow$ Pronoun First
+If one object is a personal pronoun and the other is a full noun, the pronoun is considered a grammatically "lighter" element. Therefore, it must physically gravitate closer to the conjugated verb. The pronoun always precedes the noun, completely regardless of its case.
+Dative Pronoun first: Sie gab ihr das Kleid. $\\rightarrow$ She gave her the dress.
+Accusative Pronoun first: Sie gab es ihrer Freundin. $\\rightarrow$ She gave it to her friend.
+Dative Pronoun first: Ich habe ihm den Zimmerschlüssel gegeben. $\\rightarrow$ I have given him the room key.
+Rule C: Pronoun + Pronoun $\\rightarrow$ Accusative before Dative (PAD)
+If both the direct object and the indirect object are converted into personal pronouns, the hierarchy shifts from word class to case priority. The accusative pronoun must always precede the dative pronoun.
+Helpful Mnemonic: PAD (Pronoun Accusative Dative).
+Sie gab es ihr. $\\rightarrow$ She gave it to her.
+Er gab es ihm. $\\rightarrow$ He gave it to him.
+Sie haben es ihm verziehen. $\\rightarrow$ They forgave him for it.
+3. Morphological Review: Personal Pronouns
+To apply the PAD rule correctly, you must be able to instantly recognize whether a pronoun is accusative or dative. Note how the 3rd person singular forms are the most heavily altered.
+Accusative (The "Thing"): mich (me), dich (you), ihn (him/it), sie (her/it), es (it), uns (us), euch (you all), sie/Sie (them/You).
+Dative (The "Receiver"): mir (to me), dir (to you), ihm (to him/it), ihr (to her/it), ihm (to it), uns (to us), euch (to you all), ihnen/Ihnen (to them/You).
+4. The Anomaly: Verbs with Two Accusative Objects
+While the Dative + Accusative structure is the standard for ditransitive verbs, there is a very small, closed group of verbs that structurally govern two accusative objects.
+With these specific verbs, both the person and the thing are forced into the accusative case. You must memorize these exceptions mechanically.
+Core Double-Accusative Verbs:
+kosten (to cost)
+nennen (to call / to name)
+lehren (to teach)
+Examples in Context:
+Der Brief hat mich den ganzen Abend gekostet. $\\rightarrow$ The letter cost me the whole evening. (Both the pronoun "mich" and the time phrase "den ganzen Abend" are in the accusative).
+Ich nannte ihn einen Lügner. $\\rightarrow$ I called him a liar. (Both the pronoun "ihn" and the noun "einen Lügner" are in the accusative).`,
       instruction: `Fill in the blank.`,
       exercises: [
       ],
@@ -1676,8 +1804,7 @@ Wir warten, bis du kommst. (We will wait until you come.).`,
       ],
     },
     "Adverbial Connectors": {
-      theory: `The Mechanics of Adverbial Connectors in German (Konjunktionaladverbien)
-1. What are Adverbial Connectors?
+      theory: `1. What are Adverbial Connectors?
 In German syntax, we frequently need to connect two main clauses (Hauptsätze) to express a logical relationship between them, such as cause and effect or an unexpected contrast.
 To do this, we can use Konjunktionaladverbien (adverbial connectors or conjunctional adverbs). Unlike standard coordinating conjunctions (such as und, aber, or denn), these connectors are technically adverbs. This means they are independent sentence elements that take up a structural "slot" in the sentence and directly impact the word order.
 2. The Golden Rule of Syntax: Verb-Second (V2)
@@ -2088,8 +2215,7 @@ Answer: Doch, da drüben sind welche. (Yes, over there are some.)`,
       ],
     },
     "The Genitive Case": {
-      theory: `The Mechanics of the Genitive Case (Der Genitiv)
-1. What is the Genitive Case?
+      theory: `1. What is the Genitive Case?
 In German grammar, the Genitive case (der Genitiv) is used primarily to express possession, belonging, or a relationship between two nouns. It establishes that one entity "owns" or is structurally related to another. Mechanically, it answers the interrogative question Wessen? (Whose?).
 While English often uses an apostrophe-'s' to show possession (e.g., "the man's car"), German employs a strict system of article declension and noun suffixes to encode this relationship directly into the words themselves.
 2. The Core Rule of Syntax (Word Order)
