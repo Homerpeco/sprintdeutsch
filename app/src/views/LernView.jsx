@@ -53,7 +53,7 @@ function VocabDrill({ state, setState, verbs }) {
     });
   }, [state.level, state.verbsKnown, verbs]);
 
-  const [idx, setIdx] = useState(0);
+  const [idx, setIdx] = useState(() => Math.floor(Math.random() * 10000));
   const [flipped, setFlipped] = useState(false);
   const card = deck[idx % deck.length];
   if (!card) return <div className="text-slate-500">No verbs at this level yet.</div>;
@@ -274,7 +274,7 @@ function verbformenUrl(inf) {
 
 function MatrixDrill({ state, setState }) {
   const deck = useMemo(() => buildMatrixDeck(state.verbMatrixSrs || {}), [state.verbMatrixSrs]);
-  const [idx, setIdx] = useState(0);
+  const [idx, setIdx] = useState(() => Math.floor(Math.random() * 10000));
   const [input, setInput] = useState({ inf: "", prät: "", perf: "", aux: "", rektion: "" });
   const [result, setResult] = useState(null);
   const firstInputRef = useRef(null);
