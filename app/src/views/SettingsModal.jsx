@@ -51,7 +51,7 @@ export function SettingsModal({ state, setState, isOpen, onClose }) {
         <input
           value={backendUrl}
           onChange={e => setBackendUrl(e.target.value)}
-          placeholder="http://localhost:8000"
+          placeholder="https://sprintdeutsch-backend.onrender.com"
           className="w-full p-2.5 rounded-xl border border-slate-200 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 text-sm font-mono"
         />
         <p className="text-xs text-slate-500 mt-2">

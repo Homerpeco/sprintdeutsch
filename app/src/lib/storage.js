@@ -39,11 +39,19 @@ export function loadState() {
 
 export function saveState(s) { localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
 
+// Deployed AI-Tutor backend (Render). localhost only works during local dev,
+// so stored localhost values are migrated to the deployed URL; anything else
+// the user typed in Settings is respected.
+export const DEFAULT_BACKEND_URL = "https://sprintdeutsch-backend.onrender.com";
+
 export function initialState() {
   const stored = loadState();
+  const backendUrl = (stored.backendUrl && !/^https?:\/\/localhost/.test(stored.backendUrl))
+    ? stored.backendUrl
+    : DEFAULT_BACKEND_URL;
   return {
     level: stored.level || "B1",
-    backendUrl: stored.backendUrl || "http://localhost:8000",
+    backendUrl,
     provider: stored.provider || "gemini",
     contextDomain: stored.contextDomain != null ? stored.contextDomain : CONTEXT_PRESETS.manufacturing,
     apiKey: stored.apiKey || "",
