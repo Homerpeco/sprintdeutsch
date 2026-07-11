@@ -10,6 +10,7 @@ import { PracticeView } from './views/PracticeView.jsx';
 import { WiederholungView } from './views/WiederholungView.jsx';
 import { StatsView } from './views/StatsView.jsx';
 import { VerbMeisterView } from './views/VerbMeisterView.jsx';
+import { VerbScannerView } from './views/VerbScannerView.jsx';
 import { AITutor } from './views/AITutor.jsx';
 import { SettingsModal } from './views/SettingsModal.jsx';
 
@@ -42,6 +43,7 @@ export function App() {
     { id: "practice",     label: "Practice",      icon: Icon.Mic },
     { id: "wiederholung", label: "Wiederholung",  icon: Icon.Sparkle, badge: dueCount },
     { id: "verbmeister",  label: "Verb Meister App", icon: Icon.Book },
+    { id: "verbscanner",  label: "Verb Scanner",  icon: Icon.Chat },
     { id: "stats",        label: "Stats",         icon: Icon.Stats },
   ];
 
@@ -129,6 +131,7 @@ export function App() {
           {view.section === "practice"     && <PracticeView     state={state} setState={setState} view={view} setView={setView} openTutor={openTutor} />}
           {view.section === "wiederholung" && <WiederholungView state={state} setState={setState} openTutor={openTutor} />}
           {view.section === "verbmeister"  && <VerbMeisterView />}
+          {view.section === "verbscanner"  && <VerbScannerView />}
           {view.section === "stats"        && <StatsView        state={state} verbs={VERBS} />}
         </main>
       </div>
