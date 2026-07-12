@@ -150,23 +150,32 @@ def iter_pdfs(folder: Path) -> Iterable[Path]:
 # Embeddings
 # ----------------------------------------------------------------------------
 
-_embedder = None  # lazy load — sentence-transformers can be slow to import
+_embedder = None  # lazy load — model files download on first use
+
+# fastembed (ONNX runtime) replaces sentence-transformers/PyTorch: same model,
+# same 384-dim vectors (verified against the existing chroma_db), but ~4x less
+# RAM — PyTorch OOM-crashed Render's free 512MB instance on the first query.
 
 
 def get_embedder():
-    """Returns a sentence-transformers SentenceTransformer instance."""
+    """Returns a fastembed TextEmbedding instance for the configured model."""
     global _embedder
     if _embedder is None:
-        # Imported lazily so `python -c "import rag"` is fast.
-        from sentence_transformers import SentenceTransformer
-        _embedder = SentenceTransformer(EMBEDDING_MODEL)
+        from fastembed import TextEmbedding
+        name = EMBEDDING_MODEL if "/" in EMBEDDING_MODEL else f"sentence-transformers/{EMBEDDING_MODEL}"
+        _embedder = TextEmbedding(name)
     return _embedder
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
+    import numpy as np
     model = get_embedder()
-    vecs = model.encode(texts, normalize_embeddings=True, convert_to_numpy=True, show_progress_bar=False)
-    return vecs.tolist()
+    out: list[list[float]] = []
+    for vec in model.embed(texts):
+        v = np.asarray(vec, dtype=float)
+        n = float(np.linalg.norm(v))
+        out.append((v / n).tolist() if n > 0 else v.tolist())
+    return out
 
 
 # ----------------------------------------------------------------------------
