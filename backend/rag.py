@@ -216,12 +216,23 @@ def ensure_semantic_index() -> None:
         if gcol.count() >= n:
             _semantic_ready = True
             return
+        import time
         data = src.get(include=["documents", "metadatas"])
         ids, docs, metas = data["ids"], data["documents"], data["metadatas"]
         for i in range(0, len(docs), 100):
-            vecs = _gemini_embed(docs[i:i + 100], "RETRIEVAL_DOCUMENT")
+            # free-tier embedding quotas are bursty — pace batches and retry 429s
+            for attempt in range(4):
+                try:
+                    vecs = _gemini_embed(docs[i:i + 100], "RETRIEVAL_DOCUMENT")
+                    break
+                except Exception as e:
+                    if "429" in str(e) and attempt < 3:
+                        time.sleep(30 * (attempt + 1))
+                        continue
+                    raise
             gcol.upsert(ids=ids[i:i + 100], documents=docs[i:i + 100],
                         metadatas=metas[i:i + 100], embeddings=vecs)
+            time.sleep(10)
         _semantic_ready = True
         _semantic_error = None
     except Exception as e:  # noqa: BLE001 — never take the server down over this
