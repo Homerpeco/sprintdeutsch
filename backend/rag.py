@@ -150,32 +150,140 @@ def iter_pdfs(folder: Path) -> Iterable[Path]:
 # Embeddings
 # ----------------------------------------------------------------------------
 
-_embedder = None  # lazy load — model files download on first use
+# Embeddings strategy (512MB-friendly — local transformer models OOM-killed
+# Render's free instance, both PyTorch (~1.5GB) and ONNX (~550MB+)):
+#   PRIMARY : Gemini embedding API (gemini-embedding-001) — zero local RAM.
+#             A background thread builds a separate "…_gemini" collection from
+#             the committed chunk texts at startup (~11 batched API calls).
+#   FALLBACK: BM25 keyword retrieval over the same chunks — instant, offline,
+#             used while the semantic index builds or if the API is down.
 
-# fastembed (ONNX runtime) replaces sentence-transformers/PyTorch: same model,
-# same 384-dim vectors (verified against the existing chroma_db), but ~4x less
-# RAM — PyTorch OOM-crashed Render's free 512MB instance on the first query.
+GEMINI_EMBED_MODEL   = env("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
+GEMINI_EMBED_DIMS    = int(env("GEMINI_EMBEDDING_DIMS", "768"))
+GEMINI_COLLECTION    = COLLECTION_NAME + "_gemini"
+_semantic_ready = False
+_semantic_error: Optional[str] = None
 
 
-def get_embedder():
-    """Returns a fastembed TextEmbedding instance for the configured model."""
-    global _embedder
-    if _embedder is None:
-        from fastembed import TextEmbedding
-        name = EMBEDDING_MODEL if "/" in EMBEDDING_MODEL else f"sentence-transformers/{EMBEDDING_MODEL}"
-        _embedder = TextEmbedding(name)
-    return _embedder
+def _gemini_embed(texts: list[str], task: str) -> list[list[float]]:
+    """Embed via the Gemini API. task: RETRIEVAL_DOCUMENT | RETRIEVAL_QUERY."""
+    import numpy as np
+    from google import genai
+    from google.genai import types
+    api_key = env("GEMINI_API_KEY")
+    if not api_key:
+        raise LLMError("Missing GEMINI_API_KEY for embeddings")
+    client = genai.Client(api_key=api_key)
+    out: list[list[float]] = []
+    for i in range(0, len(texts), 50):
+        resp = client.models.embed_content(
+            model=GEMINI_EMBED_MODEL,
+            contents=texts[i:i + 50],
+            config=types.EmbedContentConfig(task_type=task, output_dimensionality=GEMINI_EMBED_DIMS),
+        )
+        for e in resp.embeddings:
+            v = np.asarray(e.values, dtype=float)
+            n = float(np.linalg.norm(v))
+            out.append((v / n).tolist() if n > 0 else v.tolist())
+    return out
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
-    import numpy as np
-    model = get_embedder()
-    out: list[list[float]] = []
-    for vec in model.embed(texts):
-        v = np.asarray(vec, dtype=float)
-        n = float(np.linalg.norm(v))
-        out.append((v / n).tolist() if n > 0 else v.tolist())
-    return out
+    """Document embeddings (used by ingest); requires GEMINI_API_KEY."""
+    return _gemini_embed(texts, "RETRIEVAL_DOCUMENT")
+
+
+def ensure_semantic_index() -> None:
+    """
+    Build the Gemini-embedded collection from the committed chunk texts.
+    Runs in a background thread at server startup; safe to call repeatedly.
+    On any failure, retrieval silently stays on the BM25 fallback.
+    """
+    global _semantic_ready, _semantic_error
+    if _semantic_ready:
+        return
+    try:
+        if not env("GEMINI_API_KEY"):
+            _semantic_error = "no GEMINI_API_KEY — using keyword retrieval"
+            return
+        src = get_collection()
+        n = src.count()
+        if n == 0:
+            _semantic_error = "source collection empty"
+            return
+        client = get_chroma()
+        gcol = client.get_or_create_collection(name=GEMINI_COLLECTION, metadata={"hnsw:space": "cosine"})
+        if gcol.count() >= n:
+            _semantic_ready = True
+            return
+        data = src.get(include=["documents", "metadatas"])
+        ids, docs, metas = data["ids"], data["documents"], data["metadatas"]
+        for i in range(0, len(docs), 100):
+            vecs = _gemini_embed(docs[i:i + 100], "RETRIEVAL_DOCUMENT")
+            gcol.upsert(ids=ids[i:i + 100], documents=docs[i:i + 100],
+                        metadatas=metas[i:i + 100], embeddings=vecs)
+        _semantic_ready = True
+        _semantic_error = None
+    except Exception as e:  # noqa: BLE001 — never take the server down over this
+        _semantic_error = f"semantic index build failed: {e}"
+
+
+def semantic_status() -> dict:
+    return {"semantic_ready": _semantic_ready, "note": _semantic_error}
+
+
+# ---------- BM25 fallback (pure python, ~10MB RAM) ----------
+
+_bm25 = None
+_bm25_docs: list[str] = []
+_bm25_metas: list[dict] = []
+
+_GERMAN_STOP = set(("der die das den dem des ein eine einen einem einer und oder aber auch nicht "
+                    "mit von zu in im am an auf für ist sind war waren wir ich du er sie es ihr man "
+                    "kann muss soll will wird werden bei nach vor aus um als wie wenn dass sich").split())
+_word_re = re.compile(r"[a-zA-ZäöüÄÖÜß]+")
+
+
+def _bm25_tokenize(s: str) -> list[str]:
+    return [t for t in _word_re.findall(s.lower()) if t not in _GERMAN_STOP and len(t) > 1]
+
+
+def _digit_ratio(s: str) -> float:
+    if not s:
+        return 0.0
+    return sum(c.isdigit() for c in s) / len(s)
+
+
+def _get_bm25():
+    global _bm25, _bm25_docs, _bm25_metas
+    if _bm25 is None:
+        from rank_bm25 import BM25Okapi
+        data = get_collection().get(include=["documents", "metadatas"])
+        _bm25_docs = data["documents"] or []
+        _bm25_metas = data["metadatas"] or []
+        _bm25 = BM25Okapi([_bm25_tokenize(d) for d in _bm25_docs] or [["leer"]])
+    return _bm25
+
+
+def _bm25_retrieve(query: str, k: int) -> list[Hit]:
+    bm = _get_bm25()
+    scores = bm.get_scores(_bm25_tokenize(query))
+    # Penalize index/table-of-contents pages (page-number-dense chunks).
+    adjusted = [s * (0.25 if _digit_ratio(_bm25_docs[i]) > 0.12 else 1.0) for i, s in enumerate(scores)]
+    order = sorted(range(len(adjusted)), key=lambda i: -adjusted[i])[:max(k, 1)]
+    top = adjusted[order[0]] if order else 0.0
+    hits: list[Hit] = []
+    if top <= 0:
+        return hits
+    for i in order:
+        rel = adjusted[i] / top
+        if rel < 0.45:
+            continue
+        m = _bm25_metas[i]
+        hits.append(Hit(text=_bm25_docs[i], source=m.get("source", "?"),
+                        page_start=int(m.get("page_start", 0)), page_end=int(m.get("page_end", 0)),
+                        score=round(rel, 3)))
+    return hits
 
 
 # ----------------------------------------------------------------------------
@@ -266,8 +374,13 @@ class Hit:
 def retrieve(query: str, k: int = TOP_K, min_similarity: float = MIN_SIMILARITY) -> list[Hit]:
     if not query.strip():
         return []
-    col = get_collection()
-    qvec = embed_texts([query])[0]
+    if not _semantic_ready:
+        return _bm25_retrieve(query, k)
+    try:
+        qvec = _gemini_embed([query], "RETRIEVAL_QUERY")[0]
+    except Exception:
+        return _bm25_retrieve(query, k)  # API hiccup → keyword fallback
+    col = get_chroma().get_or_create_collection(name=GEMINI_COLLECTION, metadata={"hnsw:space": "cosine"})
     result = col.query(
         query_embeddings=[qvec],
         n_results=k,

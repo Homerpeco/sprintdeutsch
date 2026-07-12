@@ -38,6 +38,14 @@ import rag  # noqa: E402
 
 app = FastAPI(title="SprintDeutsch backend", version="0.1.0")
 
+
+@app.on_event("startup")
+def _build_semantic_index():
+    """Embed the library via the Gemini API in the background (non-blocking).
+    Until it finishes — or if it can't — retrieval uses the BM25 fallback."""
+    import threading
+    threading.Thread(target=rag.ensure_semantic_index, daemon=True).start()
+
 # CORS — the React app may run from file:// (origin "null") or a local dev
 # server. For a personal app, fully open is fine.
 app.add_middleware(
@@ -83,7 +91,8 @@ def health():
             "gemini": has_gemini,
             "claude": has_claude,
         },
-        "embedding_model": rag.EMBEDDING_MODEL,
+        "embedding_model": rag.GEMINI_EMBED_MODEL,
+        "retrieval": rag.semantic_status(),
         "chroma_dir": str(rag.CHROMA_DIR),
     }
 
