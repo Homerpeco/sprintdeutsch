@@ -619,13 +619,23 @@ function ScannerModus({ onNavigate }) {
     If it fits perfectly, output the pattern string and reihe number (1-9). If not (e.g. gehen, sein, regular verbs), output success: false, reihe: 0, pattern: 'Unknown'.
     Provide a short English explanation in 'msg' regarding its grammar or why it doesn't fit.`;
 
+    // Hard timeout so the button can never spin forever (the old code had none).
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
+      // Flash-Lite: fast + high free-tier limits and, crucially, not a heavy
+      // "thinking" model — gemini-flash-latest (3.5 Flash) spent its whole token
+      // budget on hidden reasoning and returned empty JSON, hanging the scanner.
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { 
+          generationConfig: {
+            temperature: 0.2,
+            thinkingConfig: { thinkingBudget: 0 }, // no thinking → fast, non-empty JSON
             responseMimeType: "application/json",
             responseSchema: {
               type: "OBJECT",
@@ -638,22 +648,39 @@ function ScannerModus({ onNavigate }) {
                 pattern: {type: "STRING"},
                 reihe: {type: "INTEGER"},
                 msg: {type: "STRING"}
-              }
+              },
+              propertyOrdering: ["success","infinitive","praesens","praeteritum","perfekt","pattern","reihe","msg"]
             }
           }
         })
       });
 
-      if (!response.ok) throw new Error("Failed to connect to API");
+      if (!response.ok) {
+        let detail = `HTTP ${response.status}`;
+        try { const e = await response.json(); detail = e?.error?.message || detail; } catch (_) {}
+        if (response.status === 429) throw new Error(`Rate limit reached — wait a minute and try again. (${detail})`);
+        if (response.status === 400 && /API key/i.test(detail)) throw new Error(`Invalid API key. Check VITE_GEMINI_API_KEY in Vercel. (${detail})`);
+        throw new Error(detail);
+      }
 
       const jsonResponse = await response.json();
-      const textResult = jsonResponse.candidates[0].content.parts[0].text;
+      // Thinking models put a "thought" part first (empty text). Find the real one.
+      const cands = jsonResponse.candidates || [];
+      if (!cands.length) throw new Error("The model returned no answer (request may have been blocked). Try another verb.");
+      const parts = (cands[0].content && cands[0].content.parts) || [];
+      const textResult = (parts.find(p => p.text && !p.thought) || {}).text;
+      if (!textResult) throw new Error("The model returned an empty response. Please try again.");
       const aiData = JSON.parse(textResult);
 
       setResult(aiData);
     } catch (error) {
-      setErrorMsg("Verbindungsfehler: Could not reach the AI engine. Check your internet connection and that VITE_GEMINI_API_KEY is set correctly.");
+      if (error.name === 'AbortError') {
+        setErrorMsg("The AI engine took too long to respond (over 30s). Please try again in a moment.");
+      } else {
+        setErrorMsg("Verbindungsfehler: " + (error.message || "Could not reach the AI engine. Check your connection and that VITE_GEMINI_API_KEY is set correctly."));
+      }
     } finally {
+      clearTimeout(timeout);
       setLoading(false);
     }
   };
