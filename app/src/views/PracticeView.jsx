@@ -237,6 +237,7 @@ Score each 0–100 and give an "overall" 0–100. In "transcript", write out wha
       contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: 'audio/wav', data: b64 } }] }],
       generationConfig: {
         temperature: 0.3,
+        thinkingConfig: { thinkingBudget: 0 }, // stable 2.5 models: disable thinking → non-empty JSON, fast
         responseMimeType: 'application/json',
         responseSchema: {
           type: 'OBJECT',
@@ -259,7 +260,10 @@ Score each 0–100 and give an "overall" 0–100. In "transcript", write out wha
     // backoff, so a transient "model overloaded" (503) or rate spike (429) is
     // retried automatically — and falls back to another model — instead of
     // failing the whole assessment.
-    const MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest'];
+    // Stable 2.5 models that reliably accept audio + JSON with thinking disabled.
+    // (gemini-flash-latest = 3.5 Flash is a thinking model and returned empty
+    //  audio+schema responses — dropped from the audio path on purpose.)
+    const MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     let lastErr = null;
 
@@ -312,10 +316,12 @@ Score each 0–100 and give an "overall" 0–100. In "transcript", write out wha
       setState(bumpStreak({ ...state, practice: { ...state.practice, speaking: state.practice.speaking + 1 } }));
     } catch (err) {
       let msg;
-      if (err.timeout) msg = 'The assessment kept timing out. Please try again in a moment.';
-      else if (err.status === 400 && /API key/i.test(err.message || '')) msg = 'Invalid API key. Check VITE_GEMINI_API_KEY in Vercel and redeploy.';
-      else if (err.status === 429) msg = "You've reached today's free Gemini usage limit. Please wait a while and try again.";
-      else msg = 'The AI servers were briefly busy and the automatic retries didn\'t get through. Please tap "Assess" once more — it almost always works on the next try.';
+      if (err.timeout) msg = 'The assessment kept timing out — please try again.';
+      else if (err.status === 400 && /api[_ ]?key/i.test(err.message || '')) msg = 'Invalid API key. Check VITE_GEMINI_API_KEY in Vercel and redeploy.';
+      else if (err.status === 429) msg = 'Usage limit reached on your Gemini key — please wait a bit and try again.';
+      else if (err.status === 503 || /overload|high demand|unavailable/i.test(err.message || '')) msg = 'The AI servers were briefly busy. Please tap "Assess" once more.';
+      // Anything unexpected: show the real reason so it can be diagnosed, not hidden.
+      else msg = 'Could not assess the recording: ' + (err.message || 'unknown error') + (err.status ? ` (status ${err.status})` : '');
       setErrorMsg(msg);
     } finally {
       setAnalyzing(false);
