@@ -1,31 +1,391 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { PASSAGES, WRITING_PROMPTS, SPEAKING_PROMPTS } from '../data/passages.js';
 import { bumpStreak } from '../lib/streak.js';
 import { Card } from '../components/Card.jsx';
 import { Pill } from '../components/Pill.jsx';
 import { Icon } from '../components/Icon.jsx';
 
-function SpeakingPractice({ state, setState, openTutor }) {
-  const prompt = SPEAKING_PROMPTS[state.level];
-  function complete() {
-    setState(bumpStreak({ ...state, practice: { ...state.practice, speaking: state.practice.speaking + 1 } }));
+// ---- Pronunciation target sentences per level (tricky German sounds: ö ü ä, ich/ach-Laut, r, z, sp/st, sch) ----
+const PRONUNCIATION_SENTENCES = {
+  A1: [
+    "Guten Morgen! Ich möchte einen Kaffee und ein Brötchen, bitte.",
+    "Meine Schwester wohnt in einer schönen Stadt am Fluss.",
+    "Am Sonntag spiele ich mit meinen Kindern im Garten.",
+  ],
+  A2: [
+    "Am Wochenende fahre ich mit dem Fahrrad zum See und treffe meine Freunde.",
+    "Können Sie mir bitte erklären, wie ich zum Bahnhof komme?",
+    "Im Frühling blühen die Bäume und die Vögel singen früh am Morgen.",
+  ],
+  B1: [
+    "Obwohl das Wetter schlecht war, haben wir einen schönen Ausflug gemacht.",
+    "Ich würde mich freuen, wenn wir uns nächste Woche treffen könnten.",
+    "Die Straßenbahn quietschte, während sie um die enge Ecke fuhr.",
+  ],
+  B2: [
+    "Die Wissenschaftlerin erklärte die Zusammenhänge zwischen Umwelt und Wirtschaft.",
+    "Trotz zahlreicher Schwierigkeiten verfolgte das Team seine ehrgeizigen Ziele.",
+    "Zwischen den Zeilen verbirgt sich häufig die eigentliche Aussage des Textes.",
+  ],
+  C1: [
+    "Trotz zahlreicher Rückschläge verfolgte er beharrlich seine ursprünglichen Ziele.",
+    "Die gesellschaftlichen Auswirkungen der Digitalisierung sind kaum zu überschätzen.",
+    "Ihre außergewöhnliche Ausdrucksweise zeugte von jahrelanger, gründlicher Übung.",
+  ],
+};
+
+// ---- Encode a decoded AudioBuffer to a compact 16 kHz mono 16-bit WAV Blob ----
+// (WAV is universally accepted by Gemini; browsers' native MediaRecorder output —
+//  webm/ogg/mp4 — is not consistently supported, so we always re-encode to WAV.)
+function audioBufferToWav(buffer) {
+  const targetRate = 16000;
+  const numCh = buffer.numberOfChannels;
+  // mix down to mono
+  let mono;
+  if (numCh > 1) {
+    mono = new Float32Array(buffer.length);
+    for (let c = 0; c < numCh; c++) {
+      const ch = buffer.getChannelData(c);
+      for (let i = 0; i < ch.length; i++) mono[i] += ch[i] / numCh;
+    }
+  } else {
+    mono = buffer.getChannelData(0);
   }
+  // linear resample to 16 kHz
+  const ratio = buffer.sampleRate / targetRate;
+  const outLen = Math.max(1, Math.floor(mono.length / ratio));
+  const out = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) {
+    const idx = i * ratio;
+    const i0 = Math.floor(idx);
+    const i1 = Math.min(i0 + 1, mono.length - 1);
+    const frac = idx - i0;
+    out[i] = mono[i0] * (1 - frac) + mono[i1] * frac;
+  }
+  const bytesPerSample = 2;
+  const dataLen = out.length * bytesPerSample;
+  const ab = new ArrayBuffer(44 + dataLen);
+  const view = new DataView(ab);
+  const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+  writeStr(0, 'RIFF'); view.setUint32(4, 36 + dataLen, true); writeStr(8, 'WAVE');
+  writeStr(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true); view.setUint32(24, targetRate, true);
+  view.setUint32(28, targetRate * bytesPerSample, true); view.setUint16(32, bytesPerSample, true);
+  view.setUint16(34, 16, true); writeStr(36, 'data'); view.setUint32(40, dataLen, true);
+  let off = 44;
+  for (let i = 0; i < out.length; i++) {
+    const s = Math.max(-1, Math.min(1, out[i]));
+    view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    off += 2;
+  }
+  return new Blob([ab], { type: 'audio/wav' });
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onloadend = () => resolve(String(r.result).split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(blob);
+  });
+}
+
+function ScoreBar({ label, value, color }) {
+  const v = Math.max(0, Math.min(100, Number(value) || 0));
+  return (
+    <div className="mb-3">
+      <div className="flex justify-between text-sm mb-1">
+        <span className="font-medium text-slate-700">{label}</span>
+        <span className="font-bold text-slate-900">{v}</span>
+      </div>
+      <div className="h-2.5 rounded-full bg-slate-200 overflow-hidden">
+        <div className="h-full rounded-full transition-all" style={{ width: `${v}%`, background: color }} />
+      </div>
+    </div>
+  );
+}
+
+function SpeakingPractice({ state, setState }) {
+  const sentences = PRONUNCIATION_SENTENCES[state.level] || PRONUNCIATION_SENTENCES.B1;
+  const [idx, setIdx] = useState(0);
+  const sentence = sentences[idx % sentences.length];
+
+  const [recording, setRecording] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [wavBlob, setWavBlob] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  const mediaRef = useRef(null);
+  const chunksRef = useRef([]);
+  const streamRef = useRef(null);
+  const timerRef = useRef(null);
+  const MAX_SECONDS = 30;
+
+  useEffect(() => () => {
+    // cleanup on unmount: stop mic + release object URL
+    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+  }, [audioUrl]);
+
+  function resetTake() {
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    setAudioUrl(null); setWavBlob(null); setResult(null); setErrorMsg(null); setSeconds(0);
+  }
+
+  function pickSentence(delta) {
+    resetTake();
+    setIdx(i => (i + delta + sentences.length) % sentences.length);
+  }
+
+  async function startRecording() {
+    resetTake();
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof MediaRecorder === 'undefined') {
+      setErrorMsg("Your browser doesn't support in-page recording. Please use a recent Chrome, Safari, Firefox or Edge.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      chunksRef.current = [];
+      const mr = new MediaRecorder(stream);
+      mr.ondataavailable = e => { if (e.data && e.data.size) chunksRef.current.push(e.data); };
+      mr.onstop = async () => {
+        try {
+          const raw = new Blob(chunksRef.current, { type: chunksRef.current[0]?.type || 'audio/webm' });
+          const AC = window.AudioContext || window.webkitAudioContext;
+          const ctx = new AC();
+          const decoded = await ctx.decodeAudioData(await raw.arrayBuffer());
+          ctx.close();
+          const wav = audioBufferToWav(decoded);
+          setWavBlob(wav);
+          setAudioUrl(URL.createObjectURL(wav));
+        } catch (err) {
+          setErrorMsg("Couldn't process the recording. Please try again.");
+        }
+      };
+      mr.start();
+      mediaRef.current = mr;
+      setRecording(true);
+      setSeconds(0);
+      timerRef.current = setInterval(() => {
+        setSeconds(s => {
+          if (s + 1 >= MAX_SECONDS) { stopRecording(); return MAX_SECONDS; }
+          return s + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      setErrorMsg(err && err.name === 'NotAllowedError'
+        ? "Microphone access was blocked. Allow mic access in your browser and try again."
+        : "Couldn't start the microphone. Check that a mic is connected and permitted.");
+    }
+  }
+
+  function stopRecording() {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    if (mediaRef.current && mediaRef.current.state !== 'inactive') mediaRef.current.stop();
+    if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+    setRecording(false);
+  }
+
+  async function assess() {
+    if (!wavBlob) return;
+    setAnalyzing(true); setErrorMsg(null); setResult(null);
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      setAnalyzing(false);
+      setErrorMsg("No API key configured. Add VITE_GEMINI_API_KEY in Vercel's Environment Variables and redeploy.");
+      return;
+    }
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 45000);
+    try {
+      const b64 = await blobToBase64(wavBlob);
+      const prompt = `You are a strict but encouraging German pronunciation coach. The learner (CEFR level ${state.level}) was asked to read this sentence aloud:
+
+"${sentence}"
+
+Listen to the attached audio and assess ONLY their pronunciation — not grammar or vocabulary. Judge three things:
+- "pronunciation": accuracy of individual sounds/phonemes (Umlaute ö/ü/ä, the ich- vs ach-Laut, r, z/tz, sch, sp/st, long vs short vowels).
+- "intonation": sentence melody, stress and rhythm (Satzmelodie und Betonung).
+- "accent": how close to a native German speaker overall (naturalness/fluency).
+
+Score each 0–100 and give an "overall" 0–100. Transcribe what you actually heard in "transcript". In "issues", list up to 4 specific sounds or words that need work, each with a short, concrete English tip on how to produce it. Keep "strengths" and "summary" short and in English. Be honest but motivating.`;
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: 'audio/wav', data: b64 } }] }],
+          generationConfig: {
+            temperature: 0.3,
+            responseMimeType: 'application/json',
+            responseSchema: {
+              type: 'OBJECT',
+              properties: {
+                transcript: { type: 'STRING' },
+                overall: { type: 'INTEGER' },
+                pronunciation: { type: 'INTEGER' },
+                intonation: { type: 'INTEGER' },
+                accent: { type: 'INTEGER' },
+                strengths: { type: 'STRING' },
+                issues: { type: 'ARRAY', items: { type: 'OBJECT', properties: { sound: { type: 'STRING' }, tip: { type: 'STRING' } }, propertyOrdering: ['sound', 'tip'] } },
+                summary: { type: 'STRING' },
+              },
+              propertyOrdering: ['transcript', 'overall', 'pronunciation', 'intonation', 'accent', 'strengths', 'issues', 'summary'],
+            },
+          },
+        }),
+      });
+      if (!res.ok) {
+        let detail = `HTTP ${res.status}`;
+        try { const e = await res.json(); detail = e?.error?.message || detail; } catch (_) {}
+        if (res.status === 429) throw new Error(`Rate limit reached — wait a minute and try again. (${detail})`);
+        throw new Error(detail);
+      }
+      const j = await res.json();
+      const cands = j.candidates || [];
+      if (!cands.length) throw new Error('The model returned no answer (audio may have been unclear). Try recording again.');
+      const parts = (cands[0].content && cands[0].content.parts) || [];
+      const text = (parts.find(p => p.text && !p.thought) || {}).text;
+      if (!text) throw new Error('Empty response from the model. Please try again.');
+      const data = JSON.parse(text);
+      setResult(data);
+      setState(bumpStreak({ ...state, practice: { ...state.practice, speaking: state.practice.speaking + 1 } }));
+    } catch (err) {
+      setErrorMsg(err.name === 'AbortError'
+        ? 'The assessment took too long (over 45s). Please try again in a moment.'
+        : 'Could not assess your recording: ' + (err.message || 'unknown error'));
+    } finally {
+      clearTimeout(timeout);
+      setAnalyzing(false);
+    }
+  }
+
+  const overall = result ? Math.max(0, Math.min(100, Number(result.overall) || 0)) : 0;
+  const ring = overall >= 80 ? '#22c55e' : overall >= 55 ? '#f59e0b' : '#f43f5e';
+
   return (
     <Card className="p-6">
-      <div className="text-sm font-medium text-indigo-600 mb-2">Speaking · {state.level}</div>
-      <p className="text-xl mb-6 font-medium">{prompt}</p>
-      <div className="p-4 rounded-xl bg-slate-50 mb-4 text-sm text-slate-600">
-        Record yourself answering (in your phone's voice memo or any recorder), then tell the AI tutor your answer in chat for live correction.
+      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+        <div className="text-sm font-medium text-indigo-600">Speaking · Pronunciation · {state.level}</div>
+        <div className="flex gap-2">
+          <button onClick={() => pickSentence(-1)} className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 text-sm hover:bg-slate-50">‹ Prev</button>
+          <button onClick={() => pickSentence(1)} className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 text-sm hover:bg-slate-50">New sentence ›</button>
+        </div>
       </div>
-      <div className="flex flex-wrap gap-3">
-        <button onClick={complete} className="px-4 py-2 rounded-lg bg-emerald-500 text-white font-medium hover:bg-emerald-600">Mark complete</button>
-        <button
-          onClick={() => openTutor(`Please act as my speaking coach. The prompt was: "${prompt}". I'll send you my answer in German next.`)}
-          className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 flex items-center gap-2"
-        >
-          <Icon.Sparkle className="w-4 h-4" /> Ask AI tutor
-        </button>
+
+      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
+        <div className="text-[11px] uppercase tracking-wide font-bold text-slate-400 mb-1">Read this aloud</div>
+        <p className="text-xl sm:text-2xl font-semibold text-slate-900 leading-snug">{sentence}</p>
       </div>
+
+      <p className="text-sm text-slate-500 mb-4">
+        🎙️ Record yourself right here — your voice stays in this browser and is used only to assess your pronunciation, tone and accent. Nothing is stored.
+      </p>
+
+      {/* Recorder controls */}
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        {!recording ? (
+          <button onClick={startRecording} disabled={analyzing}
+            className="px-5 py-3 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 flex items-center gap-2 disabled:opacity-50">
+            <Icon.Mic className="w-5 h-5" /> {audioUrl ? 'Record again' : 'Start recording'}
+          </button>
+        ) : (
+          <button onClick={stopRecording}
+            className="px-5 py-3 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-900 flex items-center gap-2">
+            <span className="w-3 h-3 rounded-sm bg-rose-400 animate-pulse" /> Stop ({MAX_SECONDS - seconds}s)
+          </button>
+        )}
+        {recording && (
+          <span className="flex items-center gap-2 text-rose-600 font-medium text-sm">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" /> Recording… {seconds}s
+          </span>
+        )}
+      </div>
+
+      {/* Playback + assess */}
+      {audioUrl && !recording && (
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <audio src={audioUrl} controls className="h-10 max-w-full" />
+          <button onClick={assess} disabled={analyzing}
+            className="px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50">
+            <Icon.Sparkle className="w-4 h-4" /> {analyzing ? 'Assessing…' : 'Assess my pronunciation'}
+          </button>
+        </div>
+      )}
+
+      {analyzing && (
+        <div className="text-center py-8">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-r-transparent" />
+          <p className="mt-3 text-slate-500 font-medium">Listening to your pronunciation…</p>
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm">{errorMsg}</div>
+      )}
+
+      {/* Result */}
+      {result && !analyzing && (
+        <div className="mt-2">
+          <div className="flex items-center gap-5 mb-5">
+            <div className="relative shrink-0" style={{ width: 96, height: 96 }}>
+              <svg viewBox="0 0 36 36" className="w-24 h-24 -rotate-90">
+                <circle cx="18" cy="18" r="15.5" fill="none" stroke="#e2e8f0" strokeWidth="3.5" />
+                <circle cx="18" cy="18" r="15.5" fill="none" stroke={ring} strokeWidth="3.5" strokeLinecap="round"
+                  strokeDasharray={`${(overall / 100) * 97.4} 97.4`} />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-extrabold text-slate-900">{overall}</span>
+                <span className="text-[10px] uppercase font-bold text-slate-400">overall</span>
+              </div>
+            </div>
+            <div className="flex-1 min-w-[180px]">
+              <ScoreBar label="Pronunciation (sounds)" value={result.pronunciation} color="#6366f1" />
+              <ScoreBar label="Intonation / tone" value={result.intonation} color="#8b5cf6" />
+              <ScoreBar label="Accent (native-like)" value={result.accent} color="#0ea5e9" />
+            </div>
+          </div>
+
+          {result.transcript && (
+            <div className="mb-4 text-sm">
+              <span className="text-[11px] uppercase tracking-wide font-bold text-slate-400">What I heard</span>
+              <p className="italic text-slate-700 mt-1">"{result.transcript}"</p>
+            </div>
+          )}
+
+          {result.strengths && (
+            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm mb-3">
+              <strong>Strengths:</strong> {result.strengths}
+            </div>
+          )}
+
+          {Array.isArray(result.issues) && result.issues.length > 0 && (
+            <div className="mb-3">
+              <div className="text-[11px] uppercase tracking-wide font-bold text-slate-400 mb-2">Sounds to work on</div>
+              <ul className="space-y-2">
+                {result.issues.map((it, i) => (
+                  <li key={i} className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm">
+                    <span className="font-bold text-amber-900">{it.sound}</span>
+                    <span className="text-amber-800"> — {it.tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {result.summary && <p className="text-sm text-slate-600 mb-4">{result.summary}</p>}
+
+          <button onClick={startRecording}
+            className="px-4 py-2.5 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 flex items-center gap-2">
+            <Icon.Mic className="w-4 h-4" /> Try this sentence again
+          </button>
+        </div>
+      )}
     </Card>
   );
 }
@@ -140,7 +500,7 @@ export function PracticeView({ state, setState, view, setView, openTutor }) {
           </Pill>
         ))}
       </div>
-      {tab === "speaking"  && <SpeakingPractice  state={state} setState={setState} openTutor={openTutor} />}
+      {tab === "speaking"  && <SpeakingPractice  state={state} setState={setState} />}
       {tab === "writing"   && <WritingPractice   state={state} setState={setState} openTutor={openTutor} />}
       {tab === "reading"   && <ReadingPractice   state={state} setState={setState} openTutor={openTutor} />}
       {tab === "listening" && <ListeningPractice state={state} setState={setState} openTutor={openTutor} />}
