@@ -214,14 +214,18 @@ function SpeakingPractice({ state, setState }) {
       setErrorMsg("No API key configured. Add VITE_GEMINI_API_KEY in Vercel's Environment Variables and redeploy.");
       return;
     }
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 90000);
+    let b64;
     try {
-      const b64 = await blobToBase64(wavBlob);
-      const task = mode === 'read'
-        ? `The learner was asked to READ this sentence aloud:\n\n"${sentence}"\n\nCompare what they said to this exact target.`
-        : `The learner is practicing a spoken PRESENTATION (about 5–10 sentences of free, spontaneous German)${topic.trim() ? ` on the topic: "${topic.trim()}"` : ' on an open topic of their choice'}. There is no target text — assess the connected speech as delivered.`;
-      const prompt = `You are a strict but encouraging German pronunciation coach for a CEFR ${state.level} learner. ${task}
+      b64 = await blobToBase64(wavBlob);
+    } catch (e) {
+      setAnalyzing(false);
+      setErrorMsg('Could not read the recording. Please record again.');
+      return;
+    }
+    const task = mode === 'read'
+      ? `The learner was asked to READ this sentence aloud:\n\n"${sentence}"\n\nCompare what they said to this exact target.`
+      : `The learner is practicing a spoken PRESENTATION (about 5–10 sentences of free, spontaneous German)${topic.trim() ? ` on the topic: "${topic.trim()}"` : ' on an open topic of their choice'}. There is no target text — assess the connected speech as delivered.`;
+    const prompt = `You are a strict but encouraging German pronunciation coach for a CEFR ${state.level} learner. ${task}
 
 Listen to the attached audio and assess ONLY pronunciation and delivery — NOT grammar, vocabulary or content. Judge three things:
 - "pronunciation": accuracy of individual sounds/phonemes across the whole recording (Umlaute ö/ü/ä, the ich- vs ach-Laut, r, z/tz, sch, sp/st, long vs short vowels, word endings).
@@ -229,53 +233,91 @@ Listen to the attached audio and assess ONLY pronunciation and delivery — NOT 
 - "accent": how close to a native German speaker overall (naturalness and fluency; note excessive hesitation or filler sounds like "ähm").
 
 Score each 0–100 and give an "overall" 0–100. In "transcript", write out what you actually heard (the full speech, not a fixed sentence). In "issues", list up to 5 specific words or sounds that need work, each with a short, concrete English tip on how to produce it. Keep "strengths" and "summary" short and in English. Be honest but motivating, and tailor advice to someone preparing to give presentations.`;
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: 'audio/wav', data: b64 } }] }],
-          generationConfig: {
-            temperature: 0.3,
-            responseMimeType: 'application/json',
-            responseSchema: {
-              type: 'OBJECT',
-              properties: {
-                transcript: { type: 'STRING' },
-                overall: { type: 'INTEGER' },
-                pronunciation: { type: 'INTEGER' },
-                intonation: { type: 'INTEGER' },
-                accent: { type: 'INTEGER' },
-                strengths: { type: 'STRING' },
-                issues: { type: 'ARRAY', items: { type: 'OBJECT', properties: { sound: { type: 'STRING' }, tip: { type: 'STRING' } }, propertyOrdering: ['sound', 'tip'] } },
-                summary: { type: 'STRING' },
-              },
-              propertyOrdering: ['transcript', 'overall', 'pronunciation', 'intonation', 'accent', 'strengths', 'issues', 'summary'],
-            },
+    const requestBody = {
+      contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: 'audio/wav', data: b64 } }] }],
+      generationConfig: {
+        temperature: 0.3,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'OBJECT',
+          properties: {
+            transcript: { type: 'STRING' },
+            overall: { type: 'INTEGER' },
+            pronunciation: { type: 'INTEGER' },
+            intonation: { type: 'INTEGER' },
+            accent: { type: 'INTEGER' },
+            strengths: { type: 'STRING' },
+            issues: { type: 'ARRAY', items: { type: 'OBJECT', properties: { sound: { type: 'STRING' }, tip: { type: 'STRING' } }, propertyOrdering: ['sound', 'tip'] } },
+            summary: { type: 'STRING' },
           },
-        }),
-      });
-      if (!res.ok) {
-        let detail = `HTTP ${res.status}`;
-        try { const e = await res.json(); detail = e?.error?.message || detail; } catch (_) {}
-        if (res.status === 429) throw new Error(`Rate limit reached — wait a minute and try again. (${detail})`);
-        throw new Error(detail);
+          propertyOrdering: ['transcript', 'overall', 'pronunciation', 'intonation', 'accent', 'strengths', 'issues', 'summary'],
+        },
+      },
+    };
+
+    // Robust delivery: try several models, each with a couple of retries and
+    // backoff, so a transient "model overloaded" (503) or rate spike (429) is
+    // retried automatically — and falls back to another model — instead of
+    // failing the whole assessment.
+    const MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest'];
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    let lastErr = null;
+
+    try {
+      let data = null;
+      for (let m = 0; m < MODELS.length && !data; m++) {
+        for (let attempt = 0; attempt < 2 && !data; attempt++) {
+          const controller = new AbortController();
+          const to = setTimeout(() => controller.abort(), 45000);
+          try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELS[m]}:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
+              body: JSON.stringify(requestBody),
+            });
+            clearTimeout(to);
+            if (res.ok) {
+              const j = await res.json();
+              const cands = j.candidates || [];
+              if (!cands.length) throw Object.assign(new Error('empty'), { retryable: true });
+              const parts = (cands[0].content && cands[0].content.parts) || [];
+              const text = (parts.find(p => p.text && !p.thought) || {}).text;
+              if (!text) throw Object.assign(new Error('empty'), { retryable: true });
+              data = JSON.parse(text);
+              break;
+            }
+            let detail = `HTTP ${res.status}`;
+            try { const e = await res.json(); detail = e?.error?.message || detail; } catch (_) {}
+            const err = new Error(detail);
+            err.status = res.status;
+            if (res.status === 400 || res.status === 403) throw err; // bad key/request → don't retry
+            err.retryable = true; // 429 / 500 / 503 → retry & fall back
+            lastErr = err;
+          } catch (err) {
+            clearTimeout(to);
+            if (err.status === 400 || err.status === 403) throw err;
+            lastErr = err.name === 'AbortError'
+              ? Object.assign(new Error('timeout'), { timeout: true })
+              : err;
+          }
+          if (!data && attempt === 0) await sleep(1200 + Math.random() * 800); // backoff before retrying same model
+        }
+        if (!data && m < MODELS.length - 1) await sleep(600); // brief pause before next model
       }
-      const j = await res.json();
-      const cands = j.candidates || [];
-      if (!cands.length) throw new Error('The model returned no answer (audio may have been unclear). Try recording again.');
-      const parts = (cands[0].content && cands[0].content.parts) || [];
-      const text = (parts.find(p => p.text && !p.thought) || {}).text;
-      if (!text) throw new Error('Empty response from the model. Please try again.');
-      const data = JSON.parse(text);
+
+      if (!data) throw (lastErr || new Error('unavailable'));
+
       setResult(data);
       setState(bumpStreak({ ...state, practice: { ...state.practice, speaking: state.practice.speaking + 1 } }));
     } catch (err) {
-      setErrorMsg(err.name === 'AbortError'
-        ? 'The assessment took too long (over 45s). Please try again in a moment.'
-        : 'Could not assess your recording: ' + (err.message || 'unknown error'));
+      let msg;
+      if (err.timeout) msg = 'The assessment kept timing out. Please try again in a moment.';
+      else if (err.status === 400 && /API key/i.test(err.message || '')) msg = 'Invalid API key. Check VITE_GEMINI_API_KEY in Vercel and redeploy.';
+      else if (err.status === 429) msg = "You've reached today's free Gemini usage limit. Please wait a while and try again.";
+      else msg = 'The AI servers were briefly busy and the automatic retries didn\'t get through. Please tap "Assess" once more — it almost always works on the next try.';
+      setErrorMsg(msg);
     } finally {
-      clearTimeout(timeout);
       setAnalyzing(false);
     }
   }
