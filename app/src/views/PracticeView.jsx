@@ -34,6 +34,15 @@ const PRONUNCIATION_SENTENCES = {
   ],
 };
 
+// ---- Suggested presentation topics for free speaking (5–10 sentences), per level ----
+const PRESENTATION_TOPICS = {
+  A1: ["Meine Familie", "Mein Tagesablauf", "Meine Hobbys", "Meine Heimatstadt", "Mein Lieblingsessen"],
+  A2: ["Mein letztes Wochenende", "Mein letzter Urlaub", "Mein Traumberuf", "Meine beste Freundin / mein bester Freund", "Meine Pläne für nächste Woche"],
+  B1: ["Vor- und Nachteile des Landlebens", "Warum Sport wichtig ist", "Eine Reise, die ich nie vergessen werde", "Warum ich Deutsch lerne", "Mein Lieblingsfilm und warum"],
+  B2: ["Die Auswirkungen sozialer Medien", "Homeoffice: Chancen und Risiken", "Klimaschutz im Alltag", "Die Rolle der Technik in der Bildung", "Ein Buch, das mich geprägt hat"],
+  C1: ["Ethische Fragen der künstlichen Intelligenz", "Work-Life-Balance in der modernen Gesellschaft", "Die Zukunft erneuerbarer Energien", "Kulturelle Identität in einer globalisierten Welt", "Der Wert kultureller Bildung"],
+};
+
 // ---- Encode a decoded AudioBuffer to a compact 16 kHz mono 16-bit WAV Blob ----
 // (WAV is universally accepted by Gemini; browsers' native MediaRecorder output —
 //  webm/ogg/mp4 — is not consistently supported, so we always re-encode to WAV.)
@@ -106,8 +115,12 @@ function ScoreBar({ label, value, color }) {
 }
 
 function SpeakingPractice({ state, setState }) {
+  const [mode, setMode] = useState('free'); // 'free' = open topic (presentation), 'read' = fixed sentence
   const sentences = PRONUNCIATION_SENTENCES[state.level] || PRONUNCIATION_SENTENCES.B1;
+  const topics = PRESENTATION_TOPICS[state.level] || PRESENTATION_TOPICS.B1;
   const [idx, setIdx] = useState(0);
+  const [topicIdx, setTopicIdx] = useState(0);
+  const [topic, setTopic] = useState('');
   const sentence = sentences[idx % sentences.length];
 
   const [recording, setRecording] = useState(false);
@@ -122,7 +135,8 @@ function SpeakingPractice({ state, setState }) {
   const chunksRef = useRef([]);
   const streamRef = useRef(null);
   const timerRef = useRef(null);
-  const MAX_SECONDS = 30;
+  // Free/presentation mode needs room for 5–10 sentences; read mode is short.
+  const MAX_SECONDS = mode === 'free' ? 150 : 30;
 
   useEffect(() => () => {
     // cleanup on unmount: stop mic + release object URL
@@ -201,19 +215,20 @@ function SpeakingPractice({ state, setState }) {
       return;
     }
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 45000);
+    const timeout = setTimeout(() => controller.abort(), 90000);
     try {
       const b64 = await blobToBase64(wavBlob);
-      const prompt = `You are a strict but encouraging German pronunciation coach. The learner (CEFR level ${state.level}) was asked to read this sentence aloud:
+      const task = mode === 'read'
+        ? `The learner was asked to READ this sentence aloud:\n\n"${sentence}"\n\nCompare what they said to this exact target.`
+        : `The learner is practicing a spoken PRESENTATION (about 5–10 sentences of free, spontaneous German)${topic.trim() ? ` on the topic: "${topic.trim()}"` : ' on an open topic of their choice'}. There is no target text — assess the connected speech as delivered.`;
+      const prompt = `You are a strict but encouraging German pronunciation coach for a CEFR ${state.level} learner. ${task}
 
-"${sentence}"
+Listen to the attached audio and assess ONLY pronunciation and delivery — NOT grammar, vocabulary or content. Judge three things:
+- "pronunciation": accuracy of individual sounds/phonemes across the whole recording (Umlaute ö/ü/ä, the ich- vs ach-Laut, r, z/tz, sch, sp/st, long vs short vowels, word endings).
+- "intonation": sentence melody, word/sentence stress and rhythm (Satzmelodie und Betonung), and — for a presentation — natural phrasing and pacing.
+- "accent": how close to a native German speaker overall (naturalness and fluency; note excessive hesitation or filler sounds like "ähm").
 
-Listen to the attached audio and assess ONLY their pronunciation — not grammar or vocabulary. Judge three things:
-- "pronunciation": accuracy of individual sounds/phonemes (Umlaute ö/ü/ä, the ich- vs ach-Laut, r, z/tz, sch, sp/st, long vs short vowels).
-- "intonation": sentence melody, stress and rhythm (Satzmelodie und Betonung).
-- "accent": how close to a native German speaker overall (naturalness/fluency).
-
-Score each 0–100 and give an "overall" 0–100. Transcribe what you actually heard in "transcript". In "issues", list up to 4 specific sounds or words that need work, each with a short, concrete English tip on how to produce it. Keep "strengths" and "summary" short and in English. Be honest but motivating.`;
+Score each 0–100 and give an "overall" 0–100. In "transcript", write out what you actually heard (the full speech, not a fixed sentence). In "issues", list up to 5 specific words or sounds that need work, each with a short, concrete English tip on how to produce it. Keep "strengths" and "summary" short and in English. Be honest but motivating, and tailor advice to someone preparing to give presentations.`;
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -270,18 +285,53 @@ Score each 0–100 and give an "overall" 0–100. Transcribe what you actually h
 
   return (
     <Card className="p-6">
-      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <div className="text-sm font-medium text-indigo-600">Speaking · Pronunciation · {state.level}</div>
-        <div className="flex gap-2">
-          <button onClick={() => pickSentence(-1)} className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 text-sm hover:bg-slate-50">‹ Prev</button>
-          <button onClick={() => pickSentence(1)} className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 text-sm hover:bg-slate-50">New sentence ›</button>
+        {/* Mode toggle */}
+        <div className="inline-flex rounded-lg bg-slate-100 p-1 text-sm font-medium">
+          <button
+            onClick={() => { if (mode !== 'free') { setMode('free'); resetTake(); } }}
+            className={`px-3 py-1.5 rounded-md transition ${mode === 'free' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}
+          >🎤 Free topic</button>
+          <button
+            onClick={() => { if (mode !== 'read') { setMode('read'); resetTake(); } }}
+            className={`px-3 py-1.5 rounded-md transition ${mode === 'read' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}
+          >📖 Read a sentence</button>
         </div>
       </div>
 
-      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
-        <div className="text-[11px] uppercase tracking-wide font-bold text-slate-400 mb-1">Read this aloud</div>
-        <p className="text-xl sm:text-2xl font-semibold text-slate-900 leading-snug">{sentence}</p>
-      </div>
+      {mode === 'free' ? (
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
+          <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+            <div className="text-[11px] uppercase tracking-wide font-bold text-slate-400">Speak freely — 5 to 10 sentences (up to 2.5 min)</div>
+            <button
+              onClick={() => { const n = (topicIdx + 1) % topics.length; setTopicIdx(n); setTopic(topics[n]); }}
+              className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 text-xs hover:bg-slate-50"
+            >💡 Suggest a topic</button>
+          </div>
+          <input
+            type="text"
+            value={topic}
+            onChange={e => setTopic(e.target.value)}
+            placeholder="Type your own topic, or tap “Suggest a topic” — e.g. Meine Heimatstadt, Klimaschutz im Alltag…"
+            className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-[15px] focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+          />
+          <p className="text-xs text-slate-400 mt-2">
+            Optional — leave it blank to talk about anything. Great for rehearsing presentations: speak naturally, then get pronunciation feedback on your whole delivery.
+          </p>
+        </div>
+      ) : (
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
+          <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+            <div className="text-[11px] uppercase tracking-wide font-bold text-slate-400">Read this aloud</div>
+            <div className="flex gap-2">
+              <button onClick={() => pickSentence(-1)} className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 text-xs hover:bg-slate-50">‹ Prev</button>
+              <button onClick={() => pickSentence(1)} className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 text-xs hover:bg-slate-50">New sentence ›</button>
+            </div>
+          </div>
+          <p className="text-xl sm:text-2xl font-semibold text-slate-900 leading-snug">{sentence}</p>
+        </div>
+      )}
 
       <p className="text-sm text-slate-500 mb-4">
         🎙️ Record yourself right here — your voice stays in this browser and is used only to assess your pronunciation, tone and accent. Nothing is stored.
