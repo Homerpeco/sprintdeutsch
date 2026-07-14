@@ -755,7 +755,7 @@ function ScannerModus({ onNavigate }) {
                     </div>
                     <p className="text-slate-500 mb-2 text-xs font-bold uppercase tracking-widest">Detected Master Pattern</p>
                     <div className={`text-4xl font-extrabold ${c.text} mb-2`}>{result.pattern}</div>
-                    <p className="text-sm text-slate-600 mb-4">Matches exactly with color-coded <strong>Reihe {result.reihe}</strong>.</p>
+                    <p className="text-sm text-slate-600 mb-4">Matches exactly the <strong>{guideVerb}</strong> pattern (Reihe {result.reihe}).</p>
                     <div className="bg-blue-50 text-blue-800 p-4 rounded-lg text-sm text-left mb-6 shadow-inner">{result.msg}</div>
                     <button 
                       onClick={() => onNavigate(guideVerb, result.reihe)}
