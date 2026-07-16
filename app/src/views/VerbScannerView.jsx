@@ -763,6 +763,13 @@ function ScannerModus({ onNavigate }) {
                     >
                       View Master Table in Lernmodus
                     </button>
+                    <a
+                      href={`https://www.verbformen.com/conjugation/?w=${encodeURIComponent(result.infinitive || searchInput)}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
+                    >
+                      📖 Full conjugation &amp; meaning on Verbformen ↗
+                    </a>
                 </div>
               </>
             );
@@ -774,6 +781,13 @@ function ScannerModus({ onNavigate }) {
               <div className="p-6 text-center bg-white">
                   <p className="font-bold text-slate-800 text-xl text-red-600 mb-2">Pattern Unbekannt</p>
                   <p className="text-slate-600 text-sm bg-red-50 p-4 rounded-lg">{result.msg || "This verb is either regular or highly irregular (like 'gehen' or 'sein') and does not match the 9 patterns."}</p>
+                  <a
+                    href={`https://www.verbformen.com/conjugation/?w=${encodeURIComponent(result.infinitive || searchInput)}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
+                  >
+                    📖 Full conjugation &amp; meaning on Verbformen ↗
+                  </a>
               </div>
             </>
           )}
@@ -831,6 +845,15 @@ function GrammarFeedbackBlock({ verb }) {
         This verb follows the color-coded <strong>{verb.pattern}</strong> pattern. To anchor this in your brain, remember that it behaves exactly like its sister verbs: 
         <span className="block mt-1 font-mono font-bold text-slate-800">{sisterVerbs || 'No other verbs in this group yet.'}</span>
       </div>
+
+      <a
+        href={`https://www.verbformen.com/conjugation/?w=${encodeURIComponent(verb.infinitive)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
+      >
+        📖 Full conjugation &amp; meaning of “{verb.infinitive}” on Verbformen ↗
+      </a>
     </div>
   );
 }
