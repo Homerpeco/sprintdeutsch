@@ -619,68 +619,89 @@ function ScannerModus({ onNavigate }) {
     If it fits perfectly, output the pattern string and reihe number (1-9). If not (e.g. gehen, sein, regular verbs), output success: false, reihe: 0, pattern: 'Unknown'.
     Provide a short English explanation in 'msg' regarding its grammar or why it doesn't fit.`;
 
-    // Hard timeout so the button can never spin forever (the old code had none).
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
+    // Build the request once; only the model in the URL changes on fallback.
+    const requestBody = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.2,
+        thinkingConfig: { thinkingBudget: 0 }, // no thinking → fast, non-empty JSON
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            success: {type: "BOOLEAN"},
+            infinitive: {type: "STRING"},
+            praesens: {type: "STRING"},
+            praeteritum: {type: "STRING"},
+            perfekt: {type: "STRING"},
+            pattern: {type: "STRING"},
+            reihe: {type: "INTEGER"},
+            msg: {type: "STRING"}
+          },
+          propertyOrdering: ["success","infinitive","praesens","praeteritum","perfekt","pattern","reihe","msg"]
+        }
+      }
+    };
+    // PINNED stable models that accept thinking-off + JSON. The gemini-flash-lite-latest
+    // ALIAS drifted to a newer model that rejected thinkingBudget:0 → 400 "invalid argument".
+    const MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash'];
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    let lastErr = null;
 
     try {
-      // Flash-Lite: fast + high free-tier limits and, crucially, not a heavy
-      // "thinking" model — gemini-flash-latest (3.5 Flash) spent its whole token
-      // budget on hidden reasoning and returned empty JSON, hanging the scanner.
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            thinkingConfig: { thinkingBudget: 0 }, // no thinking → fast, non-empty JSON
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: "OBJECT",
-              properties: {
-                success: {type: "BOOLEAN"},
-                infinitive: {type: "STRING"},
-                praesens: {type: "STRING"},
-                praeteritum: {type: "STRING"},
-                perfekt: {type: "STRING"},
-                pattern: {type: "STRING"},
-                reihe: {type: "INTEGER"},
-                msg: {type: "STRING"}
-              },
-              propertyOrdering: ["success","infinitive","praesens","praeteritum","perfekt","pattern","reihe","msg"]
+      let data = null;
+      for (let m = 0; m < MODELS.length && !data; m++) {
+        for (let attempt = 0; attempt < 2 && !data; attempt++) {
+          const controller = new AbortController();
+          const to = setTimeout(() => controller.abort(), 30000);
+          try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELS[m]}:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
+              body: JSON.stringify(requestBody),
+            });
+            clearTimeout(to);
+            if (response.ok) {
+              const jsonResponse = await response.json();
+              const cands = jsonResponse.candidates || [];
+              if (!cands.length) throw Object.assign(new Error('empty'), { retryable: true });
+              const parts = (cands[0].content && cands[0].content.parts) || [];
+              const textResult = (parts.find(p => p.text && !p.thought) || {}).text;
+              if (!textResult) throw Object.assign(new Error('empty'), { retryable: true });
+              data = JSON.parse(textResult);
+              break;
             }
+            let detail = `HTTP ${response.status}`;
+            try { const e = await response.json(); detail = e?.error?.message || detail; } catch (_) {}
+            const err = new Error(detail);
+            err.status = response.status;
+            if (response.status === 400 || response.status === 403) throw err; // bad key/request → don't retry
+            err.retryable = true; // 429 / 500 / 503 → retry & fall back
+            lastErr = err;
+          } catch (err) {
+            clearTimeout(to);
+            if (err.status === 400 || err.status === 403) throw err;
+            lastErr = err.name === 'AbortError'
+              ? Object.assign(new Error('timeout'), { timeout: true })
+              : err;
           }
-        })
-      });
-
-      if (!response.ok) {
-        let detail = `HTTP ${response.status}`;
-        try { const e = await response.json(); detail = e?.error?.message || detail; } catch (_) {}
-        if (response.status === 429) throw new Error(`Rate limit reached — wait a minute and try again. (${detail})`);
-        if (response.status === 400 && /API key/i.test(detail)) throw new Error(`Invalid API key. Check VITE_GEMINI_API_KEY in Vercel. (${detail})`);
-        throw new Error(detail);
+          if (!data && attempt === 0) await sleep(1000 + Math.random() * 600);
+        }
+        if (!data && m < MODELS.length - 1) await sleep(500);
       }
 
-      const jsonResponse = await response.json();
-      // Thinking models put a "thought" part first (empty text). Find the real one.
-      const cands = jsonResponse.candidates || [];
-      if (!cands.length) throw new Error("The model returned no answer (request may have been blocked). Try another verb.");
-      const parts = (cands[0].content && cands[0].content.parts) || [];
-      const textResult = (parts.find(p => p.text && !p.thought) || {}).text;
-      if (!textResult) throw new Error("The model returned an empty response. Please try again.");
-      const aiData = JSON.parse(textResult);
-
-      setResult(aiData);
+      if (!data) throw (lastErr || new Error('unavailable'));
+      setResult(data);
     } catch (error) {
-      if (error.name === 'AbortError') {
-        setErrorMsg("The AI engine took too long to respond (over 30s). Please try again in a moment.");
-      } else {
-        setErrorMsg("Verbindungsfehler: " + (error.message || "Could not reach the AI engine. Check your connection and that VITE_GEMINI_API_KEY is set correctly."));
-      }
+      let msg;
+      if (error.timeout) msg = "The AI engine took too long to respond. Please tap Search again.";
+      else if (error.status === 400 && /api[_ ]?key/i.test(error.message || '')) msg = "Invalid API key. Check VITE_GEMINI_API_KEY in Vercel and redeploy.";
+      else if (error.status === 429) msg = "Usage limit reached on your Gemini key — please wait a bit and try again.";
+      else if (error.status === 503 || /overload|high demand|unavailable/i.test(error.message || '')) msg = "The AI servers were briefly busy. Please tap Search once more.";
+      else msg = "Could not analyze this verb: " + (error.message || "unknown error") + (error.status ? ` (status ${error.status})` : '');
+      setErrorMsg(msg);
     } finally {
-      clearTimeout(timeout);
       setLoading(false);
     }
   };
