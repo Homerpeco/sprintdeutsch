@@ -119,7 +119,6 @@ const VERBS = [
   { infinitive: 'lassen', praesens: 'lässt', praeteritum: 'ließ', perfekt: 'hat gelassen', pattern: 'a-ie-a', primaryUmlaut: true, id: 8 },
   { infinitive: 'schlafen', praesens: 'schläft', praeteritum: 'schlief', perfekt: 'hat geschlafen', pattern: 'a-ie-a', primaryUmlaut: true, id: 8 },
   { infinitive: 'braten', praesens: 'brät', praeteritum: 'briet', perfekt: 'hat gebraten', pattern: 'a-ie-a', primaryUmlaut: true, id: 8 },
-  { infinitive: 'fangen', praesens: 'fängt', praeteritum: 'fing', perfekt: 'hat gefangen', pattern: 'a-ie-a', primaryUmlaut: true, id: 8 }, 
   { infinitive: 'halten', praesens: 'hält', praeteritum: 'hielt', perfekt: 'hat gehalten', pattern: 'a-ie-a', primaryUmlaut: true, id: 8 },
   { infinitive: 'raten', praesens: 'rät', praeteritum: 'riet', perfekt: 'hat geraten', pattern: 'a-ie-a', primaryUmlaut: true, id: 8 },
   { infinitive: 'blasen', praesens: 'bläst', praeteritum: 'blies', perfekt: 'hat geblasen', pattern: 'a-ie-a', primaryUmlaut: true, id: 8 },
@@ -129,6 +128,17 @@ const VERBS = [
   { infinitive: 'verstehen', praesens: 'versteht', praeteritum: 'verstand', perfekt: 'hat verstanden', pattern: 'e-a-a', inseparable: true, id: 9 },
   { infinitive: 'entstehen', praesens: 'entsteht', praeteritum: 'entstand', perfekt: 'ist entstanden', pattern: 'e-a-a', inseparable: true, id: 9 },
   { infinitive: 'gestehen', praesens: 'gesteht', praeteritum: 'gestand', perfekt: 'hat gestanden', pattern: 'e-a-a', inseparable: true, id: 9 }
+];
+
+// Ablaut EXCEPTIONS — verbs whose pattern is NOT one of the 9 master patterns.
+// a-i-a (the fangen family + hängen): the Präteritum vowel is a short "i", so it is
+// closest to Reihe 8 (a-ie-a) but doesn't truly match it. Kept out of the 9-pattern
+// Quiz/Challenge pools; the Scanner labels them explicitly as exceptions.
+const EXCEPTIONS = [
+  { infinitive: 'fangen',    praesens: 'fängt',    praeteritum: 'fing',    perfekt: 'hat gefangen',   pattern: 'a-i-a', closestReihe: 8 },
+  { infinitive: 'anfangen',  praesens: 'fängt an', praeteritum: 'fing an', perfekt: 'hat angefangen', pattern: 'a-i-a', closestReihe: 8 },
+  { infinitive: 'empfangen', praesens: 'empfängt', praeteritum: 'empfing', perfekt: 'hat empfangen',  pattern: 'a-i-a', closestReihe: 8 },
+  { infinitive: 'hängen',    praesens: 'hängt',    praeteritum: 'hing',    perfekt: 'hat gehangen',   pattern: 'a-i-a', closestReihe: 8 },
 ];
 
 // --- MAIN COMPONENT ---
@@ -622,6 +632,25 @@ function ScannerModus({ onNavigate }) {
       return;
     }
 
+    // Exceptions to the 9 patterns (a-i-a: fangen family + hängen).
+    const exc = EXCEPTIONS.find(v => v.infinitive.toLowerCase() === input);
+    if (exc) {
+      const parts3 = exc.perfekt.replace(/^(hat|ist)\s+/i, '');
+      setResult({
+        success: true,
+        exception: true,
+        infinitive: exc.infinitive,
+        praesens: `er ${exc.praesens}`,
+        praeteritum: `er ${exc.praeteritum}`,
+        perfekt: `er ${exc.perfekt}`,
+        pattern: exc.pattern,          // a-i-a
+        reihe: exc.closestReihe,       // 8 (closest) — used for colour + guide verb
+        msg: `“${exc.infinitive}” has the ablaut a-i-a (${exc.infinitive} – ${exc.praeteritum} – ${parts3}). ⚠ Exception: a-i-a is NOT one of the 9 master patterns — it is closest to Reihe 8 (a-ie-a, like fallen), but its Präteritum vowel is a short “i”, not “ie”. Only the fangen family (fangen, anfangen, empfangen…) and hängen follow it. (Verified from the built-in verb table.)`,
+      });
+      setLoading(false);
+      return;
+    }
+
     // Key comes from the environment: set VITE_GEMINI_API_KEY in app/.env.local (dev)
     // and in Vercel > Project Settings > Environment Variables (production).
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -805,7 +834,11 @@ In "msg" (short, English), state the three stem vowels you used and confirm they
                     </div>
                     <p className="text-slate-500 mb-2 text-xs font-bold uppercase tracking-widest">Detected Master Pattern</p>
                     <div className={`text-4xl font-extrabold ${c.text} mb-2`}>{result.pattern}</div>
-                    <p className="text-sm text-slate-600 mb-4">Matches exactly the <strong>{guideVerb}</strong> pattern (Reihe {result.reihe}).</p>
+                    {result.exception ? (
+                      <p className="text-sm text-amber-700 mb-4">⚠ Exception — closest to the <strong>{guideVerb}</strong> pattern (Reihe {result.reihe}), but the Präteritum vowel is a short <strong>i</strong>, not <strong>ie</strong>.</p>
+                    ) : (
+                      <p className="text-sm text-slate-600 mb-4">Matches exactly the <strong>{guideVerb}</strong> pattern (Reihe {result.reihe}).</p>
+                    )}
                     <div className="bg-blue-50 text-blue-800 p-4 rounded-lg text-sm text-left mb-6 shadow-inner">{result.msg}</div>
                     <button 
                       onClick={() => onNavigate(guideVerb, result.reihe)}
