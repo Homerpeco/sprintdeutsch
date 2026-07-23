@@ -800,20 +800,20 @@ ALWAYS also provide (regardless of the pattern), to help the learner build a sem
         </p>
       </div>
 
-      <div className="flex gap-2 mb-6">
-        <input 
-          type="text" 
-          className="flex-1 border border-slate-300 rounded-lg px-4 py-3 text-[16px] focus:ring-2 focus:ring-blue-500 outline-none"
+      <div className="flex flex-col sm:flex-row gap-2 mb-6">
+        <input
+          type="text"
+          className="w-full sm:flex-1 min-w-0 border border-slate-300 rounded-lg px-4 py-3 text-[16px] focus:ring-2 focus:ring-blue-500 outline-none"
           value={searchInput}
           onChange={e => setSearchInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="e.g. gelten, empfehlen, unterbrechen..."
           disabled={loading}
         />
-        <button 
+        <button
           onClick={handleSearch}
           disabled={loading}
-          className={`bg-blue-600 text-white font-bold px-5 rounded-lg transition-colors shadow-sm touch-manipulation ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+          className={`w-full sm:w-auto shrink-0 bg-blue-600 text-white font-bold px-5 py-3 rounded-lg transition-colors shadow-sm touch-manipulation ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
         >
           Search
         </button>
