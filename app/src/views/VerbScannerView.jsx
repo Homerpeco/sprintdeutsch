@@ -602,6 +602,26 @@ function ScannerModus({ onNavigate }) {
     setErrorMsg(null);
     setLoading(true);
 
+    // Verified-first: if the verb is in the built-in table, use its CONFIRMED data.
+    // The AI occasionally mislabels the Ablautreihe (e.g. stehen → a-u-a instead of
+    // the correct e-a-a), so never trust it for a verb we already know the answer to.
+    const known = VERBS.find(v => v.infinitive.toLowerCase() === input);
+    if (known) {
+      const parts3 = known.perfekt.replace(/^(hat|ist)\s+/i, '');
+      setResult({
+        success: true,
+        infinitive: known.infinitive,
+        praesens: `er ${known.praesens}`,
+        praeteritum: `er ${known.praeteritum}`,
+        perfekt: `er ${known.perfekt}`,
+        pattern: known.pattern,
+        reihe: known.id,
+        msg: `“${known.infinitive}” is a strong/irregular verb in Ablautreihe ${known.id} (${known.pattern}). Principal parts: ${known.infinitive} – ${known.praeteritum} – ${parts3}. (Verified from the built-in verb table.)`,
+      });
+      setLoading(false);
+      return;
+    }
+
     // Key comes from the environment: set VITE_GEMINI_API_KEY in app/.env.local (dev)
     // and in Vercel > Project Settings > Environment Variables (production).
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -611,13 +631,21 @@ function ScannerModus({ onNavigate }) {
       return;
     }
 
-    const prompt = `Analyze the German verb: "${input}". 
-    Is it a valid German strong/irregular verb?
-    Provide the 3rd person singular (er/sie/es) for Präsens, Präteritum, and Perfekt.
-    Identify its Ablautreihe (vowel shift pattern) strictly matching one of these 9:
-    1: 'ei-ie-ie', 2: 'ei-i-i', 3: 'ie-o-o', 4: 'i-a-u', 5: 'e-a-o', 6: 'e-a-e', 7: 'a-u-a', 8: 'a-ie-a', 9: 'e-a-a'.
-    If it fits perfectly, output the pattern string and reihe number (1-9). If not (e.g. gehen, sein, regular verbs), output success: false, reihe: 0, pattern: 'Unknown'.
-    Provide a short English explanation in 'msg' regarding its grammar or why it doesn't fit.`;
+    const prompt = `You are a precise German morphology expert. Analyze the verb: "${input}".
+
+Step 1 — Give the 3rd person singular (er/sie/es) for Präsens, Präteritum and Perfekt, with the correct auxiliary (haben/sein).
+Step 2 — Determine the Ablautreihe STRICTLY from the three STEM VOWELS, in this exact order: [infinitive stem vowel] - [Präteritum stem vowel] - [Partizip II stem vowel]. Read each stem vowel directly off the principal parts you just produced (ignore prefixes such as ge-, be-, ver-, ent-, and any separable prefix).
+Step 3 — Match those three vowels to EXACTLY one of these 9 patterns:
+1: ei-ie-ie, 2: ei-i-i, 3: ie-o-o, 4: i-a-u, 5: e-a-o, 6: e-a-e, 7: a-u-a, 8: a-ie-a, 9: e-a-a.
+
+CRITICAL RULE: the "pattern" you output MUST equal the three stem vowels you actually extracted — never approximate or guess by analogy to another verb.
+Worked examples:
+- stehen → stem vowels of stehen / stand / gestanden = e, a, a → pattern "e-a-a" → Reihe 9. (It is NOT a-u-a.)
+- fahren → fahren / fuhr / gefahren = a, u, a → "a-u-a" → Reihe 7.
+- nehmen → nehmen / nahm / genommen = e, a, o → "e-a-o" → Reihe 5.
+
+If the verb does NOT fit any of the 9 patterns (e.g. gehen, sein, tun, or a regular/weak verb), output success:false, reihe:0, pattern:"Unknown".
+In "msg" (short, English), state the three stem vowels you used and confirm they match the pattern.`;
 
     // Build the request once; only the model in the URL changes on fallback.
     const requestBody = {
