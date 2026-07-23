@@ -237,7 +237,8 @@ Score each 0–100 and give an "overall" 0–100. In "transcript", write out wha
       contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: 'audio/wav', data: b64 } }] }],
       generationConfig: {
         temperature: 0.3,
-        thinkingConfig: { thinkingBudget: 0 }, // stable 2.5 models: disable thinking → non-empty JSON, fast
+        // No thinkingConfig: Gemini 3.x models reject thinkingBudget:0 (400). We let
+        // the model think and skip the "thought" part when parsing the JSON.
         responseMimeType: 'application/json',
         responseSchema: {
           type: 'OBJECT',
@@ -260,10 +261,9 @@ Score each 0–100 and give an "overall" 0–100. In "transcript", write out wha
     // backoff, so a transient "model overloaded" (503) or rate spike (429) is
     // retried automatically — and falls back to another model — instead of
     // failing the whole assessment.
-    // Stable 2.5 models that reliably accept audio + JSON with thinking disabled.
-    // (gemini-flash-latest = 3.5 Flash is a thinking model and returned empty
-    //  audio+schema responses — dropped from the audio path on purpose.)
-    const MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+    // Current -latest aliases (Gemini 3.x): available to new keys and audio-capable.
+    // Pinned 2.5 models 404 ("no longer available to new users") on newer projects.
+    const MODELS = ['gemini-flash-latest', 'gemini-flash-lite-latest'];
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     let lastErr = null;
 

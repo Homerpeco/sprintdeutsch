@@ -624,7 +624,8 @@ function ScannerModus({ onNavigate }) {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.2,
-        thinkingConfig: { thinkingBudget: 0 }, // no thinking → fast, non-empty JSON
+        // No thinkingConfig: Gemini 3.x models reject thinkingBudget:0 (400). We let
+        // the model think and just skip the "thought" part when parsing the JSON.
         responseMimeType: "application/json",
         responseSchema: {
           type: "OBJECT",
@@ -642,9 +643,9 @@ function ScannerModus({ onNavigate }) {
         }
       }
     };
-    // PINNED stable models that accept thinking-off + JSON. The gemini-flash-lite-latest
-    // ALIAS drifted to a newer model that rejected thinkingBudget:0 → 400 "invalid argument".
-    const MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash'];
+    // Current -latest aliases (Gemini 3.x): always available to new keys. Pinned 2.5
+    // models return 404 "no longer available to new users" for newer projects.
+    const MODELS = ['gemini-flash-lite-latest', 'gemini-flash-latest'];
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     let lastErr = null;
 
