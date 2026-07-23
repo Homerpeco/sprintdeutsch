@@ -674,8 +674,8 @@ In "msg" (short, English), state the three stem vowels you used and confirm they
 
 ALWAYS also provide (regardless of the pattern), to help the learner build a semantic web:
 - "meaning": the primary English meaning of the verb, concise.
-- "synonyms": exactly 2 common German synonyms, each as an object {de, en} where en is a short English gloss.
-- "antonyms": exactly 2 German antonyms (opposites), each as {de, en}. If no true opposite exists, give the closest contrasting verb.`;
+- "synonyms": exactly 3 common German synonyms, each as an object {de, en} where en is a short English gloss.
+- "antonyms": exactly 3 German antonyms (opposites), each as {de, en}. If fewer true opposites exist, give the closest contrasting verbs.`;
 
     // Build the request once; only the model in the URL changes on fallback.
     const requestBody = {
@@ -919,7 +919,7 @@ function SemanticInfo({ result }) {
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
               <div className="text-[10px] uppercase font-bold text-emerald-700 tracking-wide mb-1.5">≈ Synonyms</div>
               <ul className="space-y-1">
-                {syn.slice(0, 2).map((s, i) => (
+                {syn.slice(0, 3).map((s, i) => (
                   <li key={i} className="text-sm leading-snug"><span className="font-bold text-emerald-900">{s.de}</span>{s.en ? <span className="text-emerald-700"> — {s.en}</span> : null}</li>
                 ))}
               </ul>
@@ -929,7 +929,7 @@ function SemanticInfo({ result }) {
             <div className="bg-rose-50 border border-rose-200 rounded-lg p-3">
               <div className="text-[10px] uppercase font-bold text-rose-700 tracking-wide mb-1.5">↔ Antonyms</div>
               <ul className="space-y-1">
-                {ant.slice(0, 2).map((a, i) => (
+                {ant.slice(0, 3).map((a, i) => (
                   <li key={i} className="text-sm leading-snug"><span className="font-bold text-rose-900">{a.de}</span>{a.en ? <span className="text-rose-700"> — {a.en}</span> : null}</li>
                 ))}
               </ul>
