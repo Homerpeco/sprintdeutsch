@@ -141,6 +141,33 @@ const EXCEPTIONS = [
   { infinitive: 'hängen',    praesens: 'hängt',    praeteritum: 'hing',    perfekt: 'hat gehangen',   pattern: 'a-i-a', closestReihe: 8 },
 ];
 
+// Returns the CONFIRMED conjugation/pattern for a verb we already know (from the
+// built-in tables), or null. Used to override the AI's pattern (which it sometimes
+// gets wrong) while still letting the AI supply meaning/synonyms/antonyms.
+function getVerified(input) {
+  const known = VERBS.find(v => v.infinitive.toLowerCase() === input);
+  if (known) {
+    const parts3 = known.perfekt.replace(/^(hat|ist)\s+/i, '');
+    return {
+      success: true, infinitive: known.infinitive,
+      praesens: `er ${known.praesens}`, praeteritum: `er ${known.praeteritum}`, perfekt: `er ${known.perfekt}`,
+      pattern: known.pattern, reihe: known.id, exception: false,
+      msg: `“${known.infinitive}” is a strong/irregular verb in Ablautreihe ${known.id} (${known.pattern}). Principal parts: ${known.infinitive} – ${known.praeteritum} – ${parts3}. (Verified from the built-in verb table.)`,
+    };
+  }
+  const exc = EXCEPTIONS.find(v => v.infinitive.toLowerCase() === input);
+  if (exc) {
+    const parts3 = exc.perfekt.replace(/^(hat|ist)\s+/i, '');
+    return {
+      success: true, exception: true, infinitive: exc.infinitive,
+      praesens: `er ${exc.praesens}`, praeteritum: `er ${exc.praeteritum}`, perfekt: `er ${exc.perfekt}`,
+      pattern: exc.pattern, reihe: exc.closestReihe,
+      msg: `“${exc.infinitive}” has the ablaut a-i-a (${exc.infinitive} – ${exc.praeteritum} – ${parts3}). ⚠ Exception: a-i-a is NOT one of the 9 master patterns — it is closest to Reihe 8 (a-ie-a, like fallen), but its Präteritum vowel is a short “i”, not “ie”. Only the fangen family (fangen, anfangen, empfangen…) and hängen follow it. (Verified from the built-in verb table.)`,
+    };
+  }
+  return null;
+}
+
 // --- MAIN COMPONENT ---
 export function VerbScannerView() {
   const [activeTab, setActiveTab] = useState('Lernmodus');
@@ -612,51 +639,20 @@ function ScannerModus({ onNavigate }) {
     setErrorMsg(null);
     setLoading(true);
 
-    // Verified-first: if the verb is in the built-in table, use its CONFIRMED data.
-    // The AI occasionally mislabels the Ablautreihe (e.g. stehen → a-u-a instead of
-    // the correct e-a-a), so never trust it for a verb we already know the answer to.
-    const known = VERBS.find(v => v.infinitive.toLowerCase() === input);
-    if (known) {
-      const parts3 = known.perfekt.replace(/^(hat|ist)\s+/i, '');
-      setResult({
-        success: true,
-        infinitive: known.infinitive,
-        praesens: `er ${known.praesens}`,
-        praeteritum: `er ${known.praeteritum}`,
-        perfekt: `er ${known.perfekt}`,
-        pattern: known.pattern,
-        reihe: known.id,
-        msg: `“${known.infinitive}” is a strong/irregular verb in Ablautreihe ${known.id} (${known.pattern}). Principal parts: ${known.infinitive} – ${known.praeteritum} – ${parts3}. (Verified from the built-in verb table.)`,
-      });
-      setLoading(false);
-      return;
-    }
-
-    // Exceptions to the 9 patterns (a-i-a: fangen family + hängen).
-    const exc = EXCEPTIONS.find(v => v.infinitive.toLowerCase() === input);
-    if (exc) {
-      const parts3 = exc.perfekt.replace(/^(hat|ist)\s+/i, '');
-      setResult({
-        success: true,
-        exception: true,
-        infinitive: exc.infinitive,
-        praesens: `er ${exc.praesens}`,
-        praeteritum: `er ${exc.praeteritum}`,
-        perfekt: `er ${exc.perfekt}`,
-        pattern: exc.pattern,          // a-i-a
-        reihe: exc.closestReihe,       // 8 (closest) — used for colour + guide verb
-        msg: `“${exc.infinitive}” has the ablaut a-i-a (${exc.infinitive} – ${exc.praeteritum} – ${parts3}). ⚠ Exception: a-i-a is NOT one of the 9 master patterns — it is closest to Reihe 8 (a-ie-a, like fallen), but its Präteritum vowel is a short “i”, not “ie”. Only the fangen family (fangen, anfangen, empfangen…) and hängen follow it. (Verified from the built-in verb table.)`,
-      });
-      setLoading(false);
-      return;
-    }
+    // Verified conjugation/pattern for verbs we already know. The AI occasionally
+    // mislabels the Ablautreihe (e.g. stehen → a-u-a instead of e-a-a), so we still
+    // ask the AI (for meaning/synonyms/antonyms) but OVERRIDE the pattern & forms
+    // with this verified data below.
+    const verified = getVerified(input);
 
     // Key comes from the environment: set VITE_GEMINI_API_KEY in app/.env.local (dev)
     // and in Vercel > Project Settings > Environment Variables (production).
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
     if (!apiKey) {
+      // No key: still show the verified conjugation/pattern if we know the verb.
+      if (verified) setResult(verified);
+      else setErrorMsg("No API key configured. Add VITE_GEMINI_API_KEY in Vercel's Environment Variables (or app/.env.local for local dev) and redeploy.");
       setLoading(false);
-      setErrorMsg("No API key configured. Add VITE_GEMINI_API_KEY in Vercel's Environment Variables (or app/.env.local for local dev) and redeploy.");
       return;
     }
 
@@ -674,7 +670,12 @@ Worked examples:
 - nehmen → nehmen / nahm / genommen = e, a, o → "e-a-o" → Reihe 5.
 
 If the verb does NOT fit any of the 9 patterns (e.g. gehen, sein, tun, or a regular/weak verb), output success:false, reihe:0, pattern:"Unknown".
-In "msg" (short, English), state the three stem vowels you used and confirm they match the pattern.`;
+In "msg" (short, English), state the three stem vowels you used and confirm they match the pattern.
+
+ALWAYS also provide (regardless of the pattern), to help the learner build a semantic web:
+- "meaning": the primary English meaning of the verb, concise.
+- "synonyms": exactly 2 common German synonyms, each as an object {de, en} where en is a short English gloss.
+- "antonyms": exactly 2 German antonyms (opposites), each as {de, en}. If no true opposite exists, give the closest contrasting verb.`;
 
     // Build the request once; only the model in the URL changes on fallback.
     const requestBody = {
@@ -694,9 +695,12 @@ In "msg" (short, English), state the three stem vowels you used and confirm they
             perfekt: {type: "STRING"},
             pattern: {type: "STRING"},
             reihe: {type: "INTEGER"},
+            meaning: {type: "STRING"},
+            synonyms: {type: "ARRAY", items: {type: "OBJECT", properties: {de: {type: "STRING"}, en: {type: "STRING"}}, propertyOrdering: ["de","en"]}},
+            antonyms: {type: "ARRAY", items: {type: "OBJECT", properties: {de: {type: "STRING"}, en: {type: "STRING"}}, propertyOrdering: ["de","en"]}},
             msg: {type: "STRING"}
           },
-          propertyOrdering: ["success","infinitive","praesens","praeteritum","perfekt","pattern","reihe","msg"]
+          propertyOrdering: ["success","infinitive","praesens","praeteritum","perfekt","pattern","reihe","meaning","synonyms","antonyms","msg"]
         }
       }
     };
@@ -750,8 +754,21 @@ In "msg" (short, English), state the three stem vowels you used and confirm they
       }
 
       if (!data) throw (lastErr || new Error('unavailable'));
+      // Keep the AI's semantics (meaning/synonyms/antonyms) but override the
+      // accuracy-critical conjugation & pattern with the verified table when known.
+      if (verified) {
+        data = { ...data, success: true, infinitive: verified.infinitive,
+          praesens: verified.praesens, praeteritum: verified.praeteritum, perfekt: verified.perfekt,
+          pattern: verified.pattern, reihe: verified.reihe, exception: verified.exception, msg: verified.msg };
+      }
       setResult(data);
     } catch (error) {
+      // If the AI failed but we know the verb, still show its verified conjugation.
+      if (verified) {
+        setResult({ ...verified, msg: verified.msg + " (Meaning & synonyms are unavailable right now — the AI was busy.)" });
+        setLoading(false);
+        return;
+      }
       let msg;
       if (error.timeout) msg = "The AI engine took too long to respond. Please tap Search again.";
       else if (error.status === 400 && /api[_ ]?key/i.test(error.message || '')) msg = "Invalid API key. Check VITE_GEMINI_API_KEY in Vercel and redeploy.";
@@ -839,8 +856,9 @@ In "msg" (short, English), state the three stem vowels you used and confirm they
                     ) : (
                       <p className="text-sm text-slate-600 mb-4">Matches exactly the <strong>{guideVerb}</strong> pattern (Reihe {result.reihe}).</p>
                     )}
-                    <div className="bg-blue-50 text-blue-800 p-4 rounded-lg text-sm text-left mb-6 shadow-inner">{result.msg}</div>
-                    <button 
+                    <div className="bg-blue-50 text-blue-800 p-4 rounded-lg text-sm text-left mb-4 shadow-inner">{result.msg}</div>
+                    <SemanticInfo result={result} />
+                    <button
                       onClick={() => onNavigate(guideVerb, result.reihe)}
                       className={`w-full ${c.bg} border ${c.border} ${c.text} font-bold py-4 rounded-xl text-base shadow-sm hover:opacity-90 touch-manipulation`}
                     >
@@ -864,6 +882,7 @@ In "msg" (short, English), state the three stem vowels you used and confirm they
               <div className="p-6 text-center bg-white">
                   <p className="font-bold text-slate-800 text-xl text-red-600 mb-2">Pattern Unbekannt</p>
                   <p className="text-slate-600 text-sm bg-red-50 p-4 rounded-lg">{result.msg || "This verb is either regular or highly irregular (like 'gehen' or 'sein') and does not match the 9 patterns."}</p>
+                  <SemanticInfo result={result} />
                   <a
                     href={`https://www.verbformen.com/conjugation/?w=${encodeURIComponent(result.infinitive || searchInput)}`}
                     target="_blank" rel="noopener noreferrer"
@@ -873,6 +892,48 @@ In "msg" (short, English), state the three stem vowels you used and confirm they
                   </a>
               </div>
             </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Meaning + 2 synonyms + 2 antonyms (from the AI) — builds a semantic web around
+// the verb to aid memorization. Shown for every scanned verb.
+function SemanticInfo({ result }) {
+  const syn = Array.isArray(result.synonyms) ? result.synonyms.filter(s => s && s.de) : [];
+  const ant = Array.isArray(result.antonyms) ? result.antonyms.filter(a => a && a.de) : [];
+  if (!result.meaning && syn.length === 0 && ant.length === 0) return null;
+  return (
+    <div className="mt-4 mb-2 text-left">
+      {result.meaning && (
+        <div className="mb-3 text-center">
+          <span className="block text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-0.5">Meaning</span>
+          <span className="text-slate-800 font-semibold text-base">{result.meaning}</span>
+        </div>
+      )}
+      {(syn.length > 0 || ant.length > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {syn.length > 0 && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+              <div className="text-[10px] uppercase font-bold text-emerald-700 tracking-wide mb-1.5">≈ Synonyms</div>
+              <ul className="space-y-1">
+                {syn.slice(0, 2).map((s, i) => (
+                  <li key={i} className="text-sm leading-snug"><span className="font-bold text-emerald-900">{s.de}</span>{s.en ? <span className="text-emerald-700"> — {s.en}</span> : null}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {ant.length > 0 && (
+            <div className="bg-rose-50 border border-rose-200 rounded-lg p-3">
+              <div className="text-[10px] uppercase font-bold text-rose-700 tracking-wide mb-1.5">↔ Antonyms</div>
+              <ul className="space-y-1">
+                {ant.slice(0, 2).map((a, i) => (
+                  <li key={i} className="text-sm leading-snug"><span className="font-bold text-rose-900">{a.de}</span>{a.en ? <span className="text-rose-700"> — {a.en}</span> : null}</li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       )}
