@@ -5,6 +5,6 @@ python-dotenv>=1.0
 pymupdf>=1.24                # PDF text extraction (preserves layout)
 chromadb>=0.5                # Local vector store
 rank-bm25>=0.2               # Keyword-retrieval fallback (pure python, ~10MB) — semantic search uses the Gemini embedding API
-google-genai>=0.3            # Gemini SDK (new unified package)
+google-genai>=1.0            # Gemini SDK (new unified package; >=1.0 needed for ThinkingConfig)
 anthropic>=0.39              # Claude SDK
 tqdm>=4.66                   # Progress bars in ingest

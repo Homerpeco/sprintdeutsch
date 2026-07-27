@@ -193,9 +193,24 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
     return _gemini_embed(texts, "RETRIEVAL_DOCUMENT")
 
 
+#: The vector index is built offline by `build_index.py` and committed with the
+#: repo, so the server should never spend quota rebuilding it. Set to "0" only
+#: if you deliberately want the old build-on-startup behaviour.
+PREBUILT_INDEX = env("PREBUILT_INDEX", "1") not in ("0", "false", "False", "")
+
+
 def ensure_semantic_index() -> None:
     """
-    Build the Gemini-embedded collection from the committed chunk texts.
+    Make the Gemini-embedded collection available.
+
+    Normal path (PREBUILT_INDEX=1): the collection already ships in chroma_db/,
+    so we just verify it covers the corpus and flip the ready flag — no API
+    calls, no quota burn, instant startup.
+
+    Legacy path (PREBUILT_INDEX=0): embed the chunks here at startup. This is
+    what exhausted the free-tier quota and left retrieval on BM25; kept only as
+    an escape hatch.
+
     Runs in a background thread at server startup; safe to call repeatedly.
     On any failure, retrieval silently stays on the BM25 fallback.
     """
@@ -203,9 +218,6 @@ def ensure_semantic_index() -> None:
     if _semantic_ready:
         return
     try:
-        if not env("GEMINI_API_KEY"):
-            _semantic_error = "no GEMINI_API_KEY — using keyword retrieval"
-            return
         src = get_collection()
         n = src.count()
         if n == 0:
@@ -213,8 +225,23 @@ def ensure_semantic_index() -> None:
             return
         client = get_chroma()
         gcol = client.get_or_create_collection(name=GEMINI_COLLECTION, metadata={"hnsw:space": "cosine"})
-        if gcol.count() >= n:
+        have = gcol.count()
+
+        if have >= n:
             _semantic_ready = True
+            _semantic_error = None
+            return
+
+        if PREBUILT_INDEX:
+            _semantic_error = (
+                f"prebuilt index incomplete ({have}/{n} chunks) — run "
+                f"`python build_index.py` locally and commit chroma_db/. "
+                f"Using keyword retrieval until then."
+            )
+            return
+
+        if not env("GEMINI_API_KEY"):
+            _semantic_error = "no GEMINI_API_KEY — using keyword retrieval"
             return
         import time
         data = src.get(include=["documents", "metadatas"])
@@ -462,6 +489,14 @@ class BaseLLM:
         raise NotImplementedError
 
 
+#: Visible-answer budget. Gemini 2.5 "thinking" tokens are charged against
+#: max_output_tokens, so a small budget gets eaten by reasoning and the reply is
+#: cut off mid-sentence. We disable thinking (this is a tutor, not a solver) and
+#: leave enough room for a full ~250-word answer plus citations.
+GEMINI_MAX_OUTPUT_TOKENS = int(env("GEMINI_MAX_OUTPUT_TOKENS", "2048"))
+CLAUDE_MAX_TOKENS = int(env("CLAUDE_MAX_TOKENS", "2048"))
+
+
 class GeminiLLM(BaseLLM):
     def __init__(self, api_key: str, model: str = "gemini-2.5-flash"):
         if not api_key:
@@ -470,7 +505,30 @@ class GeminiLLM(BaseLLM):
         self._client = genai.Client(api_key=api_key)
         self.model = model
 
-    def chat(self, system: str, messages: list[dict]) -> str:
+    def _config(self, system: str):
+        """Shared generation config.
+
+        `thinking_config` only exists on google-genai >= 1.x; on older SDKs we
+        silently fall back to a plain config (the larger token budget alone
+        already prevents most truncation)."""
+        from google.genai import types
+        kwargs = dict(
+            system_instruction=system,
+            temperature=0.6,
+            max_output_tokens=GEMINI_MAX_OUTPUT_TOKENS,
+        )
+        try:
+            kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
+        except (AttributeError, TypeError):
+            pass
+        try:
+            return types.GenerateContentConfig(**kwargs)
+        except TypeError:
+            kwargs.pop("thinking_config", None)
+            return types.GenerateContentConfig(**kwargs)
+
+    @staticmethod
+    def _contents(messages: list[dict]):
         from google.genai import types
         # Gemini takes conversation history as a list of Content parts.
         # We render prior user/assistant turns as alternating contents.
@@ -478,40 +536,47 @@ class GeminiLLM(BaseLLM):
         for m in messages:
             role = "user" if m["role"] == "user" else "model"
             contents.append(types.Content(role=role, parts=[types.Part.from_text(text=m["content"])]))
+        return contents
+
+    @staticmethod
+    def _truncated(chunk) -> bool:
+        """True if Gemini stopped because it ran out of output tokens."""
+        for cand in (getattr(chunk, "candidates", None) or []):
+            reason = getattr(cand, "finish_reason", None)
+            if reason is not None and str(reason).upper().endswith("MAX_TOKENS"):
+                return True
+        return False
+
+    def chat(self, system: str, messages: list[dict]) -> str:
         try:
             resp = self._client.models.generate_content(
                 model=self.model,
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    system_instruction=system,
-                    temperature=0.6,
-                    max_output_tokens=800,
-                ),
+                contents=self._contents(messages),
+                config=self._config(system),
             )
         except Exception as e:
             raise LLMError(f"Gemini call failed: {e}") from e
-        return (resp.text or "").strip() or "(empty reply)"
-    
+        text = (resp.text or "").strip()
+        if self._truncated(resp):
+            text += "\n\n_(Antwort wegen Token-Limit gekürzt — frag nach „weiter“.)_"
+        return text or "(empty reply)"
+
     def chat_stream(self, system: str, messages: list[dict]):
-        from google.genai import types
-        contents = []
-        for m in messages:
-            role = "user" if m["role"] == "user" else "model"
-            contents.append(types.Content(role=role, parts=[types.Part.from_text(text=m["content"])]))
         try:
             stream = self._client.models.generate_content_stream(
                 model=self.model,
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    system_instruction=system,
-                    temperature=0.6,
-                    max_output_tokens=800,
-                ),
+                contents=self._contents(messages),
+                config=self._config(system),
             )
+            hit_limit = False
             for chunk in stream:
                 text = getattr(chunk, "text", None)
                 if text:
                     yield text
+                if self._truncated(chunk):
+                    hit_limit = True
+            if hit_limit:
+                yield "\n\n_(Antwort wegen Token-Limit gekürzt — frag nach „weiter“.)_"
         except Exception as e:
             raise LLMError(f"Gemini stream failed: {e}") from e
 
@@ -528,7 +593,7 @@ class ClaudeLLM(BaseLLM):
         try:
             resp = self._client.messages.create(
                 model=self.model,
-                max_tokens=800,
+                max_tokens=CLAUDE_MAX_TOKENS,
                 system=system,
                 messages=[{"role": m["role"], "content": m["content"]} for m in messages],
             )
@@ -541,7 +606,7 @@ class ClaudeLLM(BaseLLM):
         try:
             with self._client.messages.stream(
                 model=self.model,
-                max_tokens=800,
+                max_tokens=CLAUDE_MAX_TOKENS,
                 system=system,
                 messages=[{"role": m["role"], "content": m["content"]} for m in messages],
             ) as stream:

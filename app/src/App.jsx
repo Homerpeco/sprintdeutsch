@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { SEED_VERBS } from './data/seedVerbs.js';
 import { LEVELS } from './data/roadmap.js';
 import { initialState, saveState } from './lib/storage.js';
@@ -26,6 +26,17 @@ export function App() {
   const [tutorOpen, setTutorOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [seed, setSeed] = useState({ prompt: "", ragQuery: "" });
+
+  // Wake the AI-Tutor backend as soon as the app loads. Free-tier hosting
+  // suspends the service after ~15 min idle and needs 30-60s to boot, so
+  // pinging here means it is usually already awake by the time the user
+  // actually opens the tutor. Fire-and-forget: failure is not an app error.
+  useEffect(() => {
+    const url = (state.backendUrl || "").replace(/\/$/, "");
+    if (!url) return;
+    fetch(`${url}/health`, { mode: "cors", cache: "no-store" }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function openTutor(prompt, ragQuery) {
     if (prompt) setSeed({ prompt, ragQuery: ragQuery || "" });

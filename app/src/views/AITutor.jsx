@@ -38,6 +38,7 @@ export function AITutor({ state, setState, isOpen, onClose, seed, clearSeed }) {
   const [busy, setBusy] = useState(false);
   const [libraryStats, setLibraryStats] = useState(null);
   const [healthErr, setHealthErr] = useState("");
+  const [waking, setWaking] = useState(false);
   const [nextRagQuery, setNextRagQuery] = useState("");
   const scrollRef = useRef(null);
 
@@ -55,24 +56,60 @@ export function AITutor({ state, setState, isOpen, onClose, seed, clearSeed }) {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, busy]);
 
+  // Render's free tier suspends the service after ~15 min idle; the first
+  // request then has to boot the container, which takes 30-60s and makes a
+  // naive fetch look like "server is down". So: retry with backoff, report
+  // "waking up" rather than an error, and only give up after ~90s. The two
+  // endpoints are also probed independently — one failing must not blank both.
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !cleanUrl) return;
     let cancelled = false;
-    (async () => {
+
+    const getJSON = async (path, timeoutMs) => {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), timeoutMs);
       try {
-        const [h, s] = await Promise.all([
-          fetch(`${cleanUrl}/health`).then(r => r.ok ? r.json() : null),
-          fetch(`${cleanUrl}/library/stats`).then(r => r.ok ? r.json() : null),
+        const r = await fetch(`${cleanUrl}${path}`, { signal: ctrl.signal });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return await r.json();
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+
+    (async () => {
+      const delays = [0, 3000, 6000, 12000, 20000];  // ~41s of retries + timeouts
+      let lastErr = null;
+
+      for (let attempt = 0; attempt < delays.length; attempt++) {
+        if (delays[attempt]) await new Promise(r => setTimeout(r, delays[attempt]));
+        if (cancelled) return;
+        if (attempt > 0) setWaking(true);
+
+        const [h, s] = await Promise.allSettled([
+          getJSON("/health", 25000),
+          getJSON("/library/stats", 25000),
         ]);
         if (cancelled) return;
-        setLibraryStats(s);
-        setHealthErr(h ? "" : "Backend reachable but /health returned non-ok.");
-      } catch {
-        if (cancelled) return;
-        setLibraryStats(null);
-        setHealthErr(`Couldn't reach ${cleanUrl}. Is the server running?`);
+
+        if (s.status === "fulfilled") setLibraryStats(s.value);
+        if (h.status === "fulfilled") {
+          setHealthErr("");
+          setWaking(false);
+          return;                       // backend is up — done
+        }
+        lastErr = h.reason;
       }
+
+      if (cancelled) return;
+      setWaking(false);
+      setLibraryStats(null);
+      setHealthErr(
+        `Couldn't reach ${cleanUrl} (${lastErr?.message || "network error"}). ` +
+        `Free-tier hosting sleeps when idle — try again in a minute.`
+      );
     })();
+
     return () => { cancelled = true; };
   }, [isOpen, cleanUrl]);
 
@@ -126,48 +163,69 @@ export function AITutor({ state, setState, isOpen, onClose, seed, clearSeed }) {
       const decoder = new TextDecoder();
       let buffer = "";
       let accumulated = "";
+      let sawDone = false;
+
+      const handleEvent = (raw) => {
+        if (!raw.trim()) return;
+
+        let eventType = "message";
+        let dataLine = "";
+        for (const line of raw.split("\n")) {
+          const l = line.replace(/\r$/, "");
+          if (l.startsWith("event:")) eventType = l.slice(6).trim();
+          else if (l.startsWith("data:")) dataLine += l.slice(5).trimStart();
+        }
+        if (!dataLine) return;
+
+        let payload;
+        try { payload = JSON.parse(dataLine); } catch { return; }
+
+        if (eventType === "sources") {
+          updateMsg({
+            sources: payload.sources || [],
+            provider: payload.provider || state.provider,
+            ragUsed: !!payload.rag_used,
+          });
+        } else if (eventType === "chunk") {
+          accumulated += payload.text || "";
+          updateMsg(m => ({ ...m, content: accumulated }));
+        } else if (eventType === "error") {
+          accumulated += `\n\n[stream error: ${payload.error}]`;
+          updateMsg(m => ({ ...m, content: accumulated, streaming: false }));
+        } else if (eventType === "done") {
+          sawDone = true;
+          updateMsg(m => ({ ...m, streaming: false }));
+        }
+      };
+
+      // SSE events are separated by a blank line. Keep the trailing incomplete
+      // event in `buffer` until the next read fills it in.
+      const drain = () => {
+        const rawEvents = buffer.split(/\r?\n\r?\n/);
+        buffer = rawEvents.pop() || "";
+        for (const raw of rawEvents) handleEvent(raw);
+      };
 
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
-
         buffer += decoder.decode(value, { stream: true });
+        drain();
+      }
 
-        // SSE events are separated by a blank line. Keep the trailing
-        // incomplete event in `buffer` until the next read fills it in.
-        const rawEvents = buffer.split("\n\n");
-        buffer = rawEvents.pop() || "";
+      // Flush the decoder and whatever tail never got its blank-line terminator
+      // (happens when the connection closes right after the last event).
+      buffer += decoder.decode();
+      drain();
+      if (buffer.trim()) handleEvent(buffer);
 
-        for (const raw of rawEvents) {
-          if (!raw.trim()) continue;
-
-          let eventType = "message";
-          let dataLine = "";
-          for (const line of raw.split("\n")) {
-            if (line.startsWith("event:")) eventType = line.slice(6).trim();
-            else if (line.startsWith("data:")) dataLine += line.slice(5).trimStart();
-          }
-          if (!dataLine) continue;
-
-          let payload;
-          try { payload = JSON.parse(dataLine); } catch { continue; }
-
-          if (eventType === "sources") {
-            updateMsg({
-              sources: payload.sources || [],
-              provider: payload.provider || state.provider,
-              ragUsed: !!payload.rag_used,
-            });
-          } else if (eventType === "chunk") {
-            accumulated += payload.text || "";
-            updateMsg(m => ({ ...m, content: accumulated }));
-          } else if (eventType === "error") {
-            accumulated += `\n\n[stream error: ${payload.error}]`;
-            updateMsg(m => ({ ...m, content: accumulated, streaming: false }));
-          } else if (eventType === "done") {
-            updateMsg(m => ({ ...m, streaming: false }));
-          }
-        }
+      if (!sawDone) {
+        // Connection dropped before the server sent `done` — the reply on screen
+        // is incomplete, so say so instead of silently pretending it finished.
+        accumulated += accumulated
+          ? "\n\n_[Verbindung zum Backend abgebrochen — Antwort unvollständig. Frag nochmal.]_"
+          : "_[Keine Antwort vom Backend erhalten.]_";
+        updateMsg(m => ({ ...m, content: accumulated }));
       }
 
       // Make sure we settle into a non-streaming state even if `done` was missed.
@@ -198,12 +256,20 @@ export function AITutor({ state, setState, isOpen, onClose, seed, clearSeed }) {
                   ? <>📚 {libraryStats.source_count} PDFs · {libraryStats.chunks} chunks · {state.provider}</>
                   : healthErr
                     ? <span className="text-rose-600">{healthErr}</span>
-                    : <>Verbinde mit Backend…</>}
+                    : waking
+                      ? <>Backend wacht auf (Free-Tier, ~30–60 s)…</>
+                      : <>Verbinde mit Backend…</>}
               </div>
             </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100"><Icon.X className="w-5 h-5" /></button>
         </div>
+
+        {waking && !healthErr && (
+          <div className="m-4 p-3 rounded-xl bg-sky-50 border border-sky-200 text-sm text-sky-800">
+            Backend wacht gerade auf (Free-Tier schläft nach 15 Min Leerlauf). Das dauert 30–60 Sekunden — du kannst schon tippen.
+          </div>
+        )}
 
         {healthErr && (
           <div className="m-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">

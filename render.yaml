@@ -15,12 +15,25 @@ services:
         value: claude-sonnet-4-6
       - key: EMBEDDING_MODEL
         value: paraphrase-multilingual-MiniLM-L12-v2
+      # Gemini 2.5 charges "thinking" tokens against max_output_tokens; the old
+      # 800 budget got eaten by reasoning and answers were cut off mid-sentence.
+      # rag.py now disables thinking, and this raises the visible-answer budget.
+      - key: GEMINI_MAX_OUTPUT_TOKENS
+        value: "2048"
+      - key: CLAUDE_MAX_TOKENS
+        value: "2048"
       - key: TOP_K
         value: "6"
       - key: MIN_SIMILARITY
         value: "0.25"
       - key: CHROMA_DIR
         value: ./chroma_db
+      # The vector index is built offline by `backend/build_index.py` and
+      # committed in chroma_db/, so the server never rebuilds it at startup.
+      # Building on startup is what exhausted the free Gemini embedding quota
+      # (429) and dropped retrieval to the BM25 keyword fallback.
+      - key: PREBUILT_INDEX
+        value: "1"
       # Set these as secret env vars in the Render dashboard (do NOT put real keys here):
       # GEMINI_API_KEY
       # ANTHROPIC_API_KEY
