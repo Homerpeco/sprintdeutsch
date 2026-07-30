@@ -493,8 +493,18 @@ class BaseLLM:
 #: max_output_tokens, so a small budget gets eaten by reasoning and the reply is
 #: cut off mid-sentence. We disable thinking (this is a tutor, not a solver) and
 #: leave enough room for a full ~250-word answer plus citations.
-GEMINI_MAX_OUTPUT_TOKENS = int(env("GEMINI_MAX_OUTPUT_TOKENS", "2048"))
+GEMINI_MAX_OUTPUT_TOKENS = int(env("GEMINI_MAX_OUTPUT_TOKENS", "4096"))
 CLAUDE_MAX_TOKENS = int(env("CLAUDE_MAX_TOKENS", "2048"))
+
+#: How to ask Gemini to hold back on thinking, in order of preference.
+#: Support varies by model generation and the API rejects unsupported settings
+#: with 400 INVALID_ARGUMENT at *request* time (not when building the config),
+#: so we probe once at runtime and remember what this model accepts:
+#:   "budget0" — Gemini 2.5: thinking_budget=0 turns thinking off entirely
+#:   "low"     — Gemini 3.x: thinking cannot be disabled, only lowered
+#:   "none"    — send no thinking config at all; rely on the token budget
+_THINKING_MODES = ("budget0", "low", "none")
+_thinking_mode = 0  # index into _THINKING_MODES
 
 
 class GeminiLLM(BaseLLM):
@@ -505,27 +515,57 @@ class GeminiLLM(BaseLLM):
         self._client = genai.Client(api_key=api_key)
         self.model = model
 
-    def _config(self, system: str):
-        """Shared generation config.
+    def _config(self, system: str, mode: str):
+        """Build a generation config for the given thinking `mode`.
 
-        `thinking_config` only exists on google-genai >= 1.x; on older SDKs we
-        silently fall back to a plain config (the larger token budget alone
-        already prevents most truncation)."""
+        Returns None if this SDK can't express the mode, so the caller moves on
+        to the next one."""
         from google.genai import types
         kwargs = dict(
             system_instruction=system,
             temperature=0.6,
             max_output_tokens=GEMINI_MAX_OUTPUT_TOKENS,
         )
-        try:
-            kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
-        except (AttributeError, TypeError):
-            pass
+        if mode != "none":
+            try:
+                kwargs["thinking_config"] = (
+                    types.ThinkingConfig(thinking_budget=0) if mode == "budget0"
+                    else types.ThinkingConfig(thinking_level="low")
+                )
+            except (AttributeError, TypeError):
+                return None
         try:
             return types.GenerateContentConfig(**kwargs)
         except TypeError:
-            kwargs.pop("thinking_config", None)
-            return types.GenerateContentConfig(**kwargs)
+            return None
+
+    @staticmethod
+    def _rejected_config(e: Exception) -> bool:
+        """True if the model refused the thinking setting rather than the prompt."""
+        msg = str(e)
+        return "INVALID_ARGUMENT" in msg or "400" in msg
+
+    def _attempt(self, call, system: str):
+        """Run `call(config)` under the first thinking mode this model accepts.
+
+        On a 400 we step down to a weaker mode and retry, remembering the
+        working mode process-wide so later requests pay no penalty."""
+        global _thinking_mode
+        last: Optional[Exception] = None
+        start = _thinking_mode
+        for idx in range(start, len(_THINKING_MODES)):
+            cfg = self._config(system, _THINKING_MODES[idx])
+            if cfg is None:
+                continue
+            try:
+                out = call(cfg)
+                _thinking_mode = idx           # remember what worked
+                return out
+            except Exception as e:  # noqa: BLE001
+                last = e
+                if not self._rejected_config(e):
+                    raise                       # a real error — don't mask it
+        raise last if last else RuntimeError("no usable Gemini config")
 
     @staticmethod
     def _contents(messages: list[dict]):
@@ -548,11 +588,12 @@ class GeminiLLM(BaseLLM):
         return False
 
     def chat(self, system: str, messages: list[dict]) -> str:
+        contents = self._contents(messages)
         try:
-            resp = self._client.models.generate_content(
-                model=self.model,
-                contents=self._contents(messages),
-                config=self._config(system),
+            resp = self._attempt(
+                lambda cfg: self._client.models.generate_content(
+                    model=self.model, contents=contents, config=cfg),
+                system,
             )
         except Exception as e:
             raise LLMError(f"Gemini call failed: {e}") from e
@@ -562,23 +603,43 @@ class GeminiLLM(BaseLLM):
         return text or "(empty reply)"
 
     def chat_stream(self, system: str, messages: list[dict]):
-        try:
+        contents = self._contents(messages)
+
+        def open_stream(cfg):
+            # generate_content_stream is lazy — a bad config only raises once we
+            # pull the first chunk, so force that here where _attempt can see it.
             stream = self._client.models.generate_content_stream(
-                model=self.model,
-                contents=self._contents(messages),
-                config=self._config(system),
-            )
-            hit_limit = False
-            for chunk in stream:
+                model=self.model, contents=contents, config=cfg)
+            it = iter(stream)
+            try:
+                first = next(it)
+            except StopIteration:
+                return None, iter(())
+            return first, it
+
+        try:
+            first, rest = self._attempt(open_stream, system)
+        except Exception as e:
+            raise LLMError(f"Gemini stream failed: {e}") from e
+
+        hit_limit = False
+        try:
+            for chunk in ([first] if first is not None else []):
                 text = getattr(chunk, "text", None)
                 if text:
                     yield text
                 if self._truncated(chunk):
                     hit_limit = True
-            if hit_limit:
-                yield "\n\n_(Antwort wegen Token-Limit gekürzt — frag nach „weiter“.)_"
+            for chunk in rest:
+                text = getattr(chunk, "text", None)
+                if text:
+                    yield text
+                if self._truncated(chunk):
+                    hit_limit = True
         except Exception as e:
             raise LLMError(f"Gemini stream failed: {e}") from e
+        if hit_limit:
+            yield "\n\n_(Antwort wegen Token-Limit gekürzt — frag nach „weiter“.)_"
 
 
 class ClaudeLLM(BaseLLM):
