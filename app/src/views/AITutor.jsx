@@ -108,6 +108,21 @@ export function AITutor({ state, setState, isOpen, onClose, seed, clearSeed }) {
         `Couldn't reach ${cleanUrl} (${lastErr?.message || "network error"}). ` +
         `Free-tier hosting sleeps when idle — try again in a minute.`
       );
+
+      // Don't give up for good: a container that was still booting will come up
+      // shortly after. Keep probing quietly so the warning clears itself
+      // instead of sitting there contradicting a working chat.
+      while (!cancelled) {
+        await new Promise(r => setTimeout(r, 15000));
+        if (cancelled) return;
+        const [h, s] = await Promise.allSettled([
+          getJSON("/health", 25000),
+          getJSON("/library/stats", 25000),
+        ]);
+        if (cancelled) return;
+        if (s.status === "fulfilled") setLibraryStats(s.value);
+        if (h.status === "fulfilled") { setHealthErr(""); return; }
+      }
     })();
 
     return () => { cancelled = true; };
@@ -149,6 +164,21 @@ export function AITutor({ state, setState, isOpen, onClose, seed, clearSeed }) {
         }),
       });
       setNextRagQuery("");
+
+      // The request went through, so the backend is demonstrably reachable —
+      // clear any stale "couldn't reach" warning left over from a probe that
+      // ran while the container was still booting, and pick up the stats it
+      // couldn't fetch back then.
+      if (res.ok) {
+        setHealthErr("");
+        setWaking(false);
+        if (!libraryStats) {
+          fetch(`${cleanUrl}/library/stats`)
+            .then(r => r.ok ? r.json() : null)
+            .then(s => { if (s) setLibraryStats(s); })
+            .catch(() => {});
+        }
+      }
 
       if (!res.ok || !res.body) {
         const errText = await res.text().catch(() => "");
