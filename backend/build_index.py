@@ -65,8 +65,20 @@ def main() -> int:
         metadata={"hnsw:space": "cosine"},
     )
 
-    data = src.get(include=["documents", "metadatas"])
+    # `ingest.py` already paid for a RETRIEVAL_DOCUMENT embedding of every chunk
+    # when it wrote the source collection. Re-embedding here would double the
+    # quota spend for an identical vector, so reuse what's on disk and only call
+    # the API for chunks that are somehow missing one.
+    data = src.get(include=["documents", "metadatas", "embeddings"])
     ids, docs, metas = data["ids"], data["documents"], data["metadatas"]
+    src_vecs = data.get("embeddings")
+    cached: dict[str, list[float]] = {}
+    if src_vecs is not None and len(src_vecs) == len(ids):
+        for cid, vec in zip(ids, src_vecs):
+            if vec is not None and len(vec) == rag.GEMINI_EMBED_DIMS:
+                cached[cid] = list(vec)
+    if cached:
+        log(f"→ reusing {len(cached)}/{total} embeddings already stored by ingest")
 
     # Resume support: skip anything already embedded, so a quota error partway
     # through costs you only the remaining chunks on the next run.
@@ -91,9 +103,11 @@ def main() -> int:
         w_docs = [x[1] for x in window]
         w_metas = [x[2] for x in window]
 
+        reused = all(i in cached for i in w_ids)
         for attempt in range(MAX_RETRIES):
             try:
-                vecs = rag._gemini_embed(w_docs, "RETRIEVAL_DOCUMENT")
+                vecs = ([cached[i] for i in w_ids] if reused
+                        else rag._gemini_embed(w_docs, "RETRIEVAL_DOCUMENT"))
                 break
             except Exception as e:  # noqa: BLE001
                 msg = str(e)
@@ -110,8 +124,10 @@ def main() -> int:
 
         gcol.upsert(ids=w_ids, documents=w_docs, metadatas=w_metas, embeddings=vecs)
         finished = len(done) + start + len(window)
-        log(f"  {finished}/{total} chunks  ({finished * 100 // total}%)")
-        time.sleep(PAUSE)
+        log(f"  {finished}/{total} chunks  ({finished * 100 // total}%)"
+            f"{'  [cached]' if reused else ''}")
+        if not reused:
+            time.sleep(PAUSE)
 
     log(f"✓ Done — {gcol.count()}/{total} chunks embedded into '{rag.GEMINI_COLLECTION}'.")
     log("  Now commit backend/chroma_db/ and push; the server will load it as-is.")

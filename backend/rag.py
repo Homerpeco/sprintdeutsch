@@ -165,6 +165,37 @@ _semantic_ready = False
 _semantic_error: Optional[str] = None
 
 
+#: Request sizing for the embedding API. Batching by a fixed *count* is what
+#: silently broke the semantic index: our grammar-book chunks average ~2,500
+#: characters, so 50-per-request sent ~126k chars (~35k tokens) in one call and
+#: the free tier rejected it with 429 RESOURCE_EXHAUSTED — indistinguishable, in
+#: the logs, from a daily quota being used up. Batch by character budget instead,
+#: so request size stays bounded no matter how large individual chunks are.
+#: Calibrated against the free tier: ~50,000 chars per request succeeds,
+#: ~62,500 returns 429. 36,000 leaves headroom for chunks that tokenize badly.
+EMBED_MAX_CHARS_PER_REQUEST = int(env("EMBED_MAX_CHARS_PER_REQUEST", "36000"))
+EMBED_MAX_ITEMS_PER_REQUEST = int(env("EMBED_MAX_ITEMS_PER_REQUEST", "16"))
+
+
+def _embed_batches(texts: list[str]) -> Iterable[tuple[int, list[str]]]:
+    """Yield (start_index, batch) windows that respect both caps."""
+    start = 0
+    while start < len(texts):
+        batch: list[str] = []
+        chars = 0
+        i = start
+        while i < len(texts) and len(batch) < EMBED_MAX_ITEMS_PER_REQUEST:
+            t = texts[i]
+            # Always take at least one item, even if it alone exceeds the cap.
+            if batch and chars + len(t) > EMBED_MAX_CHARS_PER_REQUEST:
+                break
+            batch.append(t)
+            chars += len(t)
+            i += 1
+        yield start, batch
+        start = i
+
+
 def _gemini_embed(texts: list[str], task: str) -> list[list[float]]:
     """Embed via the Gemini API. task: RETRIEVAL_DOCUMENT | RETRIEVAL_QUERY."""
     import numpy as np
@@ -175,10 +206,10 @@ def _gemini_embed(texts: list[str], task: str) -> list[list[float]]:
         raise LLMError("Missing GEMINI_API_KEY for embeddings")
     client = genai.Client(api_key=api_key)
     out: list[list[float]] = []
-    for i in range(0, len(texts), 50):
+    for _, batch in _embed_batches(texts):
         resp = client.models.embed_content(
             model=GEMINI_EMBED_MODEL,
-            contents=texts[i:i + 50],
+            contents=batch,
             config=types.EmbedContentConfig(task_type=task, output_dimensionality=GEMINI_EMBED_DIMS),
         )
         for e in resp.embeddings:
@@ -188,9 +219,71 @@ def _gemini_embed(texts: list[str], task: str) -> list[list[float]]:
     return out
 
 
+#: Pacing for bulk document embedding. The free tier enforces a per-minute
+#: *token* budget (~30k TPM for gemini-embedding-001), so a long ingest must be
+#: rate-limited, not just retried: without this, every request after the first
+#: ~90k characters in a minute comes back 429 and the run crawls through
+#: backoff. Characters are used as a cheap token proxy (~4 chars/token for
+#: German). Query-time embedding (RETRIEVAL_QUERY) deliberately does NOT pace or
+#: retry — a learner waiting on a reply should fall back to BM25, not sit for 30s.
+EMBED_CHARS_PER_MINUTE = int(env("EMBED_CHARS_PER_MINUTE", "90000"))
+EMBED_MAX_RETRIES = int(env("EMBED_MAX_RETRIES", "6"))
+EMBED_PROGRESS = env("EMBED_PROGRESS", "") not in ("", "0", "false", "False")
+
+
+class QuotaExhausted(Exception):
+    """The per-DAY embedding quota is gone. Waiting will not help today."""
+
+
+#: Two different 429s wear the same status code, and telling them apart is the
+#: difference between "sleep 20s and carry on" and "come back tomorrow":
+#:   per-minute  → PerMinute / RetryInfo of a few seconds; retrying works.
+#:   per-day     → quotaId ...PerDay..., limit 1000; retrying just burns time.
+#: NOTE the free-tier day counter bills one unit per *text*, not per HTTP call,
+#: so batching reduces wall-clock time but not daily consumption. A 2,900-chunk
+#: corpus therefore needs ~3 days on the free tier regardless of batch size.
+_DAILY_QUOTA = re.compile(r"PerDay|RequestsPerDay|per day", re.I)
+
+
+def _is_daily_quota(e: Exception) -> bool:
+    return "429" in str(e) and bool(_DAILY_QUOTA.search(str(e)))
+
+
+def _is_transient(e: Exception) -> bool:
+    msg = str(e)
+    if _is_daily_quota(e):
+        return False
+    return "429" in msg or "RESOURCE_EXHAUSTED" in msg or "503" in msg or "UNAVAILABLE" in msg
+
+
 def embed_texts(texts: list[str]) -> list[list[float]]:
-    """Document embeddings (used by ingest); requires GEMINI_API_KEY."""
-    return _gemini_embed(texts, "RETRIEVAL_DOCUMENT")
+    """Document embeddings (used by ingest); requires GEMINI_API_KEY.
+
+    Retries transient quota/availability errors with escalating backoff so a
+    long ingest survives free-tier rate limiting instead of dying halfway."""
+    import time
+    out: list[list[float]] = []
+    batches = list(_embed_batches(texts))
+    for n, (_, window) in enumerate(batches):
+        chars = sum(len(t) for t in window)
+        for attempt in range(EMBED_MAX_RETRIES):
+            try:
+                out.extend(_gemini_embed(window, "RETRIEVAL_DOCUMENT"))
+                break
+            except Exception as e:  # noqa: BLE001
+                if _is_daily_quota(e):
+                    raise QuotaExhausted(str(e)) from e
+                if _is_transient(e) and attempt < EMBED_MAX_RETRIES - 1:
+                    time.sleep(20 * (attempt + 1))
+                    continue
+                raise
+        if EMBED_PROGRESS:
+            print(f"    embedded {len(out)}/{len(texts)} chunks", flush=True)
+        if n + 1 < len(batches):
+            # Stay under the per-minute character budget: a batch of `chars`
+            # characters entitles the next one to start `chars / rate` later.
+            time.sleep(60.0 * chars / max(EMBED_CHARS_PER_MINUTE, 1))
+    return out
 
 
 #: The vector index is built offline by `build_index.py` and committed with the
@@ -459,6 +552,11 @@ OUTPUT LANGUAGE RULES — STRICT, ALWAYS-ON
 - All grammar explanations MUST be in English. Do not write German paragraphs explaining grammar.
 - EVERY German sentence you produce — examples, corrections, quiz questions, translations — MUST be immediately followed by its English translation on the same line, separated by an em-dash. Format: "Wenn ich Zeit hätte, käme ich. — If I had time, I would come."
 - Vocabulary lists: German term · English meaning.
+- NEVER use LaTeX or math notation. No $…$, no \\rightarrow, no \\text{}. Write the
+  arrow character directly: "optimieren → optimierend".
+- When you name a prefix, suffix or ending, hyphenate it on the side it attaches to
+  and bold it: **-d**, **-ung**, **ge-**, **un-**. The frontend highlights these for
+  the learner, so the hyphen matters.
 - Verb entries: Infinitiv (English meaning) · Präsens · Präteritum · Perfekt · one example sentence WITH ENGLISH TRANSLATION.
 - The only place you may write German alone (without a translation) is when quoting a learner's own sentence back to them while you correct it.
 

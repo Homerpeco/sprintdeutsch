@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Icon } from '../components/Icon.jsx';
+import { TutorMarkdown } from '../components/TutorMarkdown.jsx';
 
 function SourcesBlock({ sources, provider }) {
   const [open, setOpen] = useState(false);
@@ -311,8 +312,16 @@ export function AITutor({ state, setState, isOpen, onClose, seed, clearSeed }) {
         <div ref={scrollRef} className="flex-1 overflow-auto px-4 py-3 space-y-4 scrollbar-thin">
           {messages.map((m, i) => (
             <div key={i}>
-              <div className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "ml-auto bg-indigo-600 text-white bubble-user" : "bg-slate-100 text-slate-800 bubble-ai"}`}>
-                {m.content}
+              <div className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${m.role === "user" ? "ml-auto bg-indigo-600 text-white bubble-user whitespace-pre-wrap" : "bg-slate-100 text-slate-800 bubble-ai"}`}>
+                {m.role === "user"
+                  ? m.content
+                  : <TutorMarkdown
+                      content={m.content}
+                      // While streaming, make the final block inline so the
+                      // caret blinks at the end of the text rather than
+                      // dropping onto a line of its own.
+                      className={m.streaming ? "[&>*:last-child]:inline" : ""}
+                    />}
                 {m.streaming && (
                   <span className="inline-block w-[6px] h-[14px] -mb-0.5 ml-0.5 bg-slate-500 animate-pulse" aria-hidden="true" />
                 )}

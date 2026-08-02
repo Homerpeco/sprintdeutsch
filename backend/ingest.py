@@ -99,12 +99,13 @@ def main():
         print("Nothing to ingest. Use --force to re-ingest.")
         return
 
-    # Eagerly load the embedding model so its first-time download/init isn't
-    # silently bundled into the first PDF timing.
-    print(f"Loading embedding model ({rag.EMBEDDING_MODEL}) … ", end="", flush=True)
-    t0 = time.time()
-    rag.get_embedder()
-    print(f"done in {fmt_secs(time.time() - t0)}")
+    # Embeddings are produced by the Gemini API (rag.embed_texts), not by a
+    # local transformer — there is no model to warm up, but a missing key would
+    # otherwise only surface after the first PDF has been parsed. Fail fast.
+    if not rag.env("GEMINI_API_KEY"):
+        print("✗ GEMINI_API_KEY not set. Put it in backend/.env and re-run.")
+        sys.exit(1)
+    print(f"Embeddings: {rag.GEMINI_EMBED_MODEL} ({rag.GEMINI_EMBED_DIMS} dims) via Gemini API")
 
     total_chunks = 0
     total_pages = 0

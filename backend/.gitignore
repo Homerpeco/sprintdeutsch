@@ -6,3 +6,6 @@ __pycache__/
 # Remove the line below if you want to exclude it (RAG will return no results until re-ingested).
 # chroma_db/
 pdfs/
+
+# Progress file written by rebuild_library.py (local, resumable state)
+rebuild_state.json
