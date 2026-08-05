@@ -150,9 +150,14 @@ export function App() {
         </main>
       </div>
 
-      {/* Bottom nav (mobile) */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-30" style={{backgroundColor:'#355f1f', borderTop:'1px solid #284a18'}}>
-        <div className="flex">
+      {/* Bottom nav (mobile) — horizontally scrollable so items never get
+          squeezed below a tappable size as more tabs are added; fixed
+          per-item width keeps labels readable and touch targets consistent. */}
+      <nav
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-30"
+        style={{backgroundColor:'#355f1f', borderTop:'1px solid #284a18', paddingBottom:'env(safe-area-inset-bottom)'}}
+      >
+        <div className="flex overflow-x-auto no-scrollbar" style={{WebkitOverflowScrolling:'touch'}}>
           {navItems.map(n => {
             const Icn = n.icon;
             const active = view.section === n.id;
@@ -160,16 +165,18 @@ export function App() {
               <button
                 key={n.id}
                 onClick={() => setView({ section: n.id, tab: null })}
-                className={`relative flex-1 py-2 flex flex-col items-center gap-0.5 text-[10px] transition ${
+                className={`relative shrink-0 w-[70px] py-2 flex flex-col items-center gap-0.5 text-[10px] transition ${
                   active ? "text-yellow-300" : "text-white/70"
                 }`}
               >
                 <Icn className="w-5 h-5" />
-                <span className="truncate max-w-[80%]">{n.label}</span>
+                <span className="truncate max-w-[90%] text-center leading-tight">{n.label}</span>
                 {n.badge ? <span className="absolute top-1 right-1/2 translate-x-4 text-[9px] font-bold px-1 py-0.5 rounded-full bg-rose-500 text-white min-w-[16px] text-center">{n.badge}</span> : null}
               </button>
             );
           })}
+          {/* trailing spacer so the last tab isn't flush against the screen edge */}
+          <div className="shrink-0 w-2" />
         </div>
       </nav>
 
