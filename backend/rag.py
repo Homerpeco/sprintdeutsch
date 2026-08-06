@@ -160,7 +160,14 @@ def iter_pdfs(folder: Path) -> Iterable[Path]:
 
 GEMINI_EMBED_MODEL   = env("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
 GEMINI_EMBED_DIMS    = int(env("GEMINI_EMBEDDING_DIMS", "768"))
-GEMINI_COLLECTION    = COLLECTION_NAME + "_gemini"
+#: The Gemini vectors used to live in a second collection, mirrored from the
+#: first. That made sense while the two held *different* embeddings, but once
+#: everything was rebuilt at 768 dimensions the mirror was a byte-for-byte
+#: duplicate of the chunk texts — and Chroma keeps a full-text index over each
+#: copy. The result was a 109 MB chroma.sqlite3, over GitHub's 100 MB file limit,
+#: so the committed index could not be pushed at all. Pointing both names at one
+#: collection halves the store and keeps every call site working unchanged.
+GEMINI_COLLECTION    = COLLECTION_NAME
 _semantic_ready = False
 _semantic_error: Optional[str] = None
 
