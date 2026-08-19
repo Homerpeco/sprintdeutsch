@@ -15,6 +15,7 @@ import os
 import re
 import json
 import hashlib
+import itertools
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Optional
@@ -261,6 +262,42 @@ def _is_transient(e: Exception) -> bool:
     if _is_daily_quota(e):
         return False
     return "429" in msg or "RESOURCE_EXHAUSTED" in msg or "503" in msg or "UNAVAILABLE" in msg
+
+
+#: Retry policy for *generation* calls (chat + stream). Deliberately far more
+#: impatient than the ingest policy above: a learner is watching a cursor blink,
+#: so we trade thoroughness for responsiveness. Google returns 503 UNAVAILABLE
+#: when a model is momentarily oversubscribed and these clear in a second or two.
+LLM_MAX_RETRIES = int(env("LLM_MAX_RETRIES", "3"))
+_LLM_BACKOFF = (1.0, 3.0, 7.0)
+
+#: Shown when the connection dies *after* tokens have already reached the
+#: browser. Retrying there would duplicate text the learner can already see, so
+#: we close the answer honestly instead. Mirrors the token-limit note's voice.
+STREAM_CUT_NOTE = (
+    "\n\n_(Verbindung zum Modell abgebrochen — die Antwort ist unvollständig. "
+    "Bitte stell die Frage noch einmal oder sag „weiter“.)_"
+)
+
+
+def _llm_backoff(attempt: int) -> float:
+    return _LLM_BACKOFF[min(attempt, len(_LLM_BACKOFF) - 1)]
+
+
+def _retry_transient(fn):
+    """Run `fn()`, retrying transient 429/503 with short interactive backoff.
+
+    Daily-quota 429s are not transient and propagate immediately — see
+    `_is_transient`."""
+    import time
+    for attempt in range(max(LLM_MAX_RETRIES, 1)):
+        try:
+            return fn()
+        except Exception as e:  # noqa: BLE001
+            if not _is_transient(e) or attempt >= LLM_MAX_RETRIES - 1:
+                raise
+            time.sleep(_llm_backoff(attempt))
+    raise RuntimeError("unreachable")
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
@@ -695,11 +732,11 @@ class GeminiLLM(BaseLLM):
     def chat(self, system: str, messages: list[dict]) -> str:
         contents = self._contents(messages)
         try:
-            resp = self._attempt(
+            resp = _retry_transient(lambda: self._attempt(
                 lambda cfg: self._client.models.generate_content(
                     model=self.model, contents=contents, config=cfg),
                 system,
-            )
+            ))
         except Exception as e:
             raise LLMError(f"Gemini call failed: {e}") from e
         text = (resp.text or "").strip()
@@ -722,27 +759,33 @@ class GeminiLLM(BaseLLM):
                 return None, iter(())
             return first, it
 
-        try:
-            first, rest = self._attempt(open_stream, system)
-        except Exception as e:
-            raise LLMError(f"Gemini stream failed: {e}") from e
-
-        hit_limit = False
-        try:
-            for chunk in ([first] if first is not None else []):
-                text = getattr(chunk, "text", None)
-                if text:
-                    yield text
-                if self._truncated(chunk):
-                    hit_limit = True
-            for chunk in rest:
-                text = getattr(chunk, "text", None)
-                if text:
-                    yield text
-                if self._truncated(chunk):
-                    hit_limit = True
-        except Exception as e:
-            raise LLMError(f"Gemini stream failed: {e}") from e
+        # A 503 can land either while opening the stream or halfway through it.
+        # Before the first token reaches the browser a retry is invisible, so we
+        # take it; afterwards it would repeat text the learner has already read,
+        # so we stop and say so. `emitted` is the line between those two worlds.
+        import time
+        emitted = False
+        for attempt in range(max(LLM_MAX_RETRIES, 1)):
+            hit_limit = False
+            try:
+                first, rest = self._attempt(open_stream, system)
+                for chunk in itertools.chain(
+                        [first] if first is not None else [], rest):
+                    text = getattr(chunk, "text", None)
+                    if text:
+                        emitted = True
+                        yield text
+                    if self._truncated(chunk):
+                        hit_limit = True
+                break                              # drained cleanly
+            except Exception as e:  # noqa: BLE001
+                retriable = _is_transient(e) and not emitted
+                if not retriable or attempt >= LLM_MAX_RETRIES - 1:
+                    if emitted and _is_transient(e):
+                        yield STREAM_CUT_NOTE       # keep the partial answer
+                        return
+                    raise LLMError(f"Gemini stream failed: {e}") from e
+                time.sleep(_llm_backoff(attempt))
         if hit_limit:
             yield "\n\n_(Antwort wegen Token-Limit gekürzt — frag nach „weiter“.)_"
 
