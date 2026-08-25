@@ -1,6 +1,7 @@
 import { GRAMMAR } from '../data/grammar.js';
 import { ROADMAP, LEVELS } from '../data/roadmap.js';
 import { Card } from '../components/Card.jsx';
+import { Pill } from '../components/Pill.jsx';
 import { Progress } from '../components/Progress.jsx';
 
 // Hardcoded colours so they always render regardless of Tailwind custom-colour loading
@@ -14,7 +15,42 @@ const C = {
   pastBg:       '#e8f3de',
 };
 
-export function RoadmapView({ state, setState, setView, verbs }) {
+// ─── RoadmapView (tab router) ────────────────────────────────────────────────
+// Tab "roadmap" (default) = the level path. Tab "nomen" = the Genus-Trainer,
+// a self-contained page served from public/genus-trainer.html (same pattern as
+// the Verb Meister App). Update it by replacing that file.
+
+export function RoadmapView({ state, setState, view, setView, verbs }) {
+  const tab = (view && view.tab) || "roadmap";
+
+  return (
+    <div className="fade-in">
+      <div className="px-4 sm:px-6 pt-4 sm:pt-6 max-w-4xl mx-auto flex flex-wrap items-center gap-2">
+        <Pill variant="light" active={tab === "roadmap"} onClick={() => setView({ section: "roadmap", tab: "roadmap" })}>Roadmap</Pill>
+        <Pill variant="light" active={tab === "nomen"}   onClick={() => setView({ section: "roadmap", tab: "nomen" })}>Nomen und Artikel</Pill>
+      </div>
+
+      {tab === "nomen"
+        ? <GenusTrainerTab />
+        : <RoadmapBody state={state} setState={setState} setView={setView} verbs={verbs} />}
+    </div>
+  );
+}
+
+function GenusTrainerTab() {
+  return (
+    <div className="mt-4">
+      <iframe
+        src="/genus-trainer.html"
+        title="Nomen und Artikel — Genus-Trainer"
+        className="w-full block"
+        style={{ border: "none", height: "calc(100vh - 130px)", minHeight: "520px", display: "block" }}
+      />
+    </div>
+  );
+}
+
+function RoadmapBody({ state, setState, setView, verbs }) {
   const target = ROADMAP[state.level];
   const verbsKnownAtLevel = verbs.filter(
     v => v.lvl <= state.level && state.verbsKnown[v.v]?.correct >= 1
@@ -24,7 +60,7 @@ export function RoadmapView({ state, setState, setView, verbs }) {
   ).length;
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto fade-in">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{color: C.forestDark}}>
         Your Roadmap — {state.level}
       </h1>
