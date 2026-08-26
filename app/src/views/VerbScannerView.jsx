@@ -10,7 +10,8 @@ const COLORS = {
   6: { bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-700', active: 'bg-rose-600', fill: 'bg-rose-500' },       
   7: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', active: 'bg-red-600', fill: 'bg-red-500' },          
   8: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', active: 'bg-orange-600', fill: 'bg-orange-500' }, 
-  9: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', active: 'bg-amber-600', fill: 'bg-amber-500' }     
+  9: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', active: 'bg-amber-600', fill: 'bg-amber-500' },
+  10: { bg: 'bg-teal-50', border: 'border-teal-200', text: 'text-teal-700', active: 'bg-teal-600', fill: 'bg-teal-500' }
 };
 
 const PATTERNS = [
@@ -22,7 +23,8 @@ const PATTERNS = [
   { id: 6, vowels: 'e-a-e', guide: 'essen' },
   { id: 7, vowels: 'a-u-a', guide: 'fahren' },
   { id: 8, vowels: 'a-ie-a', guide: 'fallen' },
-  { id: 9, vowels: 'e-a-a', guide: 'stehen' }
+  { id: 9, vowels: 'e-a-a', guide: 'stehen' },
+  { id: 10, vowels: 'i-a-o', guide: 'beginnen' }
 ];
 
 const FULL_CONJUGATIONS = {
@@ -34,6 +36,7 @@ const FULL_CONJUGATIONS = {
   essen: { praesens: ['ich esse', 'du isst', 'er/sie/es isst', 'wir essen', 'ihr esst', 'sie/Sie essen'], praeteritum: ['ich aß', 'du aßest', 'er/sie/es aß', 'wir aßen', 'ihr aßt', 'sie/Sie aßen'], perfekt: ['ich habe gegessen', 'du hast gegessen', 'er hat gegessen', 'wir haben gegessen', 'ihr habt gegessen', 'sie haben gegessen'] },
   fahren: { praesens: ['ich fahre', 'du fährst', 'er/sie/es fährt', 'wir fahren', 'ihr fahrt', 'sie/Sie fahren'], praeteritum: ['ich fuhr', 'du fuhrst', 'er/sie/es fuhr', 'wir fuhren', 'ihr fuhrt', 'sie/Sie fuhren'], perfekt: ['ich bin/habe gefahren', 'du bist/hast gefahren', 'er ist/hat gefahren', 'wir sind/haben gefahren', 'ihr seid/habt gefahren', 'sie sind/haben gefahren'] },
   fallen: { praesens: ['ich falle', 'du fällst', 'er/sie/es fällt', 'wir fallen', 'ihr fallt', 'sie/Sie fallen'], praeteritum: ['ich fiel', 'du fielst', 'er/sie/es fiel', 'wir fielen', 'ihr fielt', 'sie/Sie fielen'], perfekt: ['ich bin gefallen', 'du bist gefallen', 'er ist gefallen', 'wir sind gefallen', 'ihr seid gefallen', 'sie sind gefallen'] },
+  beginnen: { praesens: ['ich beginne', 'du beginnst', 'er/sie/es beginnt', 'wir beginnen', 'ihr beginnt', 'sie/Sie beginnen'], praeteritum: ['ich begann', 'du begannst', 'er/sie/es begann', 'wir begannen', 'ihr begannt', 'sie/Sie begannen'], perfekt: ['ich habe begonnen', 'du hast begonnen', 'er hat begonnen', 'wir haben begonnen', 'ihr habt begonnen', 'sie haben begonnen'] },
   stehen: { praesens: ['ich stehe', 'du stehst', 'er/sie/es steht', 'wir stehen', 'ihr steht', 'sie/Sie stehen'], praeteritum: ['ich stand', 'du standst', 'er/sie/es stand', 'wir standen', 'ihr standet', 'sie/Sie standen'], perfekt: ['ich habe/bin gestanden', 'du hast/bist gestanden', 'er hat/ist gestanden', 'wir haben/sind gestanden', 'ihr habt/seid gestanden', 'sie haben/sind gestanden'] }
 };
 
@@ -127,7 +130,20 @@ const VERBS = [
   { infinitive: 'bestehen', praesens: 'besteht', praeteritum: 'bestand', perfekt: 'hat bestanden', pattern: 'e-a-a', inseparable: true, id: 9 },
   { infinitive: 'verstehen', praesens: 'versteht', praeteritum: 'verstand', perfekt: 'hat verstanden', pattern: 'e-a-a', inseparable: true, id: 9 },
   { infinitive: 'entstehen', praesens: 'entsteht', praeteritum: 'entstand', perfekt: 'ist entstanden', pattern: 'e-a-a', inseparable: true, id: 9 },
-  { infinitive: 'gestehen', praesens: 'gesteht', praeteritum: 'gestand', perfekt: 'hat gestanden', pattern: 'e-a-a', inseparable: true, id: 9 }
+  { infinitive: 'gestehen', praesens: 'gesteht', praeteritum: 'gestand', perfekt: 'hat gestanden', pattern: 'e-a-a', inseparable: true, id: 9 },
+  // 10. i-a-o  (nasal stems with short i + -nn-/-mm-: the Partizip II vowel lowers to "o",
+  // NOT to the "u" of binden/singen. Traditional strong-verb class 3a.)
+  { infinitive: 'beginnen', praesens: 'beginnt', praeteritum: 'begann', perfekt: 'hat begonnen', pattern: 'i-a-o', nasalStem: true, inseparable: true, id: 10 },
+  { infinitive: 'gewinnen', praesens: 'gewinnt', praeteritum: 'gewann', perfekt: 'hat gewonnen', pattern: 'i-a-o', nasalStem: true, inseparable: true, id: 10 },
+  { infinitive: 'schwimmen', praesens: 'schwimmt', praeteritum: 'schwamm', perfekt: 'ist geschwommen', altPerfekt: 'hat geschwommen', pattern: 'i-a-o', nasalStem: true, dualAux: true, id: 10 },
+  { infinitive: 'spinnen', praesens: 'spinnt', praeteritum: 'spann', perfekt: 'hat gesponnen', pattern: 'i-a-o', nasalStem: true, id: 10 },
+  { infinitive: 'sinnen', praesens: 'sinnt', praeteritum: 'sann', perfekt: 'hat gesonnen', pattern: 'i-a-o', nasalStem: true, id: 10 },
+  { infinitive: 'rinnen', praesens: 'rinnt', praeteritum: 'rann', perfekt: 'ist geronnen', pattern: 'i-a-o', nasalStem: true, id: 10 },
+  { infinitive: 'gerinnen', praesens: 'gerinnt', praeteritum: 'gerann', perfekt: 'ist geronnen', pattern: 'i-a-o', nasalStem: true, inseparable: true, id: 10 },
+  { infinitive: 'zerrinnen', praesens: 'zerrinnt', praeteritum: 'zerrann', perfekt: 'ist zerronnen', pattern: 'i-a-o', nasalStem: true, inseparable: true, id: 10 },
+  { infinitive: 'entrinnen', praesens: 'entrinnt', praeteritum: 'entrann', perfekt: 'ist entronnen', pattern: 'i-a-o', nasalStem: true, inseparable: true, id: 10 },
+  { infinitive: 'besinnen', praesens: 'besinnt sich', praeteritum: 'besann sich', perfekt: 'hat sich besonnen', pattern: 'i-a-o', nasalStem: true, inseparable: true, id: 10 },
+  { infinitive: 'ersinnen', praesens: 'ersinnt', praeteritum: 'ersann', perfekt: 'hat ersonnen', pattern: 'i-a-o', nasalStem: true, inseparable: true, id: 10 }
 ];
 
 // Ablaut EXCEPTIONS — verbs whose pattern is NOT one of the 9 master patterns.
@@ -144,18 +160,23 @@ const EXCEPTIONS = [
 // Returns the CONFIRMED conjugation/pattern for a verb we already know (from the
 // built-in tables), or null. Used to override the AI's pattern (which it sometimes
 // gets wrong) while still letting the AI supply meaning/synonyms/antonyms.
-function getVerified(input) {
-  const known = VERBS.find(v => v.infinitive.toLowerCase() === input);
+function getVerified(rawInput) {
+  const input = String(rawInput || '').toLowerCase().trim().replace(/^sich\s+/, '');
+  // Accept a truncated infinitive too ("beginn" → "beginnen", "gewinne" → "gewinnen").
+  const candidates = [input, input + 'n', input + 'en'];
+  const match = (list) => list.find(v => candidates.includes(v.infinitive.toLowerCase()));
+  const known = match(VERBS);
   if (known) {
     const parts3 = known.perfekt.replace(/^(hat|ist)\s+/i, '');
     return {
       success: true, infinitive: known.infinitive,
-      praesens: `er ${known.praesens}`, praeteritum: `er ${known.praeteritum}`, perfekt: `er ${known.perfekt}`,
+      praesens: `er ${known.praesens}`, praeteritum: `er ${known.praeteritum}`,
+      perfekt: known.altPerfekt ? `er ${known.perfekt} / ${known.altPerfekt}` : `er ${known.perfekt}`,
       pattern: known.pattern, reihe: known.id, exception: false,
-      msg: `“${known.infinitive}” is a strong/irregular verb in Ablautreihe ${known.id} (${known.pattern}). Principal parts: ${known.infinitive} – ${known.praeteritum} – ${parts3}. (Verified from the built-in verb table.)`,
+      msg: `“${known.infinitive}” is a strong/irregular verb in Ablautreihe ${known.id} (${known.pattern}). Principal parts: ${known.infinitive} – ${known.praeteritum} – ${parts3}.${known.altPerfekt ? ' It takes BOTH auxiliaries: sein for movement from A to B, haben for the activity/duration.' : ''} (Verified from the built-in verb table.)`,
     };
   }
-  const exc = EXCEPTIONS.find(v => v.infinitive.toLowerCase() === input);
+  const exc = match(EXCEPTIONS);
   if (exc) {
     const parts3 = exc.perfekt.replace(/^(hat|ist)\s+/i, '');
     return {
@@ -230,7 +251,7 @@ function Lernmodus({ preSelectedVerb, preSelectedPatternId }) {
   return (
     <div className="fade-in">
       <div className="text-center mb-8">
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Die 9 Master Patterns</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Die 10 Master Patterns</h2>
         <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto">
           Click on a color-coded pattern to study the full conjugation of its guiding verb.
         </p>
@@ -325,7 +346,9 @@ function QuizModus() {
 
   const checkAnswers = () => {
     const isPraetCorrect = answers.praeteritum.toLowerCase().trim() === currentVerb.praeteritum.toLowerCase();
-    const isPerfektCorrect = answers.perfekt.toLowerCase().trim() === currentVerb.perfekt.toLowerCase();
+    const perfektGiven = answers.perfekt.toLowerCase().trim();
+    const isPerfektCorrect = perfektGiven === currentVerb.perfekt.toLowerCase()
+      || (currentVerb.altPerfekt && perfektGiven === currentVerb.altPerfekt.toLowerCase());
     const isPatternCorrect = answers.pattern === currentVerb.pattern;
 
     if (isPraetCorrect && isPerfektCorrect && isPatternCorrect) {
@@ -335,7 +358,7 @@ function QuizModus() {
         status: 'incorrect', 
         msg: 'Nicht ganz...',
         correctPraet: currentVerb.praeteritum,
-        correctPerfekt: currentVerb.perfekt,
+        correctPerfekt: currentVerb.perfekt + (currentVerb.altPerfekt ? ` / ${currentVerb.altPerfekt}` : ''),
         correctPattern: currentVerb.pattern
       });
     }
@@ -390,7 +413,7 @@ function QuizModus() {
 
         <div>
           <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-2 text-center">Welche Ablautreihe ist das?</label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {PATTERNS.map(p => {
                const c = COLORS[p.id];
                const isSelected = answers.pattern === p.vowels;
@@ -477,7 +500,8 @@ function ChallengeModus() {
 
     const isPraesensCorrect = normalize(answers.praesens) === normalize(currentVerb.praesens);
     const isPraetCorrect = normalize(answers.praeteritum) === normalize(currentVerb.praeteritum);
-    const isPerfektCorrect = normalize(answers.perfekt) === normalize(currentVerb.perfekt);
+    const isPerfektCorrect = normalize(answers.perfekt) === normalize(currentVerb.perfekt)
+      || (currentVerb.altPerfekt && normalize(answers.perfekt) === normalize(currentVerb.altPerfekt));
     const isPatternCorrect = normalizePattern(answers.pattern) === normalizePattern(currentVerb.pattern);
 
     const errors = [];
@@ -607,7 +631,7 @@ function ChallengeModus() {
               <div className="grid grid-cols-2 gap-3 text-sm text-rose-900 bg-white p-4 rounded-lg shadow-inner border border-rose-100">
                 <div><strong className="block text-rose-400 text-[10px] uppercase">Präsens</strong> {feedback.correct.praesens}</div>
                 <div><strong className="block text-rose-400 text-[10px] uppercase">Präteritum</strong> {feedback.correct.praeteritum}</div>
-                <div><strong className="block text-rose-400 text-[10px] uppercase">Perfekt</strong> {feedback.correct.perfekt}</div>
+                <div><strong className="block text-rose-400 text-[10px] uppercase">Perfekt</strong> {feedback.correct.perfekt}{feedback.correct.altPerfekt ? ` / ${feedback.correct.altPerfekt}` : ''}</div>
                 <div><strong className="block text-rose-400 text-[10px] uppercase">Muster</strong> {feedback.correct.pattern}</div>
               </div>
             </div>
@@ -660,16 +684,25 @@ function ScannerModus({ onNavigate }) {
 
 Step 1 — Give the 3rd person singular (er/sie/es) for Präsens, Präteritum and Perfekt, with the correct auxiliary (haben/sein).
 Step 2 — Determine the Ablautreihe STRICTLY from the three STEM VOWELS, in this exact order: [infinitive stem vowel] - [Präteritum stem vowel] - [Partizip II stem vowel]. Read each stem vowel directly off the principal parts you just produced (ignore prefixes such as ge-, be-, ver-, ent-, and any separable prefix).
-Step 3 — Match those three vowels to EXACTLY one of these 9 patterns:
-1: ei-ie-ie, 2: ei-i-i, 3: ie-o-o, 4: i-a-u, 5: e-a-o, 6: e-a-e, 7: a-u-a, 8: a-ie-a, 9: e-a-a.
+Step 3 — Match those three vowels to EXACTLY one of these 10 patterns:
+1: ei-ie-ie, 2: ei-i-i, 3: ie-o-o, 4: i-a-u, 5: e-a-o, 6: e-a-e, 7: a-u-a, 8: a-ie-a, 9: e-a-a, 10: i-a-o.
 
 CRITICAL RULE: the "pattern" you output MUST equal the three stem vowels you actually extracted — never approximate or guess by analogy to another verb.
+
+CRITICAL RULE (i-a-u vs i-a-o): both exist and they are DIFFERENT Reihen. Look at the Partizip II vowel and nothing else.
+- Partizip II vowel = u → "i-a-u" → Reihe 4 (binden/band/gebunden, singen/sang/gesungen, trinken/trank/getrunken, finden, springen, zwingen, klingen, sinken, gelingen).
+- Partizip II vowel = o → "i-a-o" → Reihe 10 (beginnen/begann/begonnen, gewinnen/gewann/gewonnen, schwimmen/schwamm/geschwommen, spinnen/spann/gesponnen, sinnen/sann/gesonnen, rinnen/rann/geronnen, and their prefixed forms gerinnen, zerrinnen, entrinnen, besinnen, ersinnen).
+Rule of thumb: stems ending in a DOUBLE nasal (-nn-, -mm-) take o (Reihe 10); stems ending in -nd, -ng, -nk take u (Reihe 4).
+
 Worked examples:
 - stehen → stem vowels of stehen / stand / gestanden = e, a, a → pattern "e-a-a" → Reihe 9. (It is NOT a-u-a.)
 - fahren → fahren / fuhr / gefahren = a, u, a → "a-u-a" → Reihe 7.
 - nehmen → nehmen / nahm / genommen = e, a, o → "e-a-o" → Reihe 5.
+- beginnen → beginnen / begann / begonnen = i, a, o → "i-a-o" → Reihe 10. (It is NOT i-a-u — the participle is begONNen, not "begunnen".)
+- gewinnen → gewinnen / gewann / gewonnen = i, a, o → "i-a-o" → Reihe 10.
+- singen → singen / sang / gesungen = i, a, u → "i-a-u" → Reihe 4.
 
-If the verb does NOT fit any of the 9 patterns (e.g. gehen, sein, tun, or a regular/weak verb), output success:false, reihe:0, pattern:"Unknown".
+If the verb does NOT fit any of the 10 patterns (e.g. gehen, sein, tun, or a regular/weak verb), output success:false, reihe:0, pattern:"Unknown".
 In "msg" (short, English), state the three stem vowels you used and confirm they match the pattern.
 
 ALWAYS also provide (regardless of the pattern), to help the learner build a semantic web:
@@ -754,12 +787,15 @@ ALWAYS also provide (regardless of the pattern), to help the learner build a sem
       }
 
       if (!data) throw (lastErr || new Error('unavailable'));
+      // The AI often normalises a truncated query ("beginn" → "beginnen"). Re-check the
+      // verified table against that infinitive so our data still wins over the AI's guess.
+      const confirmed = verified || getVerified(data.infinitive);
       // Keep the AI's semantics (meaning/synonyms/antonyms) but override the
       // accuracy-critical conjugation & pattern with the verified table when known.
-      if (verified) {
-        data = { ...data, success: true, infinitive: verified.infinitive,
-          praesens: verified.praesens, praeteritum: verified.praeteritum, perfekt: verified.perfekt,
-          pattern: verified.pattern, reihe: verified.reihe, exception: verified.exception, msg: verified.msg };
+      if (confirmed) {
+        data = { ...data, success: true, infinitive: confirmed.infinitive,
+          praesens: confirmed.praesens, praeteritum: confirmed.praeteritum, perfekt: confirmed.perfekt,
+          pattern: confirmed.pattern, reihe: confirmed.reihe, exception: confirmed.exception, msg: confirmed.msg };
       }
       setResult(data);
     } catch (error) {
@@ -835,9 +871,9 @@ ALWAYS also provide (regardless of the pattern), to help the learner build a sem
 
       {result && !loading && (
         <div className="fade-in border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-          {result.success && result.reihe >= 1 && result.reihe <= 9 ? (() => {
+          {result.success && PATTERNS.some(p => p.id === result.reihe) ? (() => {
             const c = COLORS[result.reihe];
-            const guideVerb = PATTERNS[result.reihe - 1].guide;
+            const guideVerb = PATTERNS.find(p => p.id === result.reihe).guide;
             return (
               <>
                 <div className={`${c.bg} p-6 text-center border-b ${c.border}`}>
@@ -881,7 +917,7 @@ ALWAYS also provide (regardless of the pattern), to help the learner build a sem
               </div>
               <div className="p-6 text-center bg-white">
                   <p className="font-bold text-slate-800 text-xl text-red-600 mb-2">Pattern Unbekannt</p>
-                  <p className="text-slate-600 text-sm bg-red-50 p-4 rounded-lg">{result.msg || "This verb is either regular or highly irregular (like 'gehen' or 'sein') and does not match the 9 patterns."}</p>
+                  <p className="text-slate-600 text-sm bg-red-50 p-4 rounded-lg">{result.msg || "This verb is either regular or highly irregular (like 'gehen' or 'sein') and does not match the 10 patterns."}</p>
                   <SemanticInfo result={result} />
                   <a
                     href={`https://www.verbformen.com/conjugation/?w=${encodeURIComponent(result.infinitive || searchInput)}`}
@@ -963,6 +999,25 @@ function GrammarFeedbackBlock({ verb }) {
         <div className="mb-4">
           <strong className="text-slate-900 block mb-1">Vowel Shift (e/i-Wechsel):</strong>
           Historically, an "i" in the ending of the 2nd and 3rd person singular caused the root vowel "e" to rise and become an "i" or "ie" (e.g. helfen -&gt; hilft). 
+        </div>
+      )}
+
+      {verb.nasalStem && (
+        <div className="mb-4 bg-teal-50 p-3 rounded border border-teal-200">
+          <strong className="text-teal-900 block mb-1">Nasal stem: why "o" and not "u"?</strong>
+          Reihe 4 (i-a-u) and Reihe 10 (i-a-o) come from the same old strong class, and they split according to what follows the vowel:
+          <ul className="list-disc pl-5 mt-1 space-y-1">
+            <li>Stem ends in <strong>-nd, -ng, -nk</strong> (binden, singen, trinken) → the Partizip II vowel stays <strong>u</strong>: gebunden, gesungen, getrunken.</li>
+            <li>Stem ends in a <strong>double nasal -nn-/-mm-</strong> (beginnen, gewinnen, schwimmen) → the vowel lowers to <strong>o</strong>: begonnen, gewonnen, geschwommen.</li>
+          </ul>
+          So <strong>beginnen</strong> is i-a-o, never i-a-u — there is no form "begunnen".
+        </div>
+      )}
+
+      {verb.dualAux && (
+        <div className="mb-4 bg-sky-50 p-3 rounded border border-sky-200">
+          <strong className="text-sky-900 block mb-1">Two possible auxiliaries (haben / sein):</strong>
+          Use <strong>sein</strong> when the focus is movement from A to B (<em>Er ist über den See geschwommen</em>), and <strong>haben</strong> when the focus is the activity itself or a duration (<em>Er hat zwei Stunden geschwommen</em>). Both are correct — they just say different things.
         </div>
       )}
 
