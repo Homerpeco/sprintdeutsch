@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Relativsätze — der · die · das · was · wo</title>
+<style>
+/* ───────────────────────────────────────────────────────────────
+   SprintDeutsch theme — matches the host app:
+   sage-200 #d4e8c2 page · forest-700 #355f1f nav · forest-800 #284a18 headings
+   cream-200 #f9e96a accent · sage-300 #b8d99e lines · white cards
+   Same system font stack as the app (no web fonts).
+   ─────────────────────────────────────────────────────────────── */
+:root{
+  --bg:#d4e8c2;          /* sage-200 — app content background */
+  --bg2:#e8f3de;         /* sage-100 — inset panels */
+  --surface:#ffffff;     /* cards */
+  --surface2:#f6faf2;    /* sage-50 — buttons */
+  --line:#b8d99e;        /* sage-300 */
+  --line-soft:#dcecca;
+  --ink:#1e293b;         /* slate-800 — body copy */
+  --head:#284a18;        /* forest-800 — headings */
+  --muted:#5c6b5a;
+  --accent:#427726;      /* forest-600 — labels, rules, meters */
+  --cream:#f9e96a;       /* cream-200 — active pills, badges */
+  --der:#2a6db0; --die:#c2415c; --das:#16806a;
+  --ok:#42802a; --ok-bg:#eaf5df; --bad:#c0392b; --bad-bg:#fdecea;
+  --radius:16px;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:var(--sans);
+  --display:var(--sans);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px 80px}
+.wrap.top{padding-bottom:0}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--display);color:var(--head);text-wrap:balance;margin:0}
+.de{font-weight:500}
+.en{color:var(--muted);font-style:italic}
+/* ---------- header ---------- */
+header{padding:28px 0 20px;border-bottom:1px solid var(--line)}
+h1{font-size:1.9rem;line-height:1.15;font-weight:700;letter-spacing:-.01em}
+h1 .sep{color:var(--accent);font-weight:500;margin:0 .35em}
+.sub{margin-top:10px;font-size:1rem}
+.sub .l1{color:var(--head);font-weight:500}
+.sub .l2{color:var(--muted);font-size:.94rem;margin-top:3px}
+/* ---------- tabs ---------- */
+nav.tabs{position:sticky;top:0;z-index:30;background:rgba(212,232,194,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);margin-bottom:26px}
+.tabs-inner{max-width:860px;margin:0 auto;padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap}
+.tab{font:inherit;font-size:.86rem;font-weight:500;color:#334155;background:#fff;
+  border:1px solid var(--line);border-radius:999px;padding:7px 15px;cursor:pointer;transition:.15s}
+.tab:hover{border-color:#93c872;background:#f6faf2}
+.tab[aria-selected="true"]{background:var(--cream);color:var(--head);border-color:var(--cream);font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.tab .num{font-variant-numeric:tabular-nums;opacity:.55;margin-right:6px}
+.tab:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section[hidden]{display:none}
+.lede{color:var(--muted);max-width:62ch;margin:0 0 26px}
+/* ---------- method ---------- */
+.gates{display:grid;gap:12px;margin:0 0 40px;padding:0;list-style:none;counter-reset:g}
+.gate{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px 16px 60px;position:relative;box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.gate::before{counter-increment:g;content:counter(g);position:absolute;left:18px;top:15px;
+  font-weight:700;font-size:1rem;color:var(--head);background:var(--cream);
+  width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%}
+.gate h3{font-size:1.02rem;margin-bottom:4px}
+.gate p{margin:0;font-size:.93rem;color:var(--muted)}
+.gate .demo{margin-top:8px;font-size:.95rem;color:var(--ink)}
+.gate .demo b{color:var(--accent);font-weight:600}
+.hook{background:linear-gradient(180deg,#fdf7cf,#f7fbf1);
+  border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin:0 0 34px;
+  box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.hook .k{font-size:1.4rem;font-weight:700;color:var(--head);letter-spacing:.01em}
+.hook p{margin:6px 0 0;color:var(--muted);font-size:.95rem}
+h2.sec{font-size:1.28rem;margin:38px 0 6px}
+h2.sec + .lede{margin-top:6px}
+.worlds{display:grid;gap:18px}
+.world{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.world .rail{height:4px}
+.world .body{padding:20px 22px 22px}
+.world .art{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.world .art .a{font-size:1.8rem;font-weight:700;line-height:1}
+.world .art .scene{font-size:1.05rem;color:var(--head);font-weight:600}
+.world .story{font-size:1rem;line-height:1.75;background:var(--bg2);
+  border-left:3px solid;padding:12px 16px;border-radius:0 8px 8px 0;margin:0 0 6px;color:var(--ink)}
+.world .story em{font-style:normal;font-weight:700}
+.world .story-en{font-size:.9rem;color:var(--muted);font-style:italic;margin:0 0 16px;padding-left:16px}
+.world .take{font-size:.95rem;margin:0 0 16px}
+.beat{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:0 0 10px}
+.beat .bar{width:1px;height:20px;background:var(--line);margin:0 4px}
+.pill{font-size:.92rem;font-weight:600;padding:4px 12px;border-radius:999px;
+  border:1px solid;background:#fff;white-space:nowrap}
+.mini{font-size:.88rem;color:var(--muted);margin:0}
+.mini b{color:var(--ink);font-weight:600}
+.world.m{--c:var(--der)} .world.n{--c:var(--das)} .world.f{--c:var(--die)}
+.world .rail{background:var(--c)} .world .art .a{color:var(--c)}
+.world .story{border-left-color:var(--c)} .world .story em{color:var(--c)}
+.pill{border-color:var(--c);color:var(--c)}
+.count{font-weight:700;color:var(--c);font-size:.8rem;
+  border:1px solid var(--c);border-radius:6px;padding:1px 7px;letter-spacing:.04em}
+table{width:100%;border-collapse:collapse;font-size:.92rem;background:var(--surface)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);margin:0 0 30px;
+  background:var(--surface);box-shadow:0 1px 2px rgba(40,74,24,.06)}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);font-weight:700;
+  background:var(--bg2);border-bottom-color:var(--line)}
+tr:last-child td{border-bottom:none}
+td .de{font-size:.98rem}
+.g-der{color:var(--der);font-weight:600} .g-das{color:var(--das);font-weight:600} .g-die{color:var(--die);font-weight:600}
+</style>
+<style>
+/* ---------- quiz ---------- */
+.quizbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 18px}
+.chip{font:inherit;font-size:.8rem;color:#334155;background:#fff;border:1px solid var(--line);
+  border-radius:999px;padding:5px 13px;cursor:pointer;transition:.15s}
+.chip:hover{border-color:#93c872;background:#f6faf2}
+.chip[aria-pressed="true"]{background:var(--cream);color:var(--head);border-color:var(--cream);font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.spacer{flex:1}
+.progrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 10px;font-size:.84rem}
+.ptext{color:var(--muted)}
+.ptext b{color:var(--head);font-weight:700}
+.rsel{color:var(--muted);display:flex;align-items:center;gap:6px}
+.rsel select{font:inherit;font-size:.82rem;color:#334155;background:#fff;border:1px solid var(--line);
+  border-radius:999px;padding:4px 10px;cursor:pointer}
+.badge{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);
+  background:var(--bg2);border-radius:999px;padding:2px 8px;margin-left:8px}
+.meter{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:0 0 22px}
+.meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:30px 24px;text-align:center;position:relative;min-height:170px;display:flex;
+  flex-direction:column;justify-content:center;gap:8px;box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.stage .tag{position:absolute;top:12px;left:16px;font-size:.68rem;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--muted)}
+.stage .idx{position:absolute;top:12px;right:16px;font-size:.72rem;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.word{font-size:2.4rem;line-height:1.15;font-weight:600;color:var(--head)}
+.word small{display:block;font-size:.95rem;font-style:italic;color:var(--muted);
+  margin-top:8px;font-weight:400}
+.sentence{font-size:1.3rem;line-height:1.7;max-width:34ch;margin:0 auto;color:var(--head);font-weight:500}
+.sentence .blank{color:var(--accent);border-bottom:2px solid var(--accent);padding:0 .5em}
+.sentence .cue{display:block;margin-top:10px;font-size:.9rem;color:var(--muted);font-weight:400}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 0}
+.choices.two{grid-template-columns:repeat(2,1fr)}
+.choices.one{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.opt{font:inherit;font-size:1.25rem;font-weight:600;padding:16px 10px;border-radius:12px;
+  background:var(--surface2);border:1px solid var(--line);color:var(--head);cursor:pointer;transition:.15s}
+.opt:hover:not(:disabled){border-color:#529530;background:#fff;transform:translateY(-1px);
+  box-shadow:0 2px 6px rgba(40,74,24,.10)}
+.opt:disabled{cursor:default}
+.opt.der{color:var(--der)} .opt.das{color:var(--das)} .opt.die{color:var(--die)}
+.opt.hit{border-color:var(--ok);background:#d3ecbc;color:#24500f;box-shadow:inset 0 0 0 2px var(--ok)}
+.opt.miss{border-color:var(--bad);background:var(--bad-bg)}
+.opt.dim{opacity:.45}
+.opt.small{font-size:.98rem;font-weight:500;padding:13px 14px;text-align:left;line-height:1.4;color:var(--ink)}
+.fb{margin-top:16px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:0 12px 12px 0;padding:16px 18px;text-align:left}
+.fb .verdict{font-weight:700;font-size:1rem;margin-bottom:10px;display:flex;
+  gap:9px;align-items:baseline;flex-wrap:wrap}
+.fb .verdict .rulename{font-weight:600;font-size:.8rem;color:var(--head);background:var(--cream);
+  border-radius:6px;padding:2px 9px;letter-spacing:.01em}
+.fb.right{border-left-color:var(--ok)} .fb.right .verdict{color:var(--ok)}
+.fb.wrong{border-left-color:var(--bad)} .fb.wrong .verdict{color:var(--bad)}
+.fb dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:.92rem}
+.fb dt{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);
+  font-weight:700;padding-top:4px;white-space:nowrap}
+.fb dd{margin:0;color:var(--ink)}
+.fb .sib{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);font-size:.9rem;color:var(--muted)}
+.fb .sib b{color:var(--head);font-weight:600}
+.fb .warn{margin-top:11px;font-size:.88rem;color:#7a5c00;background:#fdf7cf;
+  border-radius:8px;padding:8px 11px}
+.ask{margin-top:16px;font-size:.9rem;color:var(--muted);text-align:left}
+.ask b{color:var(--head);font-weight:600}
+.navrow{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
+.btn{font:inherit;font-size:.88rem;font-weight:500;padding:9px 18px;border-radius:12px;cursor:pointer;transition:.15s;
+  background:#fff;border:1px solid var(--line);color:#334155}
+.btn:hover{border-color:#93c872;background:#f6faf2}
+.btn.primary{background:var(--cream);border-color:var(--cream);color:var(--head);font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.btn.primary:hover{filter:brightness(1.04);background:var(--cream)}
+.score{font-size:.86rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.score b{color:var(--head)} .score .r{color:var(--ok)} .score .f{color:var(--bad)}
+.done{text-align:center;padding:30px 20px}
+.done .big{font-size:2.3rem;font-weight:700;color:var(--head)}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem;
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+footer b{color:var(--head)}
+@media(max-width:600px){
+  h1{font-size:1.5rem} .word{font-size:1.9rem} .sentence{font-size:1.1rem}
+  .choices{grid-template-columns:1fr} .wrap{padding:0 14px 60px} .tabs-inner{padding:10px 14px}
+  .fb dl{grid-template-columns:1fr;gap:2px} .fb dt{padding-top:8px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style><style>
+/* Relativsatz-spezifisch */
+.sentence{max-width:44ch}
+.sentence .blank{min-width:4.5em;display:inline-block;text-align:center}
+.choices.quad{grid-template-columns:repeat(4,1fr)}
+@media(max-width:600px){.choices.quad{grid-template-columns:repeat(2,1fr)}}
+.opt.clause{font-size:1rem;font-weight:500;padding:14px 16px;text-align:left;line-height:1.45;color:var(--ink)}
+.fb .full{font-size:1rem;color:var(--head);font-weight:500}
+.fb .full b{color:var(--accent);font-weight:700}
+.fb .trans{color:var(--muted);font-style:italic;font-size:.88rem;margin-top:2px}
+.matrix td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+.matrix td{font-size:1rem}
+.key{background:var(--cream);border-radius:6px;padding:1px 7px;font-weight:700;color:var(--head)}
+.steps{counter-reset:st}
+.twocol{display:grid;gap:18px}
+@media(min-width:700px){.twocol{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap top">
+<header>
+  <h1>Relativsätze<span class="sep">·</span>der · die · das · was · wo</h1>
+  <div class="sub">
+    <div class="l1">Genus kommt aus dem Hauptsatz, der Kasus aus dem Relativsatz.</div>
+    <div class="l2">Three questions decide every relative pronoun. Learn the order and the case stops being guesswork.</div>
+  </div>
+</header>
+</div>
+<nav class="tabs"><div class="tabs-inner">
+  <button class="tab" role="tab" aria-selected="true" data-view="method"><span class="num">01</span>Die Methode</button>
+  <button class="tab" role="tab" aria-selected="false" data-view="l1"><span class="num">02</span>Level 1 · Pronomen</button>
+  <button class="tab" role="tab" aria-selected="false" data-view="l2"><span class="num">03</span>Level 2 · Sätze bauen</button>
+  <button class="tab" role="tab" aria-selected="false" data-view="ref"><span class="num">04</span>Referenz</button>
+</div></nav>
+<div class="wrap">
+
+<section id="view-method">
+  <div class="hook">
+    <div class="k">Bezugswort → Genus. Relativsatz → Kasus.</div>
+    <p>Das ist der ganze Trick. Fast jeder Fehler im Relativsatz entsteht, weil diese zwei Entscheidungen vermischt werden:
+    das <b>Genus</b> (der/die/das) kommt aus dem <b>Hauptsatz</b>, der <b>Kasus</b> (Nominativ/Akkusativ/Dativ/Genitiv)
+    kommt aus dem <b>Nebensatz</b>. Zwei verschiedene Sätze, zwei verschiedene Fragen.</p>
+  </div>
+
+  <h2 class="sec">Der Drei-Schritt</h2>
+  <p class="lede">Jedes Relativpronomen entsteht aus genau drei Fragen — immer in dieser Reihenfolge. Schritt 3 überstimmt Schritt 2.</p>
+  <ol class="gates">
+    <li class="gate">
+      <h3>Welches Wort wird beschrieben? → Genus und Numerus</h3>
+      <p>Such das Bezugswort direkt vor dem Komma. Sein grammatisches Genus und sein Numerus wandern ins Pronomen — der Kasus des Bezugsworts ist völlig egal.</p>
+      <div class="demo">Ich habe <b>einen Freund</b> (Akk.), <b>der</b> … ← Freund ist maskulin, das reicht.</div>
+    </li>
+    <li class="gate">
+      <h3>Welche Rolle spielt es im Relativsatz? → Kasus</h3>
+      <p>Die <b>Zwei-Sätze-Probe</b>: Mach aus dem Relativsatz einen eigenen Hauptsatz und setz das Bezugswort ein. Der Kasus, den es dort bekommt, ist der Kasus des Pronomens.</p>
+      <div class="demo">der Kollege, ___ ich geholfen habe → „Ich habe <b>dem Kollegen</b> geholfen." → Dativ → <b>dem</b></div>
+    </li>
+    <li class="gate">
+      <h3>Steht eine Präposition davor? → Sie entscheidet</h3>
+      <p>Eine Präposition steht immer <b>vor</b> dem Pronomen und schlägt jede andere Regel. Bei Wechselpräpositionen gilt: <b>wo?</b> → Dativ, <b>wohin?</b> → Akkusativ.</p>
+      <div class="demo">der Job, <b>auf den</b> ich warte (warten auf + Akk.) · die Stadt, <b>in der</b> ich wohne (wo?) · die Stadt, <b>in die</b> ich ziehe (wohin?)</div>
+    </li>
+    <li class="gate">
+      <h3>Und dann: Komma auf, Verb ans Ende, Komma zu</h3>
+      <p>Der Relativsatz ist ein Nebensatz. Er steht direkt hinter seinem Bezugswort, das konjugierte Verb steht ganz am Ende, und danach läuft der Hauptsatz weiter.</p>
+      <div class="demo">Der Zug<b>,</b> der um 8 Uhr <b>abfährt</b><b>,</b> ist der ICE.</div>
+    </li>
+  </ol>
+
+  <h2 class="sec">Die Tabelle — acht Formen, mehr gibt es nicht</h2>
+  <p class="lede">Vier Formen kennst du schon aus dem Artikel. Nur drei Zellen sind wirklich neu: <span class="key">denen</span>, <span class="key">dessen</span>, <span class="key">deren</span>.</p>
+  <div class="tablewrap"><table class="matrix">
+    <thead><tr><th></th><th>maskulin</th><th>neutrum</th><th>feminin</th><th>Plural</th></tr></thead>
+    <tbody>
+      <tr><td>Nominativ<br><span style="color:var(--muted);font-weight:400">wer? was?</span></td><td class="de">der</td><td class="de">das</td><td class="de">die</td><td class="de">die</td></tr>
+      <tr><td>Akkusativ<br><span style="color:var(--muted);font-weight:400">wen? was?</span></td><td class="de"><b>den</b></td><td class="de">das</td><td class="de">die</td><td class="de">die</td></tr>
+      <tr><td>Dativ<br><span style="color:var(--muted);font-weight:400">wem?</span></td><td class="de">dem</td><td class="de">dem</td><td class="de">der</td><td class="de"><b>denen</b></td></tr>
+      <tr><td>Genitiv<br><span style="color:var(--muted);font-weight:400">wessen?</span></td><td class="de"><b>dessen</b></td><td class="de"><b>dessen</b></td><td class="de"><b>deren</b></td><td class="de"><b>deren</b></td></tr>
+    </tbody>
+  </table></div>
+  <p class="mini" style="margin:-18px 0 30px">Nur vier Zellen weichen vom bestimmten Artikel ab: <b>denen</b> (Dativ Plural) und die vier Genitivformen <b>dessen / deren</b>. Alles andere ist der Artikel, den du längst kennst.</p>
+
+  <h2 class="sec">Die drei Welten</h2>
+  <p class="lede">Ein Relativsatz beginnt mit genau einem von drei Wörtern. Welches, entscheidet nicht der Kasus, sondern die Art des Bezugsworts.</p>
+  <div class="worlds">
+    <article class="world m">
+      <div class="rail"></div>
+      <div class="body">
+        <div class="art"><span class="a de">der · die · das</span><span class="scene">Der Normalfall: ein echtes Nomen</span></div>
+        <p class="story de">Das ist der Kollege, <em>der</em> mir geholfen hat, <em>den</em> ich gestern getroffen habe, <em>dem</em> ich vertraue und <em>dessen</em> Frau bei uns arbeitet.</p>
+        <p class="story-en">That's the colleague who helped me, whom I met yesterday, whom I trust and whose wife works with us.</p>
+        <p class="take"><b>Immer, wenn ein richtiges Nomen beschrieben wird.</b> Genus vom Nomen, Kasus von der Funktion. Mit Präposition: die Präposition zuerst.</p>
+        <div class="beat"><span class="pill">der / den / dem / dessen</span><span class="bar"></span><span class="pill">die / der / deren</span><span class="pill">denen</span></div>
+      </div>
+    </article>
+    <article class="world n">
+      <div class="rail"></div>
+      <div class="body">
+        <div class="art"><span class="a de">was</span><span class="scene">Kein Nomen — oder der ganze Satz</span></div>
+        <p class="story de"><em>Alles</em>, was ich weiß, <em>nichts</em>, was du versprochen hast, <em>das Beste</em>, was mir passieren konnte — und: Er hat bestanden, <em>was</em> mich sehr gefreut hat.</p>
+        <p class="story-en">Everything I know, nothing you promised, the best thing that could happen to me — and: he passed, which made me very happy.</p>
+        <p class="take"><b>Drei Auslöser:</b> Indefinitpronomen (nichts, alles, etwas, vieles, weniges, einiges, manches, das) · nominalisierter Superlativ (das Beste, das Schönste) · Bezug auf die ganze Aussage.</p>
+        <div class="beat"><span class="pill">nichts / alles / etwas</span><span class="pill">das Beste</span><span class="bar"></span><span class="pill">Satzbezug</span></div>
+        <p class="mini"><b>Aber:</b> bei Personen nie was — „jemand, <b>der</b> …", „niemand, <b>dem</b> …". Und nach einem echten Nomen bleibt es bei der/die/das: „das Buch, <b>das</b> ich lese".</p>
+      </div>
+    </article>
+    <article class="world f">
+      <div class="rail"></div>
+      <div class="body">
+        <div class="art"><span class="a de">wo · wo(r)+Präp</span><span class="scene">Orte — und Satzbezug mit Präposition</span></div>
+        <p class="story de">Salzburg, <em>wo</em> Mozart geboren wurde. Leipzig, <em>wohin</em> ich gezogen bin. Die Regierung macht vieles, <em>worüber</em> man sich aufregen kann.</p>
+        <p class="story-en">Salzburg, where Mozart was born. Leipzig, where I moved to. The government does a lot you can get worked up about.</p>
+        <p class="take"><b>Zwei Fälle:</b> Bei Orten sind <b>wo / wohin / woher</b> und Präposition + Pronomen gleichwertig — bei Städte- und Ländernamen ist nur wo/wohin/woher möglich. Beim Satzbezug mit Präposition heißt es <b>wo(r) + Präposition</b>.</p>
+        <div class="beat"><span class="pill">wo</span><span class="pill">wohin</span><span class="pill">woher</span><span class="bar"></span><span class="pill">worüber</span><span class="pill">wogegen</span><span class="pill">womit</span><span class="pill">worauf</span></div>
+      </div>
+    </article>
+  </div>
+
+  <h2 class="sec">Die zehn teuersten Fehler</h2>
+  <p class="lede">Jede Zeile ist ein Fehler, der in der Prüfung Punkte kostet — und jeder taucht im Quiz wieder auf.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Falsch</th><th>Richtig</th><th>Warum</th></tr></thead>
+    <tbody>
+      <tr><td class="de" style="color:var(--bad)">der Mann, den ich helfe</td><td class="de g-der">der Mann, <b>dem</b> ich helfe</td><td>helfen + Dativ. Das Verb im Relativsatz bestimmt den Kasus.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">die Kunden, den wir schreiben</td><td class="de g-die">die Kunden, <b>denen</b> wir schreiben</td><td>Dativ Plural ist denen — die einzige „lange" Form.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">das Mädchen, die dort steht</td><td class="de g-das">das Mädchen, <b>das</b> dort steht</td><td>Das grammatische Genus schlägt das natürliche.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">die Frau, dessen Auto</td><td class="de g-die">die Frau, <b>deren</b> Auto</td><td>dessen/deren richten sich nach dem Bezugswort, nicht nach dem folgenden Nomen.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">der Mann, dessen das Auto</td><td class="de g-der">der Mann, <b>dessen Auto</b></td><td>Nach dessen/deren steht nie ein Artikel.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">der Mann, den ich gesprochen habe mit</td><td class="de g-der">der Mann, <b>mit dem</b> ich gesprochen habe</td><td>Die Präposition steht vorn — nie am Ende wie im Englischen.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">alles, das ich weiß</td><td class="de g-das">alles, <b>was</b> ich weiß</td><td>Nach nichts/alles/etwas/das/das Beste steht was.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Berlin, in dem ich wohne</td><td class="de g-die">Berlin, <b>wo</b> ich wohne</td><td>Nach Städte- und Ländernamen nur wo/wohin/woher.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">die Firma, die stellt Möbel her</td><td class="de g-die">die Firma, die Möbel <b>herstellt</b></td><td>Nebensatz: Verb ans Ende, trennbare Verben bleiben zusammen.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Die Frau die dort wohnt ist Ärztin.</td><td class="de g-die">Die Frau<b>,</b> die dort wohnt<b>,</b> ist Ärztin.</td><td>Kommas vorn UND hinten — der Relativsatz ist eingeschoben.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Zwei Abkürzungen für C1</h2>
+  <div class="twocol">
+    <div class="gate" style="padding-left:18px">
+      <h3>wer / wen / wem — die Person ohne Namen</h3>
+      <p>Wenn keine bestimmte Person gemeint ist, ersetzt wer den ganzen Ausdruck „derjenige, der". Der Kasus richtet sich nach der Funktion im Nebensatz.</p>
+      <div class="demo"><b>Wer</b> noch Urlaub hat, muss ihn nehmen. · <b>Wem</b> das Essen nicht schmeckt, (der) soll sich melden.</div>
+    </div>
+    <div class="gate" style="padding-left:18px">
+      <h3>Partizipialattribute — der komprimierte Relativsatz</h3>
+      <p>Schriftsprache presst den ganzen Relativsatz vor das Nomen. <b>Partizip I</b> = aktiv und laufend, <b>Partizip II</b> = passiv oder abgeschlossen.</p>
+      <div class="demo">die Temperaturen, die steigen → die <b>steigenden</b> Temperaturen<br>das Grundwasser, das verschmutzt wurde → das <b>verschmutzte</b> Grundwasser</div>
+    </div>
+  </div>
+
+  <h2 class="sec">Wie du damit übst</h2>
+  <p class="lede"><b>Level 1</b> gibt dir einen Satz mit Lücke: wähle das Pronomen und danach die Regel, die entschieden hat. Die zweite Frage ist die wichtige — sie trainiert genau den Schritt, den man in der Prüfung unter Zeitdruck überspringt. <b>Level 2</b> baut ganze Relativsätze: Wortstellung, Kommas, dessen/deren, was/wer, wo(r)+Präposition und Partizipien. Falsche Antworten kommen in derselben Runde zurück und werden in der nächsten Runde zuerst gezogen. Dein Fortschritt wird im Browser gespeichert.</p>
+</section>
+
+<section id="view-l1" hidden>
+  <h2 class="sec">Level 1 — welches Relativpronomen?</h2>
+  <p class="lede">Wähle das Pronomen und danach die Regel, die entschieden hat. Falsche Sätze kommen in derselben Runde zurück.</p>
+  <div class="quizbar">
+    <button class="chip" data-f="alle" aria-pressed="true">Alle · everything</button>
+    <button class="chip" data-f="kasus" aria-pressed="false">Kasus · nom/akk/dat</button>
+    <button class="chip" data-f="genitiv" aria-pressed="false">Genitiv · dessen/deren</button>
+    <button class="chip" data-f="praep" aria-pressed="false">Präposition</button>
+    <button class="chip" data-f="waswer" aria-pressed="false">was · wer</button>
+    <button class="chip" data-f="wo" aria-pressed="false">wo · wo(r)+Präp</button>
+    <button class="chip" data-f="fallen" aria-pressed="false">Fallen · traps</button>
+    <span class="spacer"></span>
+    <button class="chip" id="ruleToggle" aria-pressed="true">Regelfrage · rule step</button>
+  </div>
+  <div class="progrow">
+    <span id="p1text" class="ptext"></span>
+    <span class="spacer"></span>
+    <label class="rsel">Runde · round
+      <select id="roundSize"><option value="25">25</option><option value="50">50</option><option value="0">alle</option></select>
+    </label>
+    <button class="chip" id="wipe1">Fortschritt löschen</button>
+  </div>
+  <div class="meter"><i id="m1"></i></div>
+  <div id="l1stage"></div>
+  <div class="navrow">
+    <button class="btn primary" id="next1">Weiter →</button>
+    <span class="score" id="s1"></span>
+    <span class="spacer"></span>
+    <button class="btn" id="shuf1">Mischen ⇄</button>
+    <button class="btn" id="res1">Neue Runde ↻</button>
+  </div>
+</section>
+<section id="view-l2" hidden>
+  <h2 class="sec">Level 2 — den ganzen Relativsatz bauen</h2>
+  <p class="lede">Wortstellung, Kommas, dessen/deren, was/wer, wo(r)+Präposition und Partizipialattribute — genau die Stellen, an denen in der Prüfung Punkte verloren gehen.</p>
+  <div class="progrow"><span id="p2text" class="ptext"></span></div>
+  <div class="meter"><i id="m2"></i></div>
+  <div id="l2stage"></div>
+  <div class="navrow">
+    <button class="btn primary" id="next2">Weiter →</button>
+    <span class="score" id="s2"></span>
+    <span class="spacer"></span>
+    <button class="btn" id="shuf2">Mischen ⇄</button>
+    <button class="btn" id="res2">Neue Runde ↻</button>
+  </div>
+</section>
+<section id="view-ref" hidden>
+  <h2 class="sec">Referenz — alle Regeln</h2>
+  <p class="lede">Jede Regel, die der Trainer prüft, mit ihren Ausnahmen.</p>
+  <div class="tablewrap"><table id="reftable">
+    <thead><tr><th>Regel</th><th>Signal &amp; Anwendung</th><th>Beispiele</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h2 class="sec">Dativverben — hier ist „dem/der/denen" Pflicht</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Verb</th><th>Beispiel im Relativsatz</th></tr></thead>
+    <tbody>
+      <tr><td class="de">helfen</td><td class="de">der Kollege, <span class="g-der">dem</span> ich geholfen habe</td></tr>
+      <tr><td class="de">danken</td><td class="de">die Kollegin, <span class="g-die">der</span> ich gedankt habe</td></tr>
+      <tr><td class="de">gefallen</td><td class="de">der Chef, <span class="g-der">dem</span> mein Vorschlag gefallen hat</td></tr>
+      <tr><td class="de">gehören</td><td class="de">das Kind, <span class="g-das">dem</span> das Fahrrad gehört</td></tr>
+      <tr><td class="de">schmecken</td><td class="de">der Freund, <span class="g-der">dem</span> mein Essen nicht schmeckt</td></tr>
+      <tr><td class="de">vertrauen</td><td class="de">die Chefin, <span class="g-die">der</span> ich vertraue</td></tr>
+      <tr><td class="de">antworten · glauben</td><td class="de">die Kunden, <span class="g-die">denen</span> wir nicht geantwortet haben</td></tr>
+      <tr><td class="de">begegnen · folgen</td><td class="de">der Mann, <span class="g-der">dem</span> wir begegnet sind</td></tr>
+      <tr><td class="de">gratulieren · angehören</td><td class="de">das Team, <span class="g-das">dem</span> ich angehöre</td></tr>
+      <tr><td class="de">passen · schaden · fehlen</td><td class="de">die Schuhe, <span class="g-die">denen</span> nichts fehlt</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Verben mit Präposition — die Präposition wandert nach vorn</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Verb + Präposition</th><th>Kasus</th><th>Relativsatz</th></tr></thead>
+    <tbody>
+      <tr><td class="de">warten auf</td><td>Akkusativ</td><td class="de">der Termin, auf <span class="g-der">den</span> wir warten</td></tr>
+      <tr><td class="de">sich bewerben auf/um</td><td>Akkusativ</td><td class="de">die Stelle, auf <span class="g-die">die</span> ich mich beworben habe</td></tr>
+      <tr><td class="de">sich verlassen auf</td><td>Akkusativ</td><td class="de">die Kollegen, auf <span class="g-die">die</span> ich mich verlasse</td></tr>
+      <tr><td class="de">sich freuen über / ärgern über</td><td>Akkusativ</td><td class="de">die Nachricht, über <span class="g-die">die</span> ich mich freue</td></tr>
+      <tr><td class="de">sprechen / diskutieren über</td><td>Akkusativ</td><td class="de">das Thema, über <span class="g-das">das</span> wir sprechen</td></tr>
+      <tr><td class="de">sich entscheiden für</td><td>Akkusativ</td><td class="de">der Vorschlag, für <span class="g-der">den</span> wir uns entschieden haben</td></tr>
+      <tr><td class="de">arbeiten an / teilnehmen an</td><td>Dativ</td><td class="de">das Projekt, an <span class="g-das">dem</span> ich arbeite</td></tr>
+      <tr><td class="de">sprechen mit / rechnen mit</td><td>Dativ</td><td class="de">der Chef, mit <span class="g-der">dem</span> ich spreche</td></tr>
+      <tr><td class="de">Angst haben vor</td><td>Dativ</td><td class="de">die Prüfung, vor <span class="g-die">der</span> ich Angst habe</td></tr>
+      <tr><td class="de">sich entschuldigen bei</td><td>Dativ</td><td class="de">der Kunde, bei <span class="g-der">dem</span> ich mich entschuldige</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">was oder der/die/das?</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Bezugswort</th><th>Pronomen</th><th>Beispiel</th></tr></thead>
+    <tbody>
+      <tr><td>nichts · alles · etwas · vieles · weniges · einiges · manches</td><td class="g-das">was</td><td class="de">alles, <b>was</b> ich weiß</td></tr>
+      <tr><td>das (allein stehend)</td><td class="g-das">was</td><td class="de">Essen Sie nur das, <b>was</b> Ihnen schmeckt.</td></tr>
+      <tr><td>nominalisierter Superlativ: das Beste, das Schönste, das Einzige</td><td class="g-das">was</td><td class="de">das Beste, <b>was</b> mir passieren konnte</td></tr>
+      <tr><td>die gesamte Aussage des Satzes</td><td class="g-das">was</td><td class="de">Er kam zu spät, <b>was</b> niemanden überraschte.</td></tr>
+      <tr><td>die gesamte Aussage + Verb mit Präposition</td><td class="g-die">wo(r) + Präp.</td><td class="de">Er unterschrieb, <b>womit</b> niemand gerechnet hatte.</td></tr>
+      <tr><td>jemand · niemand · einer · keiner (Personen)</td><td class="g-der">der / den / dem</td><td class="de">jemand, <b>der</b> dir helfen kann</td></tr>
+      <tr><td>ein echtes Nomen</td><td class="g-der">der / die / das</td><td class="de">das Buch, <b>das</b> ich lese</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">wo · wohin · woher</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Frage</th><th>Relativadverb</th><th>Gleichwertig</th><th>Beispiel</th></tr></thead>
+    <tbody>
+      <tr><td>wo?</td><td class="de g-die">wo</td><td class="de">in dem / an dem / auf dem</td><td class="de">das Haus, <b>wo</b> ich wohne = in dem ich wohne</td></tr>
+      <tr><td>wohin?</td><td class="de g-die">wohin</td><td class="de">in die / in das</td><td class="de">die Stadt, <b>wohin</b> ich ziehe = in die ich ziehe</td></tr>
+      <tr><td>woher?</td><td class="de g-die">woher</td><td class="de">aus der / aus dem</td><td class="de">das Dorf, <b>woher</b> er kommt = aus dem er kommt</td></tr>
+      <tr><td>Eigenname (Stadt/Land)</td><td class="de g-die">nur wo / wohin / woher</td><td class="de" style="color:var(--bad)">Präposition + Pronomen ✗</td><td class="de">Berlin, <b>wo</b> das Endspiel stattfand</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Partizipialattribute</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Attribut</th><th>= Relativsatz</th><th>Bedeutung</th></tr></thead>
+    <tbody>
+      <tr><td class="de">fehlendes Trinkwasser</td><td class="de">Trinkwasser, das fehlt</td><td>Partizip I — aktiv, die Handlung läuft</td></tr>
+      <tr><td class="de">steigende Temperaturen</td><td class="de">Temperaturen, die steigen</td><td>Partizip I — aktiv, gleichzeitig</td></tr>
+      <tr><td class="de">verschmutztes Grundwasser</td><td class="de">Grundwasser, das verschmutzt wurde</td><td>Partizip II — Passiv (transitives Verb)</td></tr>
+      <tr><td class="de">gestiegene Temperaturen</td><td class="de">Temperaturen, die gestiegen sind</td><td>Partizip II — abgeschlossen (intransitiv, Perfekt mit sein)</td></tr>
+      <tr><td class="de">die weltweit immer weiter steigenden Temperaturen</td><td class="de">Temperaturen, die weltweit immer weiter steigen</td><td>erweitertes Partizip — Schriftsprache</td></tr>
+      <tr><td colspan="3" style="color:#8a6a12">Kein Partizip II als Attribut: haben, sein und intransitive Verben wie antworten, arbeiten, danken, drohen, gefallen, schaden, schlafen, sitzen, stehen.</td></tr>
+    </tbody>
+  </table></div>
+
+</section>
+<footer>
+  <span>Tastatur: <b>1 · 2 · 3 · 4</b> antworten · <b>Enter</b> weiter · <b>S</b> mischen · Fortschritt wird im Browser gespeichert</span>
+  <span id="fcount">TELC B2/C1 · Relativsätze</span>
+</footer>
+</div>
+<script>
+(function(){
+"use strict";
+var RL={"rp_nom": {"k": "kasus", "l": "Nominativ — Subjekt im Relativsatz", "sig": "Das Relativpronomen ist das Subjekt des Relativsatzes — es tut die Handlung.", "req": "Genus und Numerus kommen vom Bezugswort, der Kasus ist Nominativ: der · die · das · die (Pl.).", "ex": ["der Kollege, der mir geholfen hat", "die Frau, die dort steht", "das Kind, das schläft"], "warn": "Probe: Mach aus dem Relativsatz einen Hauptsatz — »Der Kollege hat mir geholfen.« Das Nomen ist Subjekt → Nominativ."}, "rp_akk": {"k": "kasus", "l": "Akkusativ — direktes Objekt", "sig": "Das Relativpronomen ist das direkte Objekt (Akkusativobjekt) des Verbs im Relativsatz.", "req": "den · die · das · die (Pl.). Nur der Maskulinum ändert sich: der → den.", "ex": ["der Film, den ich gesehen habe", "die Stelle, die ich gefunden habe", "die Kollegen, die wir eingeladen haben"], "warn": "Nur im Maskulinum Singular sieht man den Akkusativ (den). Femininum, Neutrum und Plural sehen genau wie der Nominativ aus — deshalb fällt der Fehler dort nicht auf."}, "rp_dat": {"k": "kasus", "l": "Dativ — Dativverb / indirektes Objekt", "sig": "Das Verb im Relativsatz verlangt den Dativ (helfen, danken, gefallen, gehören, passen, schmecken, antworten, glauben, vertrauen, begegnen, folgen, gratulieren, angehören).", "req": "dem · der · dem · denen (Pl.). Der Kasus kommt vom VERB des Relativsatzes, nicht vom Bezugswort.", "ex": ["der Praktikant, dem ich geholfen habe", "die Kollegin, der ich gedankt habe", "die Kunden, denen wir schreiben"], "warn": "Dativ Plural ist denen, nicht den. Und »der Mann, den ich helfe« ist falsch — helfen + Dativ → dem."}, "rp_gen": {"k": "genitiv", "l": "Genitiv — Besitz (dessen / deren)", "sig": "Das Relativpronomen ersetzt ein Possessivpronomen: sein/ihr + Nomen.", "req": "dessen (mask./neutr.) · deren (fem./Plural). Danach steht das Nomen OHNE Artikel; dessen/deren ändern sich nie.", "ex": ["der Direktor, dessen Sekretärin gekündigt hat", "die Frau, deren Auto im Parkverbot steht", "die Nachbarn, deren Hund bellt"], "warn": "Nie »dessen das Auto«. Und Achtung: dessen/deren richten sich nach dem BEZUGSWORT, nicht nach dem folgenden Nomen — »das Mädchen, dessen Fahrrad gestohlen wurde«."}, "rp_prep": {"k": "praep", "l": "Präposition + Relativpronomen", "sig": "Das Verb oder die Bedeutung verlangt eine Präposition (warten auf, sprechen mit, arbeiten an, sich freuen über, in, aus, durch …).", "req": "Die Präposition steht VOR dem Pronomen und bestimmt den Kasus — nicht das Bezugswort, nicht das Verb.", "ex": ["der Chef, mit dem ich spreche", "der Job, auf den ich warte", "die Firma, bei der ich arbeite"], "warn": "Im Deutschen steht die Präposition nie am Ende: »der Mann, den ich gesprochen habe mit« ist falsch. Immer: »der Mann, mit dem ich gesprochen habe.«"}, "rp_wechsel": {"k": "praep", "l": "Wechselpräposition — wo? Dativ / wohin? Akkusativ", "sig": "Eine Wechselpräposition (in, an, auf, über, unter, vor, hinter, neben, zwischen) steht vor dem Relativpronomen.", "req": "Frage wo? → Dativ (in dem, in der). Frage wohin? → Akkusativ (in das, in die).", "ex": ["die Stadt, in der ich wohne (wo?)", "die Stadt, in die ich gezogen bin (wohin?)", "das Haus, in dem ich lebe"], "warn": "Bewegung mit Ziel → Akkusativ. »Die Wohnung, in die ich eingezogen bin« vs. »Die Wohnung, in der ich wohne.«"}, "rp_was_indef": {"k": "waswer", "l": "was nach Indefinitpronomen", "sig": "Das Bezugswort ist ein Indefinitpronomen: nichts, alles, etwas, vieles, weniges, einiges, manches, das.", "req": "Nach diesen Wörtern steht immer was — nie das oder der.", "ex": ["alles, was ich weiß", "nichts, was du versprochen hast", "vieles, was man besser machen könnte"], "warn": "Nach einem richtigen Nomen bleibt es bei der/die/das: »das Buch, das ich lese« — aber »das, was ich lese«."}, "rp_was_super": {"k": "waswer", "l": "was nach nominalisiertem Superlativ", "sig": "Das Bezugswort ist ein nominalisierter Superlativ oder ein nominalisiertes Adjektiv: das Beste, das Schönste, das Einzige.", "req": "Auch hier steht was.", "ex": ["das Schönste, was ich je gesehen habe", "das Beste, was mir passieren konnte", "das Einzige, was hilft"], "warn": "Merke die Kette: nichts · alles · etwas · das · das Beste → immer was."}, "rp_was_satz": {"k": "waswer", "l": "was mit Bezug auf den ganzen Satz", "sig": "Der Relativsatz bezieht sich nicht auf ein Wort, sondern auf die gesamte Aussage des Hauptsatzes.", "req": "Komma + was. Der Relativsatz steht am Ende des Satzes.", "ex": ["Er hat die Prüfung bestanden, was mich sehr gefreut hat.", "Mehrere Manager wurden entlassen, was mich nicht überrascht hat."], "warn": "Nie »das« oder »dass«: »Er kam zu spät, was niemanden überraschte.« Braucht dieser Bezug eine Präposition, wird daraus wo(r) + Präposition."}, "rp_wo_r": {"k": "wo", "l": "wo(r) + Präposition (Bezug auf den ganzen Satz)", "sig": "Der Relativsatz bezieht sich auf die ganze Aussage UND das Verb verlangt eine Präposition (sich aufregen über, protestieren gegen, rechnen mit, sich freuen über, warten auf).", "req": "wo + Präposition, mit -r- vor Vokal: worüber, wogegen, womit, worauf, wovon, wobei.", "ex": ["Die Regierung macht vieles, worüber man sich aufregen kann.", "Der Abriss wurde beschlossen, wogegen die Bürger protestiert haben.", "Er unterschrieb, womit niemand gerechnet hatte."], "warn": "Nicht »über was« und nicht »darüber« — das eine ist umgangssprachlich, das andere leitet keinen Nebensatz ein."}, "rp_wo_ort": {"k": "wo", "l": "wo / wohin / woher — Ort", "sig": "Das Bezugswort ist ein Ort.", "req": "wo (wo?), wohin (Ziel), woher (Herkunft). Nach Städte- und Ländernamen steht NUR wo/wohin/woher.", "ex": ["Salzburg, wo Mozart geboren wurde", "Leipzig, wohin ich umgezogen bin", "die Gegend, wo es viele Restaurants gibt"], "warn": "Bei normalen Ortsnomen sind beide Varianten möglich: »das Haus, in dem ich wohne« = »das Haus, wo ich wohne«. Bei Eigennamen (Berlin, New York) ist Präposition + Pronomen falsch."}, "rp_wer": {"k": "waswer", "l": "wer / wen / wem — unbestimmte Person", "sig": "Der Satz spricht über eine unbestimmte Person (»derjenige, der …«).", "req": "wer (Nom.), wen (Akk.), wem (Dat.) — der Kasus richtet sich nach der Funktion im Nebensatz. Der Hauptsatz kann mit der/den/dem fortgesetzt werden.", "ex": ["Wer noch Urlaub hat, muss ihn nehmen.", "Wem das Essen nicht schmeckt, (der) soll sich melden.", "Wen wir eingeladen haben, (der) darf jemanden mitbringen."], "warn": "»Wem das Essen nicht schmeckt« — schmecken + Dativ, also wem, nicht wer. Der Nebensatz steht vorn, das Verb am Ende."}, "rp_person_indef": {"k": "waswer", "l": "jemand / niemand → der, den, dem", "sig": "Das Bezugswort ist jemand, niemand, einer, keiner — eine Person, kein »Ding«.", "req": "Bei Personen steht der/den/dem, NICHT was.", "ex": ["Ich kenne jemanden, der dir helfen kann.", "Es gibt niemanden, dem ich mehr vertraue.", "Da ist einer, den ich kenne."], "warn": "was gilt nur für Sachen und für nichts/alles/etwas. Bei Personen immer der/den/dem."}, "rp_welch": {"k": "bau", "l": "welcher / welche / welches — förmliche Variante", "sig": "Zwei gleiche Wörter würden aufeinandertreffen (der, der … / die, die …).", "req": "welcher/welche/welches ist immer möglich, wirkt aber förmlich und schriftlich. Es hat KEINEN Genitiv — dort bleibt es bei dessen/deren.", "ex": ["Der Mann, welcher der Frau half, …", "die Frau, welche die Tür öffnete, …"], "warn": "Im Alltag klingt welcher steif. Nutze es nur, um eine Häufung wie »der, der« zu vermeiden."}, "rp_stellung": {"k": "bau", "l": "Wortstellung — Verb ans Ende, Komma außen herum", "sig": "Der Relativsatz ist ein Nebensatz.", "req": "Das konjugierte Verb steht ganz am Ende. Der Relativsatz steht direkt hinter dem Bezugswort und wird von Kommas eingeschlossen; danach läuft der Hauptsatz mit seinem Verb weiter.", "ex": ["Der Mann, der dort steht, ist mein Chef.", "Das Auto, das ich gekauft habe, war günstig.", "Der Zug, der um 8 Uhr abfährt, ist der ICE."], "warn": "Trennbare Verben bleiben zusammen: »der Zug, der um 8 Uhr abfährt«. Modalverb steht ganz am Ende: »die Aufgabe, die ich erledigen muss«."}, "rp_partizip1": {"k": "partizip", "l": "Partizip I als Attribut = aktiver Relativsatz", "sig": "Partizip I (Infinitiv + -d) als Adjektiv vor dem Nomen.", "req": "Bedeutung: aktiv und gleichzeitig — die Handlung läuft. steigende Temperaturen = Temperaturen, die steigen.", "ex": ["die steigenden Temperaturen ← die Temperaturen, die steigen", "den Schlaf störender Lärm ← Lärm, der den Schlaf stört", "die Jugend gefährdende Filme ← Filme, die die Jugend gefährden"], "warn": "Erweiterte Partizipien sind Schriftsprache (C1). Alles, was im Relativsatz vor dem Verb steht, wandert vor das Partizip."}, "rp_partizip2": {"k": "partizip", "l": "Partizip II als Attribut = passiver / abgeschlossener Relativsatz", "sig": "Partizip II als Adjektiv vor dem Nomen.", "req": "Bedeutung: passiv oder abgeschlossen. verschmutztes Grundwasser = Grundwasser, das verschmutzt wurde. gestiegene Temperaturen = Temperaturen, die gestiegen sind.", "ex": ["umgestaltete Arbeitsräume ← Arbeitsräume, die umgestaltet wurden", "das durch Chemikalien verschmutzte Grundwasser", "die gestiegenen Temperaturen ← die Temperaturen, die gestiegen sind"], "warn": "Kein Partizip II als Attribut haben haben und sein sowie intransitive Verben wie antworten, arbeiten, danken, drohen, gefallen, schaden, schlafen, sitzen, stehen."}, "rp_genus_falle": {"k": "kasus", "l": "Falle — grammatisches Genus schlägt das natürliche", "sig": "Das Bezugswort hat ein grammatisches Genus, das nicht zur Bedeutung passt (das Mädchen, das Fräulein, die Person, die Fachkraft).", "req": "Das Relativpronomen richtet sich immer nach dem GRAMMATISCHEN Genus des Bezugsworts.", "ex": ["das Mädchen, das neben mir sitzt", "das Mädchen, dessen Fahrrad gestohlen wurde", "die Person, die angerufen hat"], "warn": "Auch wenn im Deutschen die Person weiblich ist: das Mädchen → das / dessen. Bei »die Person« → die, auch wenn ein Mann gemeint ist."}};
+var Q1=[{"s": "Das ist der Kollege, ___ mir bei der Präsentation geholfen hat.", "o": ["der", "den", "dem", "dessen"], "a": "der", "r": "rp_nom", "b": "der Kollege — maskulin, Singular", "c": "Probe: »Der Kollege hat mir geholfen.« Das Pronomen ist Subjekt → Nominativ.", "f": "maskulin · Singular · Nominativ = der", "en": "That's the colleague who helped me with the presentation.", "t": 0}, {"s": "Ich suche eine Wohnung, ___ nicht zu teuer ist.", "o": ["die", "der", "deren", "denen"], "a": "die", "r": "rp_nom", "b": "eine Wohnung — feminin, Singular", "c": "»Die Wohnung ist nicht zu teuer.« Subjekt → Nominativ.", "f": "feminin · Singular · Nominativ = die", "en": "I'm looking for a flat that isn't too expensive.", "t": 0}, {"s": "Das ist das Gerät, ___ am wenigsten Strom verbraucht.", "o": ["das", "dem", "dessen", "die"], "a": "das", "r": "rp_nom", "b": "das Gerät — neutrum, Singular", "c": "»Das Gerät verbraucht am wenigsten Strom.« Subjekt → Nominativ.", "f": "neutrum · Singular · Nominativ = das", "en": "That's the device that uses the least electricity.", "t": 0}, {"s": "Wir haben Mitarbeiter, ___ fließend Englisch sprechen.", "o": ["die", "denen", "deren", "dessen"], "a": "die", "r": "rp_nom", "b": "Mitarbeiter — Plural", "c": "»Die Mitarbeiter sprechen Englisch.« Subjekt → Nominativ.", "f": "Plural · Nominativ = die", "en": "We have employees who speak fluent English.", "t": 0}, {"s": "Der Zug, ___ um 8 Uhr abfährt, hat oft Verspätung.", "o": ["der", "den", "dem", "dessen"], "a": "der", "r": "rp_nom", "b": "der Zug — maskulin, Singular", "c": "»Der Zug fährt um 8 Uhr ab.« Subjekt → Nominativ.", "f": "maskulin · Singular · Nominativ = der", "en": "The train that leaves at 8 is often delayed.", "t": 0}, {"s": "Das Mädchen, ___ neben mir sitzt, kommt aus Polen.", "o": ["das", "die", "der", "dem"], "a": "das", "r": "rp_genus_falle", "b": "das Mädchen — grammatisch NEUTRUM, Singular", "c": "Subjekt des Relativsatzes → Nominativ.", "f": "neutrum · Singular · Nominativ = das (nicht die, obwohl eine weibliche Person gemeint ist)", "en": "The girl who sits next to me is from Poland.", "t": 1}, {"s": "Kennen Sie die Kollegin, ___ die Präsentation gehalten hat?", "o": ["die", "der", "deren", "denen"], "a": "die", "r": "rp_nom", "b": "die Kollegin — feminin, Singular", "c": "»Die Kollegin hat die Präsentation gehalten.« Subjekt → Nominativ.", "f": "feminin · Singular · Nominativ = die", "en": "Do you know the colleague who gave the presentation?", "t": 0}, {"s": "Das ist ein Drucker, ___ nie kaputtgeht.", "o": ["der", "den", "dem", "dessen"], "a": "der", "r": "rp_nom", "b": "ein Drucker — maskulin, Singular", "c": "Subjekt → Nominativ.", "f": "maskulin · Singular · Nominativ = der", "en": "That's a printer that never breaks.", "t": 0}, {"s": "Die Leute, ___ im Nahverkehr arbeiten, streiken morgen.", "o": ["die", "denen", "deren", "der"], "a": "die", "r": "rp_nom", "b": "die Leute — Plural (immer Plural!)", "c": "Subjekt → Nominativ.", "f": "Plural · Nominativ = die", "en": "The people who work in local transport are striking tomorrow.", "t": 0}, {"s": "Ich hätte gern ein Auto, ___ schneller als andere Autos fährt.", "o": ["das", "dem", "dessen", "der"], "a": "das", "r": "rp_nom", "b": "ein Auto — neutrum, Singular", "c": "»Das Auto fährt schneller.« Subjekt → Nominativ.", "f": "neutrum · Singular · Nominativ = das", "en": "I'd like a car that goes faster than other cars.", "t": 0}, {"s": "Ich habe einen Freund, ___ immer eine andere Meinung hat.", "o": ["der", "den", "dem", "dessen"], "a": "der", "r": "rp_nom", "b": "einen Freund — maskulin, Singular (Akkusativ im HAUPTsatz!)", "c": "Im Relativsatz ist das Pronomen Subjekt → Nominativ. Der Kasus des Hauptsatzes spielt keine Rolle.", "f": "maskulin · Singular · Nominativ = der", "en": "I have a friend who always has a different opinion.", "t": 1}, {"s": "Das ist der Film, ___ ich gestern gesehen habe.", "o": ["den", "der", "dem", "dessen"], "a": "den", "r": "rp_akk", "b": "der Film — maskulin, Singular", "c": "»Ich habe den Film gesehen.« Direktes Objekt → Akkusativ.", "f": "maskulin · Singular · Akkusativ = den", "en": "That's the film I saw yesterday.", "t": 0}, {"s": "Der Kaffeevollautomat, ___ ich jeden Tag benutze, ist kaputt.", "o": ["den", "der", "dem", "das"], "a": "den", "r": "rp_akk", "b": "der Kaffeevollautomat — maskulin, Singular", "c": "»Ich benutze den Automaten.« Direktes Objekt → Akkusativ.", "f": "maskulin · Singular · Akkusativ = den", "en": "The coffee machine I use every day is broken.", "t": 0}, {"s": "Die Stelle, ___ ich gefunden habe, ist perfekt.", "o": ["die", "der", "den", "deren"], "a": "die", "r": "rp_akk", "b": "die Stelle — feminin, Singular", "c": "»Ich habe die Stelle gefunden.« Direktes Objekt → Akkusativ.", "f": "feminin · Singular · Akkusativ = die (im Femininum sehen Nominativ und Akkusativ gleich aus)", "en": "The job I found is perfect.", "t": 0}, {"s": "Das Passwort, ___ du mir geschickt hast, funktioniert nicht.", "o": ["das", "dem", "den", "dessen"], "a": "das", "r": "rp_akk", "b": "das Passwort — neutrum, Singular", "c": "»Du hast mir das Passwort geschickt.« Direktes Objekt → Akkusativ.", "f": "neutrum · Singular · Akkusativ = das", "en": "The password you sent me doesn't work.", "t": 0}, {"s": "Die Dokumente, ___ wir unterschrieben haben, sind verschwunden.", "o": ["die", "denen", "deren", "den"], "a": "die", "r": "rp_akk", "b": "die Dokumente — Plural", "c": "»Wir haben die Dokumente unterschrieben.« Direktes Objekt → Akkusativ.", "f": "Plural · Akkusativ = die", "en": "The documents we signed have disappeared.", "t": 0}, {"s": "Ich habe einen Kollegen, ___ meine Chefin nicht mag.", "o": ["den", "der", "dem", "dessen"], "a": "den", "r": "rp_akk", "b": "einen Kollegen — maskulin, Singular", "c": "»Meine Chefin mag den Kollegen nicht.« Direktes Objekt → Akkusativ.", "f": "maskulin · Singular · Akkusativ = den", "en": "I have a colleague my boss doesn't like.", "t": 0}, {"s": "Das ist die Kundin, ___ ich gestern angerufen habe.", "o": ["die", "der", "deren", "denen"], "a": "die", "r": "rp_akk", "b": "die Kundin — feminin, Singular", "c": "»Ich habe die Kundin angerufen.« Direktes Objekt → Akkusativ.", "f": "feminin · Singular · Akkusativ = die", "en": "That's the customer I called yesterday.", "t": 0}, {"s": "Der Vertrag, ___ die Firma gekündigt hat, lief bis Mai.", "o": ["den", "der", "dem", "dessen"], "a": "den", "r": "rp_akk", "b": "der Vertrag — maskulin, Singular", "c": "»Die Firma hat den Vertrag gekündigt.« Direktes Objekt → Akkusativ. (Subjekt ist die Firma!)", "f": "maskulin · Singular · Akkusativ = den", "en": "The contract the company cancelled ran until May.", "t": 1}, {"s": "Das Fahrrad, ___ man mir gestohlen hat, war fast neu.", "o": ["das", "dem", "den", "dessen"], "a": "das", "r": "rp_akk", "b": "das Fahrrad — neutrum, Singular", "c": "»Man hat mir das Fahrrad gestohlen.« Direktes Objekt → Akkusativ.", "f": "neutrum · Singular · Akkusativ = das", "en": "The bike that was stolen from me was almost new.", "t": 0}, {"s": "Die Kollegen, ___ wir zum Essen eingeladen haben, kommen später.", "o": ["die", "denen", "deren", "der"], "a": "die", "r": "rp_akk", "b": "die Kollegen — Plural", "c": "»Wir haben die Kollegen eingeladen.« Direktes Objekt → Akkusativ.", "f": "Plural · Akkusativ = die (nicht denen — das wäre Dativ)", "en": "The colleagues we invited to dinner are coming later.", "t": 1}, {"s": "Ich habe ein Auto, ___ mein Nachbar hasst.", "o": ["das", "dem", "dessen", "der"], "a": "das", "r": "rp_akk", "b": "ein Auto — neutrum, Singular", "c": "»Mein Nachbar hasst das Auto.« Direktes Objekt → Akkusativ.", "f": "neutrum · Singular · Akkusativ = das", "en": "I have a car my neighbour hates.", "t": 0}, {"s": "Das ist der Praktikant, ___ ich beim Protokoll geholfen habe.", "o": ["dem", "den", "der", "dessen"], "a": "dem", "r": "rp_dat", "b": "der Praktikant — maskulin, Singular", "c": "helfen + DATIV: »Ich habe dem Praktikanten geholfen.«", "f": "maskulin · Singular · Dativ = dem", "en": "That's the intern I helped with the minutes.", "t": 1}, {"s": "Die Kollegin, ___ ich für die Hilfe gedankt habe, ist heute krank.", "o": ["der", "die", "deren", "dem"], "a": "der", "r": "rp_dat", "b": "die Kollegin — feminin, Singular", "c": "danken + DATIV: »Ich habe der Kollegin gedankt.«", "f": "feminin · Singular · Dativ = der", "en": "The colleague I thanked for her help is ill today.", "t": 1}, {"s": "Das ist der Chef, ___ mein Vorschlag nicht gefallen hat.", "o": ["dem", "den", "der", "dessen"], "a": "dem", "r": "rp_dat", "b": "der Chef — maskulin, Singular", "c": "gefallen + DATIV: »Mein Vorschlag hat dem Chef nicht gefallen.« Subjekt ist der Vorschlag.", "f": "maskulin · Singular · Dativ = dem", "en": "That's the boss who didn't like my proposal.", "t": 1}, {"s": "Die Kunden, ___ wir die Rechnung geschickt haben, haben nicht bezahlt.", "o": ["denen", "die", "deren", "den"], "a": "denen", "r": "rp_dat", "b": "die Kunden — Plural", "c": "schicken: wem? → indirektes Objekt im Dativ.", "f": "Plural · Dativ = denen (die lange Form!)", "en": "The customers we sent the invoice to haven't paid.", "t": 1}, {"s": "Das ist das Kind, ___ das Fahrrad gehört.", "o": ["dem", "das", "den", "dessen"], "a": "dem", "r": "rp_dat", "b": "das Kind — neutrum, Singular", "c": "gehören + DATIV: »Das Fahrrad gehört dem Kind.«", "f": "neutrum · Singular · Dativ = dem", "en": "That's the child the bike belongs to.", "t": 1}, {"s": "Der Freund, ___ mein Essen nicht schmeckt, kocht lieber selbst.", "o": ["dem", "den", "der", "dessen"], "a": "dem", "r": "rp_dat", "b": "der Freund — maskulin, Singular", "c": "schmecken + DATIV: »Mein Essen schmeckt dem Freund nicht.«", "f": "maskulin · Singular · Dativ = dem", "en": "The friend who doesn't like my cooking prefers to cook himself.", "t": 1}, {"s": "Das sind die Mitarbeiter, ___ wir unser neues Produkt vorgestellt haben.", "o": ["denen", "die", "deren", "den"], "a": "denen", "r": "rp_dat", "b": "die Mitarbeiter — Plural", "c": "vorstellen: wem? → Dativ.", "f": "Plural · Dativ = denen", "en": "Those are the employees we presented our new product to.", "t": 0}, {"s": "Sie ist die Kundin, ___ wir unser neues Produkt vorgestellt haben.", "o": ["der", "die", "deren", "dem"], "a": "der", "r": "rp_dat", "b": "die Kundin — feminin, Singular", "c": "vorstellen: wem? → Dativ.", "f": "feminin · Singular · Dativ = der", "en": "She is the customer we presented our new product to.", "t": 0}, {"s": "Das ist das Unternehmen, ___ wir unser neues Produkt vorgestellt haben.", "o": ["dem", "das", "den", "dessen"], "a": "dem", "r": "rp_dat", "b": "das Unternehmen — neutrum, Singular", "c": "vorstellen: wem? → Dativ.", "f": "neutrum · Singular · Dativ = dem", "en": "That's the company we presented our new product to.", "t": 0}, {"s": "Er ist der erste Mensch, ___ wir unser neues Produkt vorgestellt haben.", "o": ["dem", "den", "der", "dessen"], "a": "dem", "r": "rp_dat", "b": "der Mensch — maskulin, Singular", "c": "vorstellen: wem? → Dativ.", "f": "maskulin · Singular · Dativ = dem", "en": "He is the first person we presented our new product to.", "t": 0}, {"s": "Ich habe eine Chefin, ___ ich völlig vertrauen kann.", "o": ["der", "die", "deren", "denen"], "a": "der", "r": "rp_dat", "b": "eine Chefin — feminin, Singular", "c": "vertrauen + DATIV: »Ich kann der Chefin vertrauen.«", "f": "feminin · Singular · Dativ = der", "en": "I have a boss I can completely trust.", "t": 1}, {"s": "Das sind die Nachbarn, ___ wir beim Umzug geholfen haben.", "o": ["denen", "die", "deren", "der"], "a": "denen", "r": "rp_dat", "b": "die Nachbarn — Plural", "c": "helfen + DATIV, Plural.", "f": "Plural · Dativ = denen", "en": "Those are the neighbours we helped with the move.", "t": 1}, {"s": "Das Team, ___ ich seit Mai angehöre, ist international.", "o": ["dem", "das", "den", "dessen"], "a": "dem", "r": "rp_dat", "b": "das Team — neutrum, Singular", "c": "angehören + DATIV: »Ich gehöre dem Team an.«", "f": "neutrum · Singular · Dativ = dem", "en": "The team I've belonged to since May is international.", "t": 1}, {"s": "Das ist der Mann, ___ ich helfen wollte.", "o": ["dem", "den", "der", "dessen"], "a": "dem", "r": "rp_dat", "b": "der Mann — maskulin, Singular", "c": "helfen + DATIV — der häufigste Fehler überhaupt. Nicht »den«!", "f": "maskulin · Singular · Dativ = dem", "en": "That's the man I wanted to help.", "t": 1}, {"s": "Ist das der Direktor, ___ Sekretärin gekündigt hat?", "o": ["dessen", "deren", "dem", "den"], "a": "dessen", "r": "rp_gen", "b": "der Direktor — maskulin, Singular", "c": "Besitz: »SEINE Sekretärin hat gekündigt.« → Genitiv.", "f": "maskulin · Singular · Genitiv = dessen (danach kein Artikel)", "en": "Is that the director whose secretary resigned?", "t": 0}, {"s": "Ist das der Schauspieler, ___ Frau 15 Jahre älter ist?", "o": ["dessen", "deren", "dem", "der"], "a": "dessen", "r": "rp_gen", "b": "der Schauspieler — maskulin, Singular", "c": "Besitz: »SEINE Frau ist älter.« → Genitiv.", "f": "maskulin · Singular · Genitiv = dessen", "en": "Is that the actor whose wife is 15 years older?", "t": 0}, {"s": "Ist das das Mädchen, ___ Fahrrad gestohlen wurde?", "o": ["dessen", "deren", "dem", "das"], "a": "dessen", "r": "rp_gen", "b": "das Mädchen — grammatisch NEUTRUM, Singular", "c": "Besitz → Genitiv. Das grammatische Genus entscheidet, nicht die Bedeutung.", "f": "neutrum · Singular · Genitiv = dessen (nicht deren!)", "en": "Is that the girl whose bike was stolen?", "t": 1}, {"s": "Sind das die Nachbarn, ___ Hund immer so laut bellt?", "o": ["deren", "dessen", "denen", "die"], "a": "deren", "r": "rp_gen", "b": "die Nachbarn — Plural", "c": "Besitz: »IHR Hund bellt.« → Genitiv.", "f": "Plural · Genitiv = deren", "en": "Are those the neighbours whose dog always barks so loudly?", "t": 0}, {"s": "Ist das die Frau, ___ Auto im Parkverbot steht?", "o": ["deren", "dessen", "der", "die"], "a": "deren", "r": "rp_gen", "b": "die Frau — feminin, Singular", "c": "Besitz: »IHR Auto steht im Parkverbot.« → Genitiv.", "f": "feminin · Singular · Genitiv = deren (auch wenn das Auto neutrum ist!)", "en": "Is that the woman whose car is parked illegally?", "t": 1}, {"s": "Das ist der Kaffeevollautomat, ___ Betriebsanleitung ich nicht gelesen habe.", "o": ["dessen", "deren", "dem", "den"], "a": "dessen", "r": "rp_gen", "b": "der Kaffeevollautomat — maskulin, Singular", "c": "Besitz: »SEINE Betriebsanleitung« → Genitiv.", "f": "maskulin · Singular · Genitiv = dessen", "en": "That's the coffee machine whose manual I didn't read.", "t": 0}, {"s": "Wir haben eine Kollegin, ___ Mann bei Siemens arbeitet.", "o": ["deren", "dessen", "der", "die"], "a": "deren", "r": "rp_gen", "b": "eine Kollegin — feminin, Singular", "c": "Besitz: »IHR Mann arbeitet dort.« → Genitiv.", "f": "feminin · Singular · Genitiv = deren", "en": "We have a colleague whose husband works at Siemens.", "t": 0}, {"s": "Das ist die Firma, ___ Umsatz jedes Jahr steigt.", "o": ["deren", "dessen", "der", "die"], "a": "deren", "r": "rp_gen", "b": "die Firma — feminin, Singular", "c": "Besitz: »IHR Umsatz steigt.« → Genitiv.", "f": "feminin · Singular · Genitiv = deren", "en": "That's the company whose turnover rises every year.", "t": 0}, {"s": "Kennen Sie Rudolf Diesel, ___ erster Motor im Deutschen Museum steht?", "o": ["dessen", "deren", "dem", "den"], "a": "dessen", "r": "rp_gen", "b": "Rudolf Diesel — maskulin, Singular", "c": "Besitz: »SEIN erster Motor« → Genitiv.", "f": "maskulin · Singular · Genitiv = dessen", "en": "Do you know Rudolf Diesel, whose first engine is in the Deutsches Museum?", "t": 0}, {"s": "Sind das die Leute, ___ Kinder in Bonn studieren?", "o": ["deren", "dessen", "denen", "die"], "a": "deren", "r": "rp_gen", "b": "die Leute — Plural", "c": "Besitz: »IHRE Kinder studieren.« → Genitiv.", "f": "Plural · Genitiv = deren", "en": "Are those the people whose children study in Bonn?", "t": 0}, {"s": "Das ist der Kollege, mit ___ Auto wir gefahren sind.", "o": ["dessen", "dem", "deren", "den"], "a": "dessen", "r": "rp_gen", "b": "der Kollege — maskulin, Singular", "c": "Besitz (»SEIN Auto«) → dessen. Die Präposition mit regiert das NOMEN (mit dem Auto), das Pronomen bleibt dessen.", "f": "maskulin · Singular · Genitiv = dessen — auch nach einer Präposition unverändert", "en": "That's the colleague whose car we drove in.", "t": 1}, {"s": "Das Kind, ___ Eltern beide arbeiten, geht in die Kita.", "o": ["dessen", "deren", "dem", "das"], "a": "dessen", "r": "rp_gen", "b": "das Kind — neutrum, Singular", "c": "Besitz: »SEINE Eltern arbeiten.« → Genitiv.", "f": "neutrum · Singular · Genitiv = dessen (das folgende Nomen ist Plural — das ändert nichts!)", "en": "The child whose parents both work goes to daycare.", "t": 1}, {"s": "Das sind die Studenten, ___ Professorin einen Preis bekommen hat.", "o": ["deren", "dessen", "denen", "die"], "a": "deren", "r": "rp_gen", "b": "die Studenten — Plural", "c": "Besitz: »IHRE Professorin« → Genitiv.", "f": "Plural · Genitiv = deren", "en": "Those are the students whose professor won a prize.", "t": 0}, {"s": "Der Bericht, auf ___ Grundlage wir entscheiden, ist veraltet.", "o": ["dessen", "deren", "dem", "den"], "a": "dessen", "r": "rp_gen", "b": "der Bericht — maskulin, Singular", "c": "Besitz (»SEINE Grundlage«) → Genitiv; auf regiert nur das Nomen Grundlage.", "f": "maskulin · Singular · Genitiv = dessen", "en": "The report on whose basis we decide is out of date.", "t": 1}, {"s": "Das ist der Chef, mit ___ ich über alles sprechen kann.", "o": ["dem", "den", "der", "dessen"], "a": "dem", "r": "rp_prep", "b": "der Chef — maskulin, Singular", "c": "mit + DATIV. Die Präposition bestimmt den Kasus.", "f": "maskulin · Singular · Dativ = dem", "en": "That's the boss I can talk to about anything.", "t": 0}, {"s": "Die Firma, bei ___ ich arbeite, stellt Möbel her.", "o": ["der", "die", "dem", "denen"], "a": "der", "r": "rp_prep", "b": "die Firma — feminin, Singular", "c": "bei + DATIV.", "f": "feminin · Singular · Dativ = der", "en": "The company I work for makes furniture.", "t": 0}, {"s": "Das ist der Job, auf ___ ich mich beworben habe.", "o": ["den", "dem", "der", "das"], "a": "den", "r": "rp_prep", "b": "der Job — maskulin, Singular", "c": "sich bewerben AUF + AKKUSATIV.", "f": "maskulin · Singular · Akkusativ = den", "en": "That's the job I applied for.", "t": 1}, {"s": "Der Termin, auf ___ wir alle warten, wurde verschoben.", "o": ["den", "dem", "der", "das"], "a": "den", "r": "rp_prep", "b": "der Termin — maskulin, Singular", "c": "warten AUF + AKKUSATIV.", "f": "maskulin · Singular · Akkusativ = den", "en": "The appointment we're all waiting for was postponed.", "t": 1}, {"s": "Das ist die Kollegin, von ___ ich dir erzählt habe.", "o": ["der", "die", "deren", "dem"], "a": "der", "r": "rp_prep", "b": "die Kollegin — feminin, Singular", "c": "von + DATIV.", "f": "feminin · Singular · Dativ = der", "en": "That's the colleague I told you about.", "t": 0}, {"s": "Das Büro, aus ___ man einen Park sehen kann, ist im vierten Stock.", "o": ["dem", "das", "den", "der"], "a": "dem", "r": "rp_prep", "b": "das Büro — neutrum, Singular", "c": "aus + DATIV.", "f": "neutrum · Singular · Dativ = dem", "en": "The office from which you can see a park is on the fourth floor.", "t": 0}, {"s": "Die Kollegen, mit ___ er oft Kaffee trinkt, sind sehr nett.", "o": ["denen", "die", "deren", "den"], "a": "denen", "r": "rp_prep", "b": "die Kollegen — Plural", "c": "mit + DATIV, Plural.", "f": "Plural · Dativ = denen", "en": "The colleagues he often has coffee with are very nice.", "t": 1}, {"s": "Die Sprachschule, in ___ er Chinesisch lernen möchte, ist teuer.", "o": ["der", "die", "dem", "denen"], "a": "der", "r": "rp_wechsel", "b": "die Sprachschule — feminin, Singular", "c": "in + wo? → DATIV (er lernt dort, keine Bewegung mit Ziel).", "f": "feminin · Singular · Dativ = der", "en": "The language school where he wants to learn Chinese is expensive.", "t": 0}, {"s": "Die Stadt, in ___ ich letztes Jahr gezogen bin, gefällt mir gut.", "o": ["die", "der", "dem", "das"], "a": "die", "r": "rp_wechsel", "b": "die Stadt — feminin, Singular", "c": "in + wohin? → AKKUSATIV (ziehen = Bewegung mit Ziel).", "f": "feminin · Singular · Akkusativ = die", "en": "The city I moved to last year — I like it a lot.", "t": 1}, {"s": "Das Haus, in ___ ich wohne, wird renoviert.", "o": ["dem", "das", "den", "der"], "a": "dem", "r": "rp_wechsel", "b": "das Haus — neutrum, Singular", "c": "in + wo? → DATIV.", "f": "neutrum · Singular · Dativ = dem", "en": "The house I live in is being renovated.", "t": 0}, {"s": "Die Stadt, aus ___ ich komme, war mir zu hektisch.", "o": ["der", "die", "dem", "denen"], "a": "der", "r": "rp_prep", "b": "die Stadt — feminin, Singular", "c": "aus + DATIV.", "f": "feminin · Singular · Dativ = der", "en": "The city I come from was too hectic for me.", "t": 0}, {"s": "Der Wald, durch ___ der Zug gefahren ist, war wunderschön.", "o": ["den", "dem", "der", "das"], "a": "den", "r": "rp_prep", "b": "der Wald — maskulin, Singular", "c": "durch + AKKUSATIV (immer!).", "f": "maskulin · Singular · Akkusativ = den", "en": "The forest the train went through was beautiful.", "t": 0}, {"s": "Die Landschaften, durch ___ der Zug gefahren ist, waren wunderschön.", "o": ["die", "denen", "der", "den"], "a": "die", "r": "rp_prep", "b": "die Landschaften — Plural", "c": "durch + AKKUSATIV, Plural.", "f": "Plural · Akkusativ = die", "en": "The landscapes the train went through were beautiful.", "t": 1}, {"s": "Heute treffe ich mich mit Peters Freundin, von ___ er schon so viel erzählt hat.", "o": ["der", "die", "deren", "dem"], "a": "der", "r": "rp_prep", "b": "Peters Freundin — feminin, Singular", "c": "von + DATIV.", "f": "feminin · Singular · Dativ = der", "en": "Today I'm meeting Peter's girlfriend, about whom he has told me so much.", "t": 0}, {"s": "Das ist ein Thema, über ___ wir noch sprechen müssen.", "o": ["das", "dem", "den", "dessen"], "a": "das", "r": "rp_prep", "b": "ein Thema — neutrum, Singular", "c": "sprechen ÜBER + AKKUSATIV.", "f": "neutrum · Singular · Akkusativ = das", "en": "That's a topic we still need to talk about.", "t": 0}, {"s": "Die Besprechung, an ___ ich nicht teilnehmen konnte, war wichtig.", "o": ["der", "die", "dem", "denen"], "a": "der", "r": "rp_prep", "b": "die Besprechung — feminin, Singular", "c": "teilnehmen AN + DATIV.", "f": "feminin · Singular · Dativ = der", "en": "The meeting I couldn't attend was important.", "t": 1}, {"s": "Das ist der Vorschlag, für ___ sich alle entschieden haben.", "o": ["den", "dem", "der", "das"], "a": "den", "r": "rp_prep", "b": "der Vorschlag — maskulin, Singular", "c": "sich entscheiden FÜR + AKKUSATIV.", "f": "maskulin · Singular · Akkusativ = den", "en": "That's the proposal everyone decided on.", "t": 0}, {"s": "Der Kunde, bei ___ ich mich entschuldigen musste, war sehr freundlich.", "o": ["dem", "den", "der", "denen"], "a": "dem", "r": "rp_prep", "b": "der Kunde — maskulin, Singular", "c": "sich entschuldigen BEI + DATIV.", "f": "maskulin · Singular · Dativ = dem", "en": "The customer I had to apologise to was very friendly.", "t": 0}, {"s": "Die Probleme, über ___ wir gestern gesprochen haben, sind gelöst.", "o": ["die", "denen", "der", "dem"], "a": "die", "r": "rp_prep", "b": "die Probleme — Plural", "c": "sprechen ÜBER + AKKUSATIV, Plural.", "f": "Plural · Akkusativ = die", "en": "The problems we talked about yesterday are solved.", "t": 1}, {"s": "Das Projekt, an ___ ich gerade arbeite, ist fast fertig.", "o": ["dem", "das", "den", "der"], "a": "dem", "r": "rp_prep", "b": "das Projekt — neutrum, Singular", "c": "arbeiten AN + DATIV.", "f": "neutrum · Singular · Dativ = dem", "en": "The project I'm working on is almost finished.", "t": 1}, {"s": "Die Prüfung, vor ___ ich Angst habe, ist am Freitag.", "o": ["der", "die", "dem", "denen"], "a": "der", "r": "rp_prep", "b": "die Prüfung — feminin, Singular", "c": "Angst haben VOR + DATIV.", "f": "feminin · Singular · Dativ = der", "en": "The exam I'm afraid of is on Friday.", "t": 0}, {"s": "Der Grund, aus ___ er gekündigt hat, ist unklar.", "o": ["dem", "den", "der", "das"], "a": "dem", "r": "rp_prep", "b": "der Grund — maskulin, Singular", "c": "aus + DATIV.", "f": "maskulin · Singular · Dativ = dem", "en": "The reason he resigned is unclear.", "t": 0}, {"s": "Die Wohnung, in ___ ich mich sehr wohlfühle, ist leider teuer.", "o": ["der", "die", "dem", "denen"], "a": "der", "r": "rp_wechsel", "b": "die Wohnung — feminin, Singular", "c": "sich wohlfühlen IN + wo? → DATIV.", "f": "feminin · Singular · Dativ = der", "en": "The flat I feel very comfortable in is unfortunately expensive.", "t": 0}, {"s": "Ich hätte gern einen Freund, mit ___ ich mich nie streite.", "o": ["dem", "den", "der", "dessen"], "a": "dem", "r": "rp_prep", "b": "einen Freund — maskulin, Singular", "c": "sich streiten MIT + DATIV.", "f": "maskulin · Singular · Dativ = dem", "en": "I'd like a friend I never argue with.", "t": 0}, {"s": "Ich habe einen Freund, von ___ ich nie etwas geschenkt bekomme.", "o": ["dem", "den", "der", "dessen"], "a": "dem", "r": "rp_prep", "b": "einen Freund — maskulin, Singular", "c": "von + DATIV.", "f": "maskulin · Singular · Dativ = dem", "en": "I have a friend from whom I never get a present.", "t": 0}, {"s": "Das ist die Kollegin, auf ___ ich mich immer verlassen kann.", "o": ["die", "der", "deren", "denen"], "a": "die", "r": "rp_prep", "b": "die Kollegin — feminin, Singular", "c": "sich verlassen AUF + AKKUSATIV.", "f": "feminin · Singular · Akkusativ = die", "en": "That's the colleague I can always rely on.", "t": 1}, {"s": "Die Kollegen, auf ___ ich mich verlassen kann, sind selten.", "o": ["die", "denen", "der", "deren"], "a": "die", "r": "rp_prep", "b": "die Kollegen — Plural", "c": "sich verlassen AUF + AKKUSATIV — nicht Dativ, obwohl viele hier »denen« sagen.", "f": "Plural · Akkusativ = die", "en": "Colleagues I can rely on are rare.", "t": 1}, {"s": "Das ist das Formular, mit ___ man den Urlaub beantragt.", "o": ["dem", "das", "den", "dessen"], "a": "dem", "r": "rp_prep", "b": "das Formular — neutrum, Singular", "c": "mit + DATIV.", "f": "neutrum · Singular · Dativ = dem", "en": "That's the form you use to apply for leave.", "t": 0}, {"s": "Der Wein kann nur an solchen Orten reifen, an ___ die Sonne scheint.", "o": ["denen", "die", "der", "dem"], "a": "denen", "r": "rp_prep", "b": "solche Orte — Plural", "c": "an + wo? → DATIV, Plural.", "f": "Plural · Dativ = denen", "en": "Wine can only ripen in places where the sun shines.", "t": 1}, {"s": "Alles, ___ er bei der Polizei ausgesagt hat, war gelogen.", "o": ["was", "das", "dem", "welches"], "a": "was", "r": "rp_was_indef", "b": "alles — Indefinitpronomen", "c": "Nach alles steht immer was.", "f": "Indefinitpronomen → was", "en": "Everything he told the police was a lie.", "t": 0}, {"s": "Nichts, ___ du mir versprochen hast, hast du gehalten.", "o": ["was", "das", "dem", "welches"], "a": "was", "r": "rp_was_indef", "b": "nichts — Indefinitpronomen", "c": "Nach nichts steht immer was.", "f": "Indefinitpronomen → was", "en": "Nothing you promised me have you kept.", "t": 0}, {"s": "Das ist das Schönste, ___ ich je gesehen habe.", "o": ["was", "das", "dem", "welches"], "a": "was", "r": "rp_was_super", "b": "das Schönste — nominalisierter Superlativ", "c": "Nach einem nominalisierten Superlativ steht was.", "f": "Superlativ → was", "en": "That's the most beautiful thing I have ever seen.", "t": 0}, {"s": "Essen Sie nur das, ___ Ihnen schmeckt.", "o": ["was", "das", "dem", "welches"], "a": "was", "r": "rp_was_indef", "b": "das — Demonstrativpronomen als Bezugswort", "c": "Nach dem Bezugswort »das« steht was.", "f": "das (allein stehend) → was", "en": "Only eat what you like.", "t": 1}, {"s": "Er hat die Prüfung bestanden, ___ mich sehr gefreut hat.", "o": ["was", "das", "welches", "dass"], "a": "was", "r": "rp_was_satz", "b": "der ganze Hauptsatz ist das Bezugswort", "c": "Bezug auf die gesamte Aussage → was.", "f": "Satzbezug → was", "en": "He passed the exam, which made me very happy.", "t": 0}, {"s": "Mehrere Manager wurden entlassen, ___ mich nicht überrascht hat.", "o": ["was", "das", "dies", "dessen"], "a": "was", "r": "rp_was_satz", "b": "die ganze Aussage des Hauptsatzes", "c": "Satzbezug → was.", "f": "Satzbezug → was", "en": "Several managers were dismissed, which didn't surprise me.", "t": 0}, {"s": "Es gibt im Büroalltag vieles, ___ man effektiver gestalten könnte.", "o": ["was", "das", "dem", "welches"], "a": "was", "r": "rp_was_indef", "b": "vieles — Indefinitpronomen", "c": "Nach vieles steht was.", "f": "Indefinitpronomen → was", "en": "There's a lot in office life that could be organised more efficiently.", "t": 0}, {"s": "Das Buch, ___ ich gerade lese, ist spannend.", "o": ["das", "was", "dem", "dessen"], "a": "das", "r": "rp_akk", "b": "das Buch — ein echtes Nomen, neutrum, Singular", "c": "Kein Indefinitpronomen! »Ich lese das Buch.« → Akkusativ.", "f": "neutrum · Singular · Akkusativ = das (nicht was — was gilt nur nach nichts/alles/etwas/das)", "en": "The book I'm reading is exciting.", "t": 1}, {"s": "___ noch Urlaub hat, muss ihn bis Ende Mai nehmen.", "o": ["Wer", "Wen", "Wem", "Der"], "a": "Wer", "r": "rp_wer", "b": "unbestimmte Person", "c": "Die Person ist Subjekt des Nebensatzes → wer.", "f": "Nominativ = wer", "en": "Whoever still has holiday left must take it by the end of May.", "t": 0}, {"s": "___ das Kantinenessen nicht schmeckt, soll sich melden.", "o": ["Wem", "Wer", "Wen", "Den"], "a": "Wem", "r": "rp_wer", "b": "unbestimmte Person", "c": "schmecken + DATIV: »Das Essen schmeckt IHM nicht.« → wem.", "f": "Dativ = wem", "en": "Whoever doesn't like the canteen food should say so.", "t": 1}, {"s": "___ wir eingeladen haben, darf eine Begleitung mitbringen.", "o": ["Wen", "Wer", "Wem", "Der"], "a": "Wen", "r": "rp_wer", "b": "unbestimmte Person", "c": "»Wir haben IHN eingeladen.« → direktes Objekt → wen.", "f": "Akkusativ = wen", "en": "Whoever we invited may bring a companion.", "t": 1}, {"s": "Die Regierung macht vieles, ___ der Umwelt nützt.", "o": ["was", "das", "wo", "dem"], "a": "was", "r": "rp_was_indef", "b": "vieles — Indefinitpronomen", "c": "Nach vieles steht was (hier Subjekt des Relativsatzes).", "f": "Indefinitpronomen → was", "en": "The government does a lot that benefits the environment.", "t": 0}, {"s": "Die Firma gewann die Ausschreibung, ___ mich sehr überrascht hat.", "o": ["was", "das", "welches", "wo"], "a": "was", "r": "rp_was_satz", "b": "die ganze Aussage", "c": "Satzbezug → was.", "f": "Satzbezug → was", "en": "The company won the tender, which surprised me a lot.", "t": 0}, {"s": "Einiges, ___ in der Sitzung besprochen wurde, war neu für mich.", "o": ["was", "das", "welches", "dem"], "a": "was", "r": "rp_was_indef", "b": "einiges — Indefinitpronomen", "c": "Nach einiges steht was.", "f": "Indefinitpronomen → was", "en": "Some of what was discussed in the meeting was new to me.", "t": 0}, {"s": "Ich kenne niemanden, ___ so gut kocht wie du.", "o": ["der", "den", "was", "dem"], "a": "der", "r": "rp_person_indef", "b": "niemand — eine PERSON, maskulin, Singular", "c": "Bei Personen steht der/den/dem, nicht was. Hier Subjekt → Nominativ.", "f": "maskulin · Singular · Nominativ = der", "en": "I know nobody who cooks as well as you.", "t": 1}, {"s": "Es gibt jemanden, ___ ich vertraue.", "o": ["dem", "den", "der", "was"], "a": "dem", "r": "rp_person_indef", "b": "jemand — eine Person, maskulin, Singular", "c": "vertrauen + DATIV → dem. (Person, also nicht was.)", "f": "maskulin · Singular · Dativ = dem", "en": "There is someone I trust.", "t": 1}, {"s": "Das ist alles, ___ ich über den Fall weiß.", "o": ["was", "das", "dem", "dessen"], "a": "was", "r": "rp_was_indef", "b": "alles — Indefinitpronomen", "c": "Nach alles steht was.", "f": "Indefinitpronomen → was", "en": "That's all I know about the case.", "t": 0}, {"s": "Das ist Salzburg, ___ Mozart geboren wurde.", "o": ["wo", "in dem", "das", "welches"], "a": "wo", "r": "rp_wo_ort", "b": "Salzburg — ein Städtename", "c": "Nach Städte- und Ländernamen steht NUR wo/wohin/woher.", "f": "Ort, Eigenname → wo", "en": "That's Salzburg, where Mozart was born.", "t": 1}, {"s": "Leipzig, ___ ich umgezogen bin, gefällt mir gut.", "o": ["wohin", "wo", "woher", "in die"], "a": "wohin", "r": "rp_wo_ort", "b": "Leipzig — Städtename", "c": "umziehen = Bewegung mit Ziel → wohin.", "f": "Ziel + Eigenname → wohin", "en": "Leipzig, where I moved to, I like a lot.", "t": 1}, {"s": "Das sibirische Dorf, ___ er kommt, ist extrem kalt.", "o": ["woher", "wohin", "wo", "wobei"], "a": "woher", "r": "rp_wo_ort", "b": "das Dorf — Ort, Herkunft", "c": "kommen = Herkunft → woher (Alternative: aus dem).", "f": "Herkunft → woher", "en": "The Siberian village he comes from is extremely cold.", "t": 0}, {"s": "Ich möchte in einer Gegend wohnen, ___ es viele Restaurants gibt.", "o": ["wo", "wohin", "woher", "die"], "a": "wo", "r": "rp_wo_ort", "b": "eine Gegend — Ort", "c": "Kein Ziel, keine Herkunft → wo (Alternative: in der).", "f": "Ort → wo", "en": "I'd like to live in an area where there are lots of restaurants.", "t": 0}, {"s": "An der Stelle, ___ der Tanker verunglückt ist, bildeten sich Ölflächen.", "o": ["wo", "wohin", "woher", "der"], "a": "wo", "r": "rp_wo_ort", "b": "die Stelle — Ort", "c": "Ortsangabe ohne Bewegung → wo.", "f": "Ort → wo", "en": "At the spot where the tanker had its accident, oil slicks formed.", "t": 0}, {"s": "In Berlin, ___ das Endspiel stattfand, gab es eine riesige Party.", "o": ["wo", "wohin", "woher", "in dem"], "a": "wo", "r": "rp_wo_ort", "b": "Berlin — Städtename", "c": "Nach Eigennamen nur wo.", "f": "Ort, Eigenname → wo", "en": "In Berlin, where the final took place, there was a huge party.", "t": 1}, {"s": "1931 zog der Künstler nach New York, ___ er den Rest seines Lebens verbrachte.", "o": ["wo", "wohin", "woher", "in dem"], "a": "wo", "r": "rp_wo_ort", "b": "New York — Städtename", "c": "Er verbrachte dort sein Leben — kein Ziel im Relativsatz → wo.", "f": "Ort, Eigenname → wo", "en": "In 1931 the artist moved to New York, where he spent the rest of his life.", "t": 0}, {"s": "Die Regierung macht vieles, ___ man sich aufregen kann.", "o": ["worüber", "über was", "darüber", "wovon"], "a": "worüber", "r": "rp_wo_r", "b": "vieles + Verb mit Präposition", "c": "sich aufregen ÜBER → wo + r + über.", "f": "wo(r) + über = worüber", "en": "The government does a lot you can get worked up about.", "t": 1}, {"s": "Die Stadtverwaltung beschloss den Abriss, ___ die Bürger sofort protestiert haben.", "o": ["wogegen", "dagegen", "gegen was", "worauf"], "a": "wogegen", "r": "rp_wo_r", "b": "die gesamte Aussage", "c": "protestieren GEGEN + Satzbezug → wogegen.", "f": "wo + gegen = wogegen", "en": "The city council decided on the demolition, against which the citizens immediately protested.", "t": 1}, {"s": "Die Regierung plant Steuererhöhungen, ___ die Gewerkschaften protestieren.", "o": ["wogegen", "worüber", "wobei", "womit"], "a": "wogegen", "r": "rp_wo_r", "b": "die gesamte Aussage", "c": "protestieren GEGEN → wogegen.", "f": "wo + gegen = wogegen", "en": "The government is planning tax rises, against which the unions are protesting.", "t": 0}, {"s": "Er hat den Vertrag unterschrieben, ___ niemand gerechnet hatte.", "o": ["womit", "worauf", "wovon", "wogegen"], "a": "womit", "r": "rp_wo_r", "b": "die gesamte Aussage", "c": "rechnen MIT → womit.", "f": "wo + mit = womit", "en": "He signed the contract, which nobody had expected.", "t": 1}, {"s": "Sie hat die Stelle bekommen, ___ sich alle sehr gefreut haben.", "o": ["worüber", "worauf", "wovon", "womit"], "a": "worüber", "r": "rp_wo_r", "b": "die gesamte Aussage", "c": "sich freuen ÜBER (etwas Geschehenes) → worüber.", "f": "wo(r) + über = worüber", "en": "She got the job, which everybody was delighted about.", "t": 1}, {"s": "Das ist etwas, ___ man sich nicht verlassen kann.", "o": ["worauf", "worüber", "wovon", "womit"], "a": "worauf", "r": "rp_wo_r", "b": "etwas + Verb mit Präposition", "c": "sich verlassen AUF → wo + r + auf.", "f": "wo(r) + auf = worauf", "en": "That's something you can't rely on.", "t": 1}, {"s": "Der Friedhof, ___ Heinrich Heine begraben wurde, ist in Paris.", "o": ["wo", "wohin", "woher", "den"], "a": "wo", "r": "rp_wo_ort", "b": "der Friedhof — Ort", "c": "Ortsangabe → wo (Alternative: auf dem).", "f": "Ort → wo", "en": "The cemetery where Heinrich Heine is buried is in Paris.", "t": 0}, {"s": "Das Ufer der Elbe, ___ teure Villen gebaut wurden, sieht man vom Schiff aus.", "o": ["wo", "wohin", "woher", "das"], "a": "wo", "r": "rp_wo_ort", "b": "das Ufer — Ort", "c": "Ortsangabe → wo (Alternative: an dem).", "f": "Ort → wo", "en": "The bank of the Elbe, where expensive villas were built, can be seen from the boat.", "t": 0}, {"s": "Die Firma hat 200 Stellen gestrichen, ___ in allen Zeitungen berichtet wurde.", "o": ["worüber", "wovon", "wogegen", "worauf"], "a": "worüber", "r": "rp_wo_r", "b": "die gesamte Aussage", "c": "berichten ÜBER → worüber.", "f": "wo(r) + über = worüber", "en": "The company cut 200 jobs, which was reported in all the papers.", "t": 0}];
+var Q2=[{"s": "Gregor hat einen Beruf, ___", "o": ["mit dem man viel Geld verdienen kann.", "mit dem man kann viel Geld verdienen.", "mit den man viel Geld verdienen kann."], "a": "mit dem man viel Geld verdienen kann.", "r": "rp_stellung", "b": "Präposition + Pronomen + Verb am Ende", "c": "Im Nebensatz steht das konjugierte Verb (kann) ganz am Ende, hinter dem Infinitiv. mit + Dativ → dem.", "f": "Gregor hat einen Beruf, mit dem man viel Geld verdienen <b>kann</b>.", "en": "Gregor has a job you can earn a lot of money with.", "t": 0}, {"s": "Tanja arbeitet in einem großen Büro, ___", "o": ["aus dem man einen Park sehen kann.", "aus dem man kann einen Park sehen.", "woher man einen Park sehen kann."], "a": "aus dem man einen Park sehen kann.", "r": "rp_stellung", "b": "aus + Dativ, Verb am Ende", "c": "woher wäre Herkunft einer Bewegung — hier geht es um den Blick aus dem Büro.", "f": "Tanja arbeitet in einem großen Büro, aus <b>dem</b> man einen Park sehen kann.", "en": "Tanja works in a big office from which you can see a park.", "t": 0}, {"s": "Roberta hat eine kompetente Chefin, ___", "o": ["mit der sie über alles sprechen kann.", "mit die sie über alles sprechen kann.", "mit der sie kann über alles sprechen."], "a": "mit der sie über alles sprechen kann.", "r": "rp_prep", "b": "mit + Dativ, feminin", "c": "mit verlangt den Dativ: die Chefin → der. Das Modalverb steht am Satzende.", "f": "Roberta hat eine kompetente Chefin, mit <b>der</b> sie über alles sprechen kann.", "en": "Roberta has a competent boss she can talk to about anything.", "t": 0}, {"s": "Theresa telefoniert oft mit Kunden, ___", "o": ["die die Rechnung noch nicht bezahlt haben.", "denen die Rechnung noch nicht bezahlt haben.", "deren die Rechnung noch nicht bezahlt haben."], "a": "die die Rechnung noch nicht bezahlt haben.", "r": "rp_nom", "b": "Plural, Subjekt des Relativsatzes", "c": "Die Kunden bezahlen — sie sind das Subjekt, also Nominativ die. Der Dativ im Hauptsatz (mit Kunden) spielt keine Rolle.", "f": "Theresa telefoniert oft mit Kunden, <b>die</b> die Rechnung noch nicht bezahlt haben.", "en": "Theresa often phones customers who haven't paid the invoice yet.", "t": 1}, {"s": "Karl arbeitet bei einer bekannten Firma, ___", "o": ["die Möbel herstellt.", "die stellt Möbel her.", "der Möbel herstellt."], "a": "die Möbel herstellt.", "r": "rp_stellung", "b": "trennbares Verb im Nebensatz", "c": "Trennbare Verben bleiben im Nebensatz zusammen: herstellt, nicht stellt … her.", "f": "Karl arbeitet bei einer bekannten Firma, die Möbel <b>herstellt</b>.", "en": "Karl works for a well-known company that makes furniture.", "t": 1}, {"s": "Alexander ruft eine Sprachschule an, ___", "o": ["in der er Chinesisch lernen möchte.", "in die er Chinesisch lernen möchte.", "in der er möchte Chinesisch lernen."], "a": "in der er Chinesisch lernen möchte.", "r": "rp_wechsel", "b": "in + wo? → Dativ", "c": "Er lernt DORT — keine Bewegung mit Ziel, also Dativ der, nicht Akkusativ die.", "f": "Alexander ruft eine Sprachschule an, in <b>der</b> er Chinesisch lernen möchte.", "en": "Alexander calls a language school where he wants to learn Chinese.", "t": 1}, {"s": "Der Zug, ___, ist der ICE nach Hamburg.", "o": ["der um 8 Uhr abfährt", "der um 8 Uhr ab fährt", "der fährt um 8 Uhr ab"], "a": "der um 8 Uhr abfährt", "r": "rp_stellung", "b": "trennbares Verb + Kommas", "c": "Im Nebensatz wird abfahren nicht getrennt und steht am Ende; der Relativsatz steht zwischen zwei Kommas.", "f": "Der Zug, der um 8 Uhr <b>abfährt</b>, ist der ICE nach Hamburg.", "en": "The train that leaves at 8 is the ICE to Hamburg.", "t": 0}, {"s": "Das Auto, das ich gekauft habe, ___", "o": ["war sehr günstig.", "es war sehr günstig.", "sehr günstig war."], "a": "war sehr günstig.", "r": "rp_stellung", "b": "Hauptsatz nach dem eingeschobenen Relativsatz", "c": "Der Relativsatz ist eingeschoben. Danach läuft der HAUPTsatz weiter — mit dem Verb auf Position 2, gerechnet ab dem Subjekt.", "f": "Das Auto, das ich gekauft habe, <b>war</b> sehr günstig.", "en": "The car I bought was very cheap.", "t": 1}, {"s": "Welcher Satz ist richtig?", "o": ["Die Frau, die neben mir wohnt, ist Ärztin.", "Die Frau die neben mir wohnt ist Ärztin.", "Die Frau, die neben mir wohnt ist Ärztin."], "a": "Die Frau, die neben mir wohnt, ist Ärztin.", "r": "rp_stellung", "b": "Kommasetzung", "c": "Der Relativsatz wird IMMER von Kommas eingeschlossen — vorn UND hinten.", "f": "Die Frau<b>,</b> die neben mir wohnt<b>,</b> ist Ärztin.", "en": "The woman who lives next to me is a doctor.", "t": 1}, {"s": "Das ist eine Aufgabe, ___", "o": ["die ich bis Freitag erledigen muss.", "die ich muss bis Freitag erledigen.", "die ich bis Freitag muss erledigen."], "a": "die ich bis Freitag erledigen muss.", "r": "rp_stellung", "b": "Modalverb im Nebensatz", "c": "Reihenfolge am Ende: Infinitiv + konjugiertes Modalverb — erledigen muss.", "f": "Das ist eine Aufgabe, die ich bis Freitag erledigen <b>muss</b>.", "en": "That's a task I have to finish by Friday.", "t": 0}, {"s": "Das ist der Kollege, ___", "o": ["der mir gestern geholfen hat.", "der hat mir gestern geholfen.", "der mir gestern hat geholfen."], "a": "der mir gestern geholfen hat.", "r": "rp_stellung", "b": "Perfekt im Nebensatz", "c": "Am Ende steht erst das Partizip, dann das Hilfsverb: geholfen hat.", "f": "Das ist der Kollege, der mir gestern geholfen <b>hat</b>.", "en": "That's the colleague who helped me yesterday.", "t": 0}, {"s": "Ich wohne in einem Haus, ___", "o": ["das über 100 Jahre alt ist.", "in dem über 100 Jahre alt ist.", "dem über 100 Jahre alt ist."], "a": "das über 100 Jahre alt ist.", "r": "rp_nom", "b": "Präposition NUR im Hauptsatz", "c": "Die Präposition in gehört zum Hauptsatz (ich wohne in einem Haus). Im Relativsatz ist das Pronomen Subjekt → das.", "f": "Ich wohne in einem Haus, <b>das</b> über 100 Jahre alt ist.", "en": "I live in a house that is over 100 years old.", "t": 1}, {"s": "Das ist das Thema, ___", "o": ["über das wir gesprochen haben.", "das wir gesprochen haben über.", "über dem wir gesprochen haben."], "a": "über das wir gesprochen haben.", "r": "rp_prep", "b": "Präposition vor dem Pronomen", "c": "Anders als im Englischen darf die Präposition nie ans Ende. sprechen über + Akkusativ → über das.", "f": "Das ist das Thema, <b>über das</b> wir gesprochen haben.", "en": "That's the topic we talked about.", "t": 1}, {"s": "Ich kenne eine Firma, ___", "o": ["deren Produkte weltweit verkauft werden.", "dessen Produkte weltweit verkauft werden.", "deren die Produkte weltweit verkauft werden."], "a": "deren Produkte weltweit verkauft werden.", "r": "rp_gen", "b": "feminin + Genitiv", "c": "die Firma → deren. Danach folgt das Nomen OHNE Artikel.", "f": "Ich kenne eine Firma, <b>deren</b> Produkte weltweit verkauft werden.", "en": "I know a company whose products are sold worldwide.", "t": 0}, {"s": "Das ist der Kollege, ___", "o": ["dessen Frau bei uns arbeitet.", "dessen seine Frau bei uns arbeitet.", "deren Frau bei uns arbeitet."], "a": "dessen Frau bei uns arbeitet.", "r": "rp_gen", "b": "maskulin + Genitiv", "c": "dessen ersetzt das Possessivpronomen komplett — kein zweites sein/ihr und kein Artikel.", "f": "Das ist der Kollege, <b>dessen</b> Frau bei uns arbeitet.", "en": "That's the colleague whose wife works with us.", "t": 1}, {"s": "Wir fahren mit dem Auto des Kollegen. → Das ist der Kollege, ___", "o": ["mit dessen Auto wir fahren.", "mit dem Auto dessen wir fahren.", "mit deren Auto wir fahren."], "a": "mit dessen Auto wir fahren.", "r": "rp_gen", "b": "Präposition + dessen + Nomen", "c": "Die Präposition steht vorn, dann dessen, dann das Nomen: mit dessen Auto. dessen selbst ändert sich nie.", "f": "Das ist der Kollege, <b>mit dessen Auto</b> wir fahren.", "en": "That's the colleague whose car we're driving in.", "t": 1}, {"s": "Der Bericht, ___, ist völlig veraltet.", "o": ["auf dessen Grundlage wir entscheiden", "auf deren Grundlage wir entscheiden", "auf dessen Grundlage entscheiden wir"], "a": "auf dessen Grundlage wir entscheiden", "r": "rp_gen", "b": "maskulines Bezugswort + Genitiv nach Präposition", "c": "der Bericht → dessen (nicht deren, obwohl die Grundlage feminin ist). Verb am Ende.", "f": "Der Bericht, <b>auf dessen Grundlage</b> wir entscheiden, ist völlig veraltet.", "en": "The report on the basis of which we decide is completely out of date.", "t": 1}, {"s": "Das ist die Firma, ___", "o": ["deren Mitarbeiter streiken.", "dessen Mitarbeiter streiken.", "denen Mitarbeiter streiken."], "a": "deren Mitarbeiter streiken.", "r": "rp_gen", "b": "feminin + Genitiv, folgendes Nomen im Plural", "c": "die Firma → deren. Das folgende Nomen (Mitarbeiter, Plural) ändert die Form nicht.", "f": "Das ist die Firma, <b>deren</b> Mitarbeiter streiken.", "en": "That's the company whose employees are on strike.", "t": 0}, {"s": "Das ist der Praktikant, ___", "o": ["dem ich alles erklärt habe.", "den ich alles erklärt habe.", "dessen ich alles erklärt habe."], "a": "dem ich alles erklärt habe.", "r": "rp_dat", "b": "erklären: wem? was?", "c": "alles ist das Akkusativobjekt, die Person steht im Dativ → dem.", "f": "Das ist der Praktikant, <b>dem</b> ich alles erklärt habe.", "en": "That's the intern I explained everything to.", "t": 1}, {"s": "Das sind die Kunden, ___", "o": ["denen wir das Angebot geschickt haben.", "die wir das Angebot geschickt haben.", "deren wir das Angebot geschickt haben."], "a": "denen wir das Angebot geschickt haben.", "r": "rp_dat", "b": "Dativ Plural", "c": "schicken: wem? → Dativ Plural = denen. Das Angebot ist der Akkusativ.", "f": "Das sind die Kunden, <b>denen</b> wir das Angebot geschickt haben.", "en": "Those are the customers we sent the offer to.", "t": 1}, {"s": "Das ist die Kollegin, ___", "o": ["der ich das Protokoll geschickt habe.", "die ich das Protokoll geschickt habe.", "deren ich das Protokoll geschickt habe."], "a": "der ich das Protokoll geschickt habe.", "r": "rp_dat", "b": "Dativ feminin", "c": "schicken: wem? → Dativ. die Kollegin → der.", "f": "Das ist die Kollegin, <b>der</b> ich das Protokoll geschickt habe.", "en": "That's the colleague I sent the minutes to.", "t": 1}, {"s": "Das ist ein Problem, ___", "o": ["mit dem wir nicht gerechnet haben.", "womit wir nicht gerechnet haben.", "mit dem wir haben nicht gerechnet."], "a": "mit dem wir nicht gerechnet haben.", "r": "rp_prep", "b": "konkretes Bezugswort + Präposition", "c": "Bei einem konkreten Nomen steht Präposition + Pronomen. womit gilt nur für den Bezug auf einen ganzen Satz.", "f": "Das ist ein Problem, <b>mit dem</b> wir nicht gerechnet haben.", "en": "That's a problem we hadn't reckoned with.", "t": 1}, {"s": "Das ist die Stadt, ___", "o": ["in die ich nächsten Monat ziehe.", "in der ich nächsten Monat ziehe.", "wo ich nächsten Monat ziehe."], "a": "in die ich nächsten Monat ziehe.", "r": "rp_wechsel", "b": "Wechselpräposition mit Ziel", "c": "ziehen = Bewegung mit Ziel → wohin? → Akkusativ die.", "f": "Das ist die Stadt, <b>in die</b> ich nächsten Monat ziehe.", "en": "That's the city I'm moving to next month.", "t": 1}, {"s": "Er hat mir nicht geantwortet, ___", "o": ["was mich sehr geärgert hat.", "das mich sehr geärgert hat.", "dass mich sehr geärgert hat."], "a": "was mich sehr geärgert hat.", "r": "rp_was_satz", "b": "Bezug auf die ganze Aussage", "c": "Der Relativsatz kommentiert den ganzen Satz → Komma + was. dass leitet keinen Relativsatz ein.", "f": "Er hat mir nicht geantwortet, <b>was</b> mich sehr geärgert hat.", "en": "He didn't answer me, which annoyed me a lot.", "t": 1}, {"s": "Sag mir alles, ___", "o": ["was du weißt.", "das du weißt.", "was du weiß."], "a": "was du weißt.", "r": "rp_was_indef", "b": "alles + was, Verb am Ende", "c": "Nach alles steht was; das Verb kongruiert mit du → weißt.", "f": "Sag mir alles, <b>was</b> du weißt.", "en": "Tell me everything you know.", "t": 0}, {"s": "___, muss sich in diese Liste eintragen.", "o": ["Wer am Betriebsausflug teilnehmen will", "Wer will am Betriebsausflug teilnehmen", "Wen am Betriebsausflug teilnehmen will"], "a": "Wer am Betriebsausflug teilnehmen will", "r": "rp_wer", "b": "wer-Satz vor dem Hauptsatz", "c": "Die Person ist Subjekt → wer. Auch hier ist es ein Nebensatz: das Verb steht am Ende.", "f": "<b>Wer</b> am Betriebsausflug teilnehmen <b>will</b>, muss sich in diese Liste eintragen.", "en": "Whoever wants to join the company outing has to sign this list.", "t": 1}, {"s": "___, kann sich an die Gewerkschaft wenden.", "o": ["Wer unter zu hoher Arbeitsbelastung leidet", "Wem unter zu hoher Arbeitsbelastung leidet", "Wer leidet unter zu hoher Arbeitsbelastung"], "a": "Wer unter zu hoher Arbeitsbelastung leidet", "r": "rp_wer", "b": "wer + Verb am Ende", "c": "leiden ist kein Dativverb — die Person ist Subjekt → wer.", "f": "<b>Wer</b> unter zu hoher Arbeitsbelastung leidet, kann sich an die Gewerkschaft wenden.", "en": "Anyone suffering from too heavy a workload can turn to the union.", "t": 0}, {"s": "Das ist das Beste, ___", "o": ["was mir passieren konnte.", "das mir passieren konnte.", "wo mir passieren konnte."], "a": "was mir passieren konnte.", "r": "rp_was_super", "b": "nominalisierter Superlativ", "c": "Nach das Beste / das Schönste / das Einzige steht was.", "f": "Das ist das Beste, <b>was</b> mir passieren konnte.", "en": "That's the best thing that could have happened to me.", "t": 0}, {"s": "Ich kenne jemanden, ___", "o": ["der dir helfen kann.", "was dir helfen kann.", "den dir helfen kann."], "a": "der dir helfen kann.", "r": "rp_person_indef", "b": "jemand = Person", "c": "Bei Personen nie was. Die Person ist Subjekt → der.", "f": "Ich kenne jemanden, <b>der</b> dir helfen kann.", "en": "I know someone who can help you.", "t": 1}, {"s": "Welcher Satz ist richtig?", "o": ["Er kam zu spät, was niemanden überraschte.", "Er kam zu spät, das niemanden überraschte.", "Er kam zu spät was niemanden überraschte."], "a": "Er kam zu spät, was niemanden überraschte.", "r": "rp_was_satz", "b": "Satzbezug + Komma", "c": "Satzbezug verlangt was, und vor dem Relativsatz steht ein Komma.", "f": "Er kam zu spät<b>, was</b> niemanden überraschte.", "en": "He arrived late, which surprised nobody.", "t": 0}, {"s": "Die Preise steigen immer weiter, ___", "o": ["worüber sich alle beschweren.", "über was sich alle beschweren.", "darüber sich alle beschweren."], "a": "worüber sich alle beschweren.", "r": "rp_wo_r", "b": "Satzbezug + Verb mit Präposition", "c": "sich beschweren über + Satzbezug → worüber. darüber leitet keinen Nebensatz ein.", "f": "Die Preise steigen immer weiter, <b>worüber</b> sich alle beschweren.", "en": "Prices keep rising, which everyone is complaining about.", "t": 1}, {"s": "Ich komme aus Hamburg, ___", "o": ["wo es oft regnet.", "in dem es oft regnet.", "das es oft regnet."], "a": "wo es oft regnet.", "r": "rp_wo_ort", "b": "Städtename", "c": "Nach Städte- und Ländernamen ist nur wo/wohin/woher möglich.", "f": "Ich komme aus Hamburg, <b>wo</b> es oft regnet.", "en": "I'm from Hamburg, where it often rains.", "t": 1}, {"s": "Im Sommer fahre ich nach München, ___", "o": ["wohin auch meine Schwester zieht.", "wo auch meine Schwester zieht.", "in das auch meine Schwester zieht."], "a": "wohin auch meine Schwester zieht.", "r": "rp_wo_ort", "b": "Städtename + Ziel", "c": "ziehen = Bewegung mit Ziel → wohin.", "f": "Im Sommer fahre ich nach München, <b>wohin</b> auch meine Schwester zieht.", "en": "In summer I'm going to Munich, where my sister is also moving to.", "t": 1}, {"s": "Die Firma hat 200 Stellen gestrichen, ___", "o": ["wogegen die Belegschaft protestiert hat.", "gegen was die Belegschaft protestiert hat.", "dagegen die Belegschaft protestiert hat."], "a": "wogegen die Belegschaft protestiert hat.", "r": "rp_wo_r", "b": "Satzbezug + protestieren gegen", "c": "wo + gegen = wogegen (kein -r-, weil gegen mit Konsonant beginnt).", "f": "Die Firma hat 200 Stellen gestrichen, <b>wogegen</b> die Belegschaft protestiert hat.", "en": "The company cut 200 jobs, against which the staff protested.", "t": 0}, {"s": "Er hat die Stelle bekommen, ___", "o": ["worauf er lange gehofft hatte.", "auf was er lange gehofft hatte.", "worüber er lange gehofft hatte."], "a": "worauf er lange gehofft hatte.", "r": "rp_wo_r", "b": "Satzbezug + hoffen auf", "c": "hoffen AUF → wo + r + auf = worauf. Die Präposition kommt vom Verb.", "f": "Er hat die Stelle bekommen, <b>worauf</b> er lange gehofft hatte.", "en": "He got the job, which he had hoped for for a long time.", "t": 1}, {"s": "Welche Variante vermeidet die Häufung von »der«?", "o": ["Der Mann, welcher der Frau geholfen hat, …", "Der Mann, der der Frau geholfen hat, …", "Der Mann, dessen der Frau geholfen hat, …"], "a": "Der Mann, welcher der Frau geholfen hat, …", "r": "rp_welch", "b": "Stil, nicht Grammatik", "c": "Beide ersten Varianten sind korrekt, aber welcher vermeidet das doppelte der. Es klingt förmlich und gehört in die Schriftsprache.", "f": "Der Mann, <b>welcher</b> der Frau geholfen hat, …", "en": "Which version avoids the pile-up of 'der'?", "t": 0}, {"s": "die steigenden Temperaturen = ___", "o": ["die Temperaturen, die steigen", "die Temperaturen, die gestiegen sind", "die Temperaturen, die gestiegen werden"], "a": "die Temperaturen, die steigen", "r": "rp_partizip1", "b": "Partizip I → aktiv, laufend", "c": "Partizip I (steigend) heißt: die Handlung läuft gerade. Also Präsens aktiv.", "f": "die steigenden Temperaturen = die Temperaturen, <b>die steigen</b>", "en": "rising temperatures = temperatures that are rising", "t": 0}, {"s": "das verschmutzte Grundwasser = ___", "o": ["das Grundwasser, das verschmutzt wurde", "das Grundwasser, das verschmutzt hat", "das Grundwasser, das verschmutzt"], "a": "das Grundwasser, das verschmutzt wurde", "r": "rp_partizip2", "b": "Partizip II → passiv, abgeschlossen", "c": "Bei einem transitiven Verb bedeutet das Partizip II als Attribut Passiv: Jemand hat es verschmutzt.", "f": "das verschmutzte Grundwasser = das Grundwasser, <b>das verschmutzt wurde</b>", "en": "the polluted groundwater = the groundwater that was polluted", "t": 1}, {"s": "die gestiegenen Temperaturen = ___", "o": ["die Temperaturen, die gestiegen sind", "die Temperaturen, die gestiegen wurden", "die Temperaturen, die steigen"], "a": "die Temperaturen, die gestiegen sind", "r": "rp_partizip2", "b": "Partizip II eines intransitiven Verbs", "c": "steigen ist intransitiv — kein Passiv. Das Partizip II heißt hier: abgeschlossen (Perfekt mit sein).", "f": "die gestiegenen Temperaturen = die Temperaturen, <b>die gestiegen sind</b>", "en": "the risen temperatures = the temperatures that have risen", "t": 1}, {"s": "Lärm, der den Schlaf stört = ___", "o": ["den Schlaf störender Lärm", "den Schlaf gestörter Lärm", "der Schlaf störende Lärm"], "a": "den Schlaf störender Lärm", "r": "rp_partizip1", "b": "Relativsatz → erweitertes Partizip I", "c": "Alles, was im Relativsatz vor dem Verb steht, wandert vor das Partizip: den Schlaf + störend + Endung.", "f": "Lärm, der den Schlaf stört = <b>den Schlaf störender</b> Lärm", "en": "noise that disturbs sleep = sleep-disturbing noise", "t": 1}, {"s": "Arbeitsräume, die umgestaltet wurden = ___", "o": ["umgestaltete Arbeitsräume", "umgestaltende Arbeitsräume", "umzugestaltende Arbeitsräume"], "a": "umgestaltete Arbeitsräume", "r": "rp_partizip2", "b": "Passiv → Partizip II", "c": "wurden umgestaltet = Passiv, abgeschlossen → Partizip II mit Adjektivendung.", "f": "Arbeitsräume, die umgestaltet wurden = <b>umgestaltete</b> Arbeitsräume", "en": "workspaces that were redesigned = redesigned workspaces", "t": 0}, {"s": "Filme, die die Jugend gefährden = ___", "o": ["die Jugend gefährdende Filme", "die Jugend gefährdete Filme", "die Jugend zu gefährdende Filme"], "a": "die Jugend gefährdende Filme", "r": "rp_partizip1", "b": "aktiver Relativsatz → Partizip I", "c": "Die Filme tun es selbst → aktiv → Partizip I (gefährdend) mit Adjektivendung.", "f": "Filme, die die Jugend gefährden = <b>die Jugend gefährdende</b> Filme", "en": "films that endanger young people = youth-endangering films", "t": 0}, {"s": "Veränderungen, die plötzlich eintreten = ___", "o": ["plötzlich eintretende Veränderungen", "plötzlich eingetretene Veränderungen", "plötzlich einzutretende Veränderungen"], "a": "plötzlich eintretende Veränderungen", "r": "rp_partizip1", "b": "aktiv, gleichzeitig → Partizip I", "c": "Partizip I = die Handlung läuft. Wäre sie abgeschlossen, hieße es eingetretene Veränderungen.", "f": "Veränderungen, die plötzlich eintreten = <b>plötzlich eintretende</b> Veränderungen", "en": "changes that occur suddenly = suddenly occurring changes", "t": 0}, {"s": "das Grundwasser, das durch Chemikalien verschmutzt wurde = ___", "o": ["das durch Chemikalien verschmutzte Grundwasser", "das durch Chemikalien verschmutzende Grundwasser", "das Grundwasser durch Chemikalien verschmutzte"], "a": "das durch Chemikalien verschmutzte Grundwasser", "r": "rp_partizip2", "b": "erweitertes Partizip II", "c": "Artikel + alle Zusätze + Partizip + Nomen. Diese Konstruktion ist typische Schriftsprache.", "f": "= <b>das durch Chemikalien verschmutzte</b> Grundwasser", "en": "groundwater that was polluted by chemicals = the chemically polluted groundwater", "t": 1}, {"s": "Welches Verb bildet KEIN Partizip II als Attribut?", "o": ["schlafen (das geschlafene Kind ✗)", "reparieren (das reparierte Auto ✓)", "kochen (das gekochte Ei ✓)"], "a": "schlafen (das geschlafene Kind ✗)", "r": "rp_partizip2", "b": "intransitive Verben", "c": "haben, sein und intransitive Verben wie antworten, arbeiten, danken, drohen, gefallen, schaden, schlafen, sitzen, stehen bilden kein Partizip-II-Attribut.", "f": "Richtig wäre: <b>das schlafende Kind</b> (Partizip I).", "en": "Which verb forms no participle II attribute?", "t": 1}];
+
+/* ============ PROGRESS STORE ============ */
+/* One localStorage key. NEVER rename it — that would wipe the learner's history. */
+var LS_KEY="de_relativ_trainer_v1";
+var DB={v:1,stats:{},ses1:null,ses2:null,round:25,ruleStep:1};
+(function(){
+  try{var raw=localStorage.getItem(LS_KEY);
+    if(raw){var o=JSON.parse(raw);
+      if(o&&typeof o==="object"&&o.stats){
+        DB.stats=o.stats||{};DB.ses1=o.ses1||null;DB.ses2=o.ses2||null;
+        if(typeof o.round==="number")DB.round=o.round;
+        if(typeof o.ruleStep==="number")DB.ruleStep=o.ruleStep;
+      }}
+  }catch(e){}
+})();
+function dbSave(){try{localStorage.setItem(LS_KEY,JSON.stringify(DB));}catch(e){}}
+function box(key){var st=DB.stats[key];return st&&typeof st.b==="number"?st.b:-1;}
+function mark(key,ok){
+  var st=DB.stats[key]||(DB.stats[key]={s:0,c:0,f:0,b:-1});
+  st.s++;if(ok){st.c++;st.b=Math.min(5,(st.b<0?0:st.b)+1);}else{st.f++;st.b=0;}
+  dbSave();
+}
+var PRIO=[0,1.6,2.6,4.0,5.5,7.0];
+function prio(b){return b<0?1.0:(PRIO[b]!==undefined?PRIO[b]:7.0);}
+function draw(items,keyOf,n){
+  var scored=items.map(function(it){return {it:it,k:prio(box(keyOf(it)))+Math.random()*1.2};});
+  scored.sort(function(a,b){return a.k-b.k;});
+  var take=(n>0?scored.slice(0,Math.min(n,scored.length)):scored).map(function(o){return o.it;});
+  return shuffle(take);
+}
+function $(s){return document.querySelector(s);}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function k1(it){return "q1_"+Q1.indexOf(it);}
+function k2(it){return "q2_"+Q2.indexOf(it);}
+function gap(s,fill){return s.replace("___",'<span class="blank">'+fill+'</span>');}
+
+/* ============ TABS ============ */
+var tabs=[].slice.call(document.querySelectorAll(".tab"));
+tabs.forEach(function(t){t.addEventListener("click",function(){
+  tabs.forEach(function(x){x.setAttribute("aria-selected",String(x===t));});
+  ["method","l1","l2","ref"].forEach(function(v){$("#view-"+v).hidden=(v!==t.dataset.view);});
+  window.scrollTo({top:0,behavior:"auto"});
+});});
+
+/* ============ LEVEL 1 — Pronomen ============ */
+var filter="alle", ruleStep=DB.ruleStep!==0;
+var deck=[],pos=0,picked=null,rulePicked=null,curOpts=null,requeued={};
+var st={a:0,af:0,r:0,rf:0,streak:0,best:0};
+function pool(){
+  return Q1.filter(function(x){
+    if(filter==="alle")return true;
+    if(filter==="fallen")return x.t===1;
+    return RL[x.r].k===filter;
+  });
+}
+function ses1Save(){DB.ses1={f:filter,l:deck.map(function(d){return Q1.indexOf(d);}),p:pos,st:st};dbSave();}
+function ses1Load(){
+  var sv=DB.ses1;if(!sv||sv.f!==filter||!sv.l||!sv.l.length)return false;
+  var list=sv.l.map(function(i){return Q1[i];}).filter(Boolean);var p=sv.p|0;
+  if(!list.length||p>=list.length)return false;
+  deck=list;pos=p;st=sv.st||st;return true;
+}
+function build(fresh){
+  picked=null;rulePicked=null;curOpts=null;requeued={};
+  if(fresh||!ses1Load()){deck=draw(pool(),k1,DB.round);pos=0;st={a:0,af:0,r:0,rf:0,streak:0,best:0};}
+  ses1Save();render1();
+}
+function ruleOpts(item){
+  var cid=item.r,all=Object.keys(RL).filter(function(k){return k!==cid;});
+  var same=shuffle(all.filter(function(k){return RL[k].k===RL[cid].k;}));
+  var other=shuffle(all.filter(function(k){return same.indexOf(k)<0;}));
+  var picks=same.slice(0,2);
+  for(var i=0;i<other.length&&picks.length<3;i++)picks.push(other[i]);
+  return shuffle(picks.concat([cid]));
+}
+function fbBlock(it,ok,rule,rows){
+  var h='<div class="fb '+(ok?"right":"wrong")+'">'+
+    '<div class="verdict"><span>'+(ok?"✓ Richtig":"✗ Falsch")+' — '+it.a+'</span><span class="rulename">'+rule.l+'</span></div><dl>';
+  for(var i=0;i<rows.length;i++)h+='<dt>'+rows[i][0]+'</dt><dd>'+rows[i][1]+'</dd>';
+  h+='</dl><div class="sib">Gleiche Regel · same rule: '+rule.ex.map(function(e){return "<b>"+e+"</b>";}).join(" · ")+'</div>'+
+     (rule.warn?'<div class="warn">'+rule.warn+'</div>':'')+'</div>';
+  return h;
+}
+function render1(){
+  var host=$("#l1stage");
+  if(pos>=deck.length){
+    host.innerHTML='<div class="stage"><div class="done"><div class="big">'+st.a+' / '+(st.a+st.af)+'</div>'+
+      '<p style="color:var(--muted);margin:6px 0 0">Runde beendet · round complete. Längste Serie: <b style="color:var(--head)">'+st.best+'</b>.<br>'+
+      'Der Fortschritt ist gespeichert — „Neue Runde" zieht neue Sätze, die falschen zuerst.</p></div></div>';
+    $("#m1").style.width="100%";up1();return;
+  }
+  var it=deck[pos],rule=RL[it.r],bx=box(k1(it));
+  var badge=bx<0?"neu · new":(bx>=3?"sicher · Box "+bx+"/5":"Box "+bx+"/5");
+  var h='<div class="stage"><span class="tag">Relativsatz · relative clause</span>'+
+        '<span class="idx">'+(pos+1)+' / '+deck.length+'<span class="badge">'+badge+'</span></span>'+
+        '<div class="sentence de">'+gap(it.s,picked?it.a:"&nbsp;&nbsp;&nbsp;")+
+        '<span class="cue">'+it.en+'</span></div></div>'+
+        '<div class="choices'+(it.o.length===4?" quad":"")+'">'+it.o.map(function(o){
+          var cls="opt";
+          if(picked){if(o===it.a)cls+=" hit";else if(o===picked)cls+=" miss";else cls+=" dim";}
+          return '<button class="opt-a '+cls+'" data-o="'+o+'"'+(picked?" disabled":"")+'>'+o+'</button>';
+        }).join("")+'</div>';
+  if(picked){
+    h+=fbBlock(it,picked===it.a,rule,[
+      ["Regel",rule.sig+" "+rule.req],
+      ["Bezugswort",it.b],
+      ["Kasus",it.c],
+      ["Form",it.f],
+      ["Satz",'<span class="full">'+gap(it.s,"<b>"+it.a+"</b>")+'</span>']
+    ]);
+    if(ruleStep){
+      if(!curOpts)curOpts=ruleOpts(it);
+      h+='<div class="ask"><b>Welche Regel entscheidet hier?</b> · which rule decides this one?</div>'+
+         '<div class="choices one">'+curOpts.map(function(id){
+           var cls="opt small";
+           if(rulePicked){if(id===it.r)cls+=" hit";else if(id===rulePicked)cls+=" miss";else cls+=" dim";}
+           return '<button class="opt-r '+cls+'" data-r="'+id+'"'+(rulePicked?" disabled":"")+'>'+RL[id].l+'</button>';
+         }).join("")+'</div>';
+    }
+  }
+  host.innerHTML=h;
+  $("#m1").style.width=(pos/deck.length*100)+"%";
+  [].slice.call(host.querySelectorAll(".opt-a")).forEach(function(b){
+    b.addEventListener("click",function(){answer1(b.dataset.o);});});
+  [].slice.call(host.querySelectorAll(".opt-r")).forEach(function(b){
+    b.addEventListener("click",function(){
+      if(rulePicked)return;rulePicked=b.dataset.r;
+      if(rulePicked===deck[pos].r)st.r++;else st.rf++;
+      ses1Save();render1();});});
+  up1();
+}
+function answer1(o){
+  if(picked)return;
+  var it=deck[pos];picked=o;curOpts=null;
+  var ok=(o===it.a);
+  if(o!=="__skip__")mark(k1(it),ok);
+  if(ok){st.a++;st.streak++;if(st.streak>st.best)st.best=st.streak;}
+  else{st.af++;st.streak=0;var key=k1(it);if(!requeued[key]){requeued[key]=1;deck.push(it);}}
+  ses1Save();render1();
+}
+function next1(){
+  if(pos>=deck.length)return;
+  if(!picked){answer1("__skip__");return;}
+  pos++;picked=null;rulePicked=null;curOpts=null;ses1Save();render1();
+}
+function up1(){
+  $("#s1").innerHTML='Pronomen <b class="r">'+st.a+'</b>/<b class="f">'+st.af+'</b>'+
+    (ruleStep?' · Regel <b class="r">'+st.r+'</b>/<b class="f">'+st.rf+'</b>':'')+' · Serie <b>'+st.streak+'</b>';
+  var seen=0,mast=0;
+  for(var i=0;i<Q1.length;i++){var b=box("q1_"+i);if(b>=0)seen++;if(b>=3)mast++;}
+  $("#p1text").innerHTML='Fortschritt · progress: <b>'+seen+'</b> / '+Q1.length+' Sätze geübt · <b>'+mast+'</b> sicher';
+  $("#fcount").textContent="TELC B2/C1 · Relativsätze · "+Q1.length+" Sätze · "+Q2.length+" Aufgaben";
+}
+[].slice.call(document.querySelectorAll(".chip[data-f]")).forEach(function(ch){
+  ch.addEventListener("click",function(){
+    document.querySelectorAll(".chip[data-f]").forEach(function(x){x.setAttribute("aria-pressed",String(x===ch));});
+    filter=ch.dataset.f;build(true);});});
+$("#ruleToggle").addEventListener("click",function(){
+  ruleStep=!ruleStep;DB.ruleStep=ruleStep?1:0;dbSave();
+  this.setAttribute("aria-pressed",String(ruleStep));render1();});
+$("#roundSize").value=String(DB.round);
+$("#roundSize").addEventListener("change",function(){DB.round=parseInt(this.value,10)||0;dbSave();build(true);});
+$("#next1").addEventListener("click",next1);
+$("#shuf1").addEventListener("click",function(){
+  deck=deck.slice(0,pos).concat(shuffle(deck.slice(pos)));
+  picked=null;rulePicked=null;curOpts=null;ses1Save();render1();});
+$("#res1").addEventListener("click",function(){build(true);});
+(function(){
+  var btn=$("#wipe1"),armed=false,t=null,label=btn.textContent;
+  btn.addEventListener("click",function(){
+    if(!armed){armed=true;btn.textContent="Wirklich löschen?";btn.setAttribute("aria-pressed","true");
+      t=setTimeout(function(){armed=false;btn.textContent=label;btn.setAttribute("aria-pressed","false");},4000);return;}
+    clearTimeout(t);armed=false;btn.textContent=label;btn.setAttribute("aria-pressed","false");
+    DB.stats={};DB.ses1=null;DB.ses2=null;dbSave();build(true);build2(true);});
+})();
+
+/* ============ LEVEL 2 — Sätze bauen ============ */
+var d2=[],p2=0,pick2=null,opts2=null,s2={a:0,f:0,streak:0,best:0};
+function ses2Save(){DB.ses2={l:d2.map(function(x){return Q2.indexOf(x);}),p:p2,st:s2};dbSave();}
+function ses2Load(){
+  var sv=DB.ses2;if(!sv||!sv.l||!sv.l.length)return false;
+  var list=sv.l.map(function(i){return Q2[i];}).filter(Boolean);var p=sv.p|0;
+  if(!list.length||p>=list.length)return false;
+  d2=list;p2=p;s2=sv.st||s2;return true;
+}
+function build2(fresh){
+  pick2=null;opts2=null;
+  if(fresh||!ses2Load()){d2=draw(Q2.slice(),k2,DB.round);p2=0;s2={a:0,f:0,streak:0,best:0};}
+  ses2Save();render2();
+}
+function render2(){
+  var host=$("#l2stage");
+  if(p2>=d2.length){
+    host.innerHTML='<div class="stage"><div class="done"><div class="big">'+s2.a+' / '+(s2.a+s2.f)+'</div>'+
+      '<p style="color:var(--muted);margin:6px 0 0">Runde beendet · round complete. Längste Serie: <b style="color:var(--head)">'+s2.best+'</b>.</p></div></div>';
+    $("#m2").style.width="100%";up2();return;
+  }
+  var it=d2[p2],rule=RL[it.r],bx=box(k2(it));
+  var badge=bx<0?"neu · new":(bx>=3?"sicher · Box "+bx+"/5":"Box "+bx+"/5");
+  if(!opts2)opts2=shuffle(it.o.slice());
+  var body=it.s.indexOf("___")>=0?gap(it.s,pick2?it.a:"&nbsp;&nbsp;&nbsp;"):it.s;
+  var h='<div class="stage"><span class="tag">Satzbau · sentence building</span>'+
+        '<span class="idx">'+(p2+1)+' / '+d2.length+'<span class="badge">'+badge+'</span></span>'+
+        '<div class="sentence de">'+body+'<span class="cue">'+it.en+'</span></div></div>'+
+        '<div class="choices one">'+opts2.map(function(o){
+          var cls="opt clause";
+          if(pick2){if(o===it.a)cls+=" hit";else if(o===pick2)cls+=" miss";else cls+=" dim";}
+          return '<button class="opt-2 '+cls+'" data-o="'+o.replace(/"/g,"&quot;")+'"'+(pick2?" disabled":"")+'>'+o+'</button>';
+        }).join("")+'</div>';
+  if(pick2){
+    h+=fbBlock(it,pick2===it.a,rule,[
+      ["Regel",rule.sig+" "+rule.req],
+      ["Struktur",it.b],
+      ["Achtung",it.c],
+      ["Richtig",'<span class="full">'+it.f+'</span><div class="trans">'+it.en+'</div>']
+    ]);
+  }
+  host.innerHTML=h;
+  $("#m2").style.width=(p2/d2.length*100)+"%";
+  [].slice.call(host.querySelectorAll(".opt-2")).forEach(function(b){
+    b.addEventListener("click",function(){
+      if(pick2)return;pick2=b.dataset.o;
+      var good=(pick2===it.a);
+      mark(k2(it),good);
+      if(good){s2.a++;s2.streak++;if(s2.streak>s2.best)s2.best=s2.streak;}
+      else{s2.f++;s2.streak=0;if(d2.indexOf(it)===p2&&d2.lastIndexOf(it)===p2)d2.push(it);}
+      ses2Save();render2();});});
+  up2();
+}
+function up2(){
+  $("#s2").innerHTML='Richtig <b class="r">'+s2.a+'</b> · Falsch <b class="f">'+s2.f+'</b> · Serie <b>'+s2.streak+'</b>';
+  var seen=0,mast=0;
+  for(var i=0;i<Q2.length;i++){var b=box("q2_"+i);if(b>=0)seen++;if(b>=3)mast++;}
+  $("#p2text").innerHTML='Fortschritt · progress: <b>'+seen+'</b> / '+Q2.length+' Aufgaben geübt · <b>'+mast+'</b> sicher';
+}
+$("#next2").addEventListener("click",function(){
+  if(p2>=d2.length)return;p2++;pick2=null;opts2=null;ses2Save();render2();});
+$("#shuf2").addEventListener("click",function(){
+  d2=d2.slice(0,p2).concat(shuffle(d2.slice(p2)));pick2=null;opts2=null;ses2Save();render2();});
+$("#res2").addEventListener("click",function(){build2(true);});
+
+/* ============ REFERENZ-TABELLE ============ */
+(function(){
+  var order={kasus:0,genitiv:1,praep:2,waswer:3,wo:4,bau:5,partizip:6};
+  var ids=Object.keys(RL).sort(function(a,b){
+    var d=order[RL[a].k]-order[RL[b].k];if(d)return d;
+    return RL[a].l.localeCompare(RL[b].l,"de");});
+  $("#reftable").querySelector("tbody").innerHTML=ids.map(function(id){
+    var r=RL[id];
+    return '<tr><td><b class="de">'+r.l+'</b></td>'+
+      '<td>'+r.sig+' '+r.req+(r.warn?'<div style="color:#8a6a12;margin-top:5px">'+r.warn+'</div>':'')+'</td>'+
+      '<td class="de">'+r.ex.join('<br>')+'</td></tr>';}).join("");
+})();
+
+/* ============ TASTATUR ============ */
+document.addEventListener("keydown",function(e){
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;
+  var v=tabs.filter(function(t){return t.getAttribute("aria-selected")==="true";})[0].dataset.view;
+  if(v==="l1"){
+    if(/^[1-4]$/.test(e.key)){var bs=document.querySelectorAll("#l1stage .opt-a");
+      if(bs[+e.key-1]){e.preventDefault();bs[+e.key-1].click();}}
+    else if(e.key==="Enter"){e.preventDefault();next1();}
+    else if(e.key==="s"||e.key==="S"){$("#shuf1").click();}
+  }else if(v==="l2"){
+    if(/^[1-3]$/.test(e.key)){var b2=document.querySelectorAll("#l2stage .opt-2");
+      if(b2[+e.key-1]){e.preventDefault();b2[+e.key-1].click();}}
+    else if(e.key==="Enter"){e.preventDefault();$("#next2").click();}
+    else if(e.key==="s"||e.key==="S"){$("#shuf2").click();}
+  }
+});
+build(false);build2(false);
+
+})();
+</script>
+</body>
+</html>

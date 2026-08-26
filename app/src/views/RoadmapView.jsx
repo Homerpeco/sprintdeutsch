@@ -28,21 +28,24 @@ export function RoadmapView({ state, setState, view, setView, verbs }) {
       <div className="px-4 sm:px-6 pt-4 sm:pt-6 max-w-4xl mx-auto flex flex-wrap items-center gap-2">
         <Pill variant="light" active={tab === "roadmap"} onClick={() => setView({ section: "roadmap", tab: "roadmap" })}>Roadmap</Pill>
         <Pill variant="light" active={tab === "nomen"}   onClick={() => setView({ section: "roadmap", tab: "nomen" })}>Nomen und Artikel</Pill>
+        <Pill variant="light" active={tab === "relativ"} onClick={() => setView({ section: "roadmap", tab: "relativ" })}>Relativsätze</Pill>
       </div>
 
-      {tab === "nomen"
-        ? <GenusTrainerTab />
-        : <RoadmapBody state={state} setState={setState} setView={setView} verbs={verbs} />}
+      {tab === "nomen"   ? <TrainerFrame src="/genus-trainer.html"   title="Nomen und Artikel — Genus-Trainer" /> :
+       tab === "relativ" ? <TrainerFrame src="/relativ-trainer.html" title="Relativsätze — Trainer" /> :
+       <RoadmapBody state={state} setState={setState} setView={setView} verbs={verbs} />}
     </div>
   );
 }
 
-function GenusTrainerTab() {
+// Self-contained grammar trainers served from public/*.html (same pattern as the
+// Verb Meister App). Each keeps its own progress in the visitor's localStorage.
+function TrainerFrame({ src, title }) {
   return (
     <div className="mt-4">
       <iframe
-        src="/genus-trainer.html"
-        title="Nomen und Artikel — Genus-Trainer"
+        src={src}
+        title={title}
         className="w-full block"
         style={{ border: "none", height: "calc(100vh - 130px)", minHeight: "520px", display: "block" }}
       />
