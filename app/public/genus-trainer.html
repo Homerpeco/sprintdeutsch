@@ -121,6 +121,14 @@ td .de{font-size:.98rem}
 .chip[aria-pressed="true"]{background:var(--cream);color:var(--head);border-color:var(--cream);font-weight:700;
   box-shadow:0 1px 4px rgba(0,0,0,.18)}
 .spacer{flex:1}
+.progrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 10px;font-size:.84rem}
+.ptext{color:var(--muted)}
+.ptext b{color:var(--head);font-weight:700}
+.rsel{color:var(--muted);display:flex;align-items:center;gap:6px}
+.rsel select{font:inherit;font-size:.82rem;color:#334155;background:#fff;border:1px solid var(--line);
+  border-radius:999px;padding:4px 10px;cursor:pointer}
+.badge{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);
+  background:var(--bg2);border-radius:999px;padding:2px 8px;margin-left:8px}
 .meter{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:0 0 22px}
 .meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
 .stage{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
@@ -308,6 +316,18 @@ footer b{color:var(--head)}
     <span class="spacer"></span>
     <button class="chip" id="ruleToggle" aria-pressed="true">Regelfrage · rule step</button>
   </div>
+  <div class="progrow">
+    <span id="p1text" class="ptext"></span>
+    <span class="spacer"></span>
+    <label class="rsel">Runde · round
+      <select id="roundSize">
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="0">alle</option>
+      </select>
+    </label>
+    <button class="chip" id="wipe1">Fortschritt löschen</button>
+  </div>
   <div class="meter"><i id="m1"></i></div>
   <div id="l1stage"></div>
   <div class="navrow">
@@ -315,12 +335,13 @@ footer b{color:var(--head)}
     <span class="score" id="s1"></span>
     <span class="spacer"></span>
     <button class="btn" id="shuf1">Mischen ⇄</button>
-    <button class="btn" id="res1">Zurücksetzen</button>
+    <button class="btn" id="res1">Neue Runde ↻</button>
   </div>
 </section>
 <section id="view-l2" hidden>
   <h2 class="sec">Level 2 — Artikelwort + Adjektivendung</h2>
   <p class="lede">This is where a gender error actually costs you points in the exam: the gender picks the case form, the article word decides whether the adjective is weak, mixed or strong. Watch the <span class="de">alle / viele</span> pair — same slot, different ending, because of what stands in front.</p>
+  <div class="progrow"><span id="p2text" class="ptext"></span></div>
   <div class="meter"><i id="m2"></i></div>
   <div id="l2stage"></div>
   <div class="navrow">
@@ -328,7 +349,7 @@ footer b{color:var(--head)}
     <span class="score" id="s2"></span>
     <span class="spacer"></span>
     <button class="btn" id="shuf2">Mischen ⇄</button>
-    <button class="btn" id="res2">Zurücksetzen</button>
+    <button class="btn" id="res2">Neue Runde ↻</button>
   </div>
 </section>
 <section id="view-ref" hidden>
@@ -362,7 +383,7 @@ footer b{color:var(--head)}
   </table></div>
 </section>
 <footer>
-  <span>Tastatur: <b>1 · 2 · 3</b> Artikel wählen · <b>Enter</b> weiter · <b>S</b> mischen</span>
+  <span>Tastatur: <b>1 · 2 · 3</b> Artikel wählen · <b>Enter</b> weiter · <b>S</b> mischen · Fortschritt wird im Browser gespeichert</span>
   <span id="fcount">TELC B2 · Genus</span>
 </footer>
 </div>
@@ -811,10 +832,48 @@ tabs.forEach(function(t){t.addEventListener("click",function(){
   ["method","l1","l2","ref"].forEach(function(v){$("#view-"+v).hidden=(v!==t.dataset.view);});
   window.scrollTo({top:0,behavior:"auto"});
 });});
+/* ============ PROGRESS STORE ============ */
+/* Everything the trainer remembers lives under ONE localStorage key.
+   NEVER rename it — that would wipe the learner's history.
+   stats[word] = {s:seen, c:correct, f:wrong, b:box 0-5 (-1 = never seen)}
+   ses1/ses2   = the round in progress, so closing the tab resumes, not restarts. */
+var LS_KEY="de_genus_trainer_v1";
+var DB={v:1,stats:{},ses1:null,ses2:null,round:25,ruleStep:1};
+(function(){
+  try{
+    var raw=localStorage.getItem(LS_KEY);
+    if(raw){var o=JSON.parse(raw);
+      if(o&&typeof o==="object"&&o.stats){
+        DB.stats=o.stats||{};DB.ses1=o.ses1||null;DB.ses2=o.ses2||null;
+        if(typeof o.round==="number")DB.round=o.round;
+        if(typeof o.ruleStep==="number")DB.ruleStep=o.ruleStep;
+      }}
+  }catch(e){/* private mode / storage off — the trainer still works, it just forgets */}
+})();
+function dbSave(){try{localStorage.setItem(LS_KEY,JSON.stringify(DB));}catch(e){}}
+function box(key){var st=DB.stats[key];return st&&typeof st.b==="number"?st.b:-1;}
+function mark(key,ok){
+  var st=DB.stats[key]||(DB.stats[key]={s:0,c:0,f:0,b:-1});
+  st.s++;
+  if(ok){st.c++;st.b=Math.min(5,(st.b<0?0:st.b)+1);}else{st.f++;st.b=0;}
+  dbSave();
+}
+/* weighted draw: never-seen and weak words first, mastered ones rarely,
+   with enough random jitter that no two rounds look the same */
+var PRIO=[0,1.6,2.6,4.0,5.5,7.0];          /* by box: 0 = missed last time -> comes back first */
+function prio(b){return b<0?1.0:(PRIO[b]!==undefined?PRIO[b]:7.0);}   /* -1 = never seen */
+function draw(items,keyOf,n){
+  var scored=items.map(function(it){return {it:it,k:prio(box(keyOf(it)))+Math.random()*1.2};});
+  scored.sort(function(a,b){return a.k-b.k;});
+  var take=(n>0?scored.slice(0,Math.min(n,scored.length)):scored).map(function(o){return o.it;});
+  return shuffle(take);
+}
+
 /* ============ LEVEL 1 ============ */
-var filter="alle", ruleStep=true;
-var deck=[], pos=0, phase="ask", picked=null, rulePicked=null, requeued={};
+var filter="alle", ruleStep=DB.ruleStep!==0;
+var deck=[], pos=0, picked=null, rulePicked=null, requeued={};
 var st={a:0,af:0,r:0,rf:0,streak:0,best:0};
+var curOpts=null;
 function pool(){
   return BANK.filter(function(x){
     if(filter==="alle")return true;
@@ -823,8 +882,28 @@ function pool(){
     return R[x.r].k===filter;
   });
 }
-function build(){deck=shuffle(pool().slice());pos=0;phase="ask";picked=null;rulePicked=null;requeued={};
-  st={a:0,af:0,r:0,rf:0,streak:0,best:0};render1();}
+function ses1Save(){
+  DB.ses1={f:filter,l:deck.map(function(d){return d.w;}),p:pos,st:st};
+  dbSave();
+}
+function ses1Load(){
+  var sv=DB.ses1;
+  if(!sv||sv.f!==filter||!sv.l||!sv.l.length)return false;
+  var byW={};BANK.forEach(function(x){byW[x.w]=x;});
+  var list=sv.l.map(function(w){return byW[w];}).filter(Boolean);
+  var p=sv.p|0;
+  if(!list.length||p>=list.length)return false;   // finished round -> start a fresh one
+  deck=list;pos=p;st=sv.st||{a:0,af:0,r:0,rf:0,streak:0,best:0};
+  return true;
+}
+function build(fresh){
+  picked=null;rulePicked=null;curOpts=null;requeued={};
+  if(fresh||!ses1Load()){
+    deck=draw(pool(),function(x){return x.w;},DB.round);
+    pos=0;st={a:0,af:0,r:0,rf:0,streak:0,best:0};
+  }
+  ses1Save();render1();
+}
 function ruleOpts(word){
   var cid=word.r, all=Object.keys(R).filter(function(k){return k!==cid;});
   var same=shuffle(all.filter(function(k){return R[k].g===R[cid].g&&R[k].g!=="?";}));
@@ -833,16 +912,17 @@ function ruleOpts(word){
   for(var i=0;i<other.length&&picks.length<3;i++)picks.push(other[i]);
   return shuffle(picks.concat([cid]));
 }
-var curOpts=null;
 function render1(){
   var host=$("#l1stage");
   if(pos>=deck.length){
     host.innerHTML='<div class="stage"><div class="done"><div class="big">'+st.a+' / '+(st.a+st.af)+'</div>'+
-      '<p style="color:var(--muted);margin:6px 0 0">Runde beendet · round complete. Längste Serie: <b style="color:var(--ink)">'+st.best+'</b>.</p></div></div>';
+      '<p style="color:var(--muted);margin:6px 0 0">Runde beendet · round complete. Längste Serie: <b style="color:var(--head)">'+st.best+'</b>.<br>'+
+      'Der Fortschritt ist gespeichert — „Neue Runde" zieht neue Wörter, schwache zuerst.</p></div></div>';
     $("#m1").style.width="100%";up1();return;
   }
-  var c=deck[pos], rule=R[c.r];
-  var h='<div class="stage"><span class="tag">Nomen · noun</span><span class="idx">'+(pos+1)+' / '+deck.length+'</span>'+
+  var c=deck[pos], rule=R[c.r], bx=box(c.w);
+  var badge=bx<0?"neu · new":(bx>=3?"sicher · Box "+bx+"/5":"Box "+bx+"/5");
+  var h='<div class="stage"><span class="tag">Nomen · noun</span><span class="idx">'+(pos+1)+' / '+deck.length+'<span class="badge">'+badge+'</span></span>'+
         '<div class="word de">'+c.w+'<small>'+c.e+'</small></div></div>'+
         '<div class="choices">'+GEN.map(function(g){
           var cls="opt "+g;
@@ -856,7 +936,7 @@ function render1(){
        '<dl><dt>Signal</dt><dd>'+rule.sig+'</dd>'+
        '<dt>Requirement</dt><dd>'+rule.req+'</dd>'+
        '<dt>Verification</dt><dd>'+(c.x?c.x+" ":"")+'Store it as one unit: <b class="de">'+c.g+" "+c.w+'</b>.</dd></dl>'+
-       '<div class="sib">Gleiche Regel · same rule: '+rule.sib.map(function(s){return "<b>"+s+"</b>";}).join(" · ")+'</div>'+
+       '<div class="sib">Gleiche Regel · same rule: '+rule.sib.map(function(x){return "<b>"+x+"</b>";}).join(" · ")+'</div>'+
        (rule.warn?'<div class="warn">'+rule.warn+'</div>':'')+
        '</div>';
     if(ruleStep){
@@ -877,51 +957,93 @@ function render1(){
     b.addEventListener("click",function(){
       if(rulePicked)return;rulePicked=b.dataset.r;
       if(rulePicked===deck[pos].r)st.r++;else st.rf++;
-      render1();});});
+      ses1Save();render1();});});
   up1();
 }
 function answer1(g){
   if(picked)return;
   var c=deck[pos];picked=g;curOpts=null;
-  if(g===c.g){st.a++;st.streak++;if(st.streak>st.best)st.best=st.streak;}
+  var ok=(g===c.g);
+  if(g!=="__skip__")mark(c.w,ok);                // a real answer moves the word's box; a skip does not
+  if(ok){st.a++;st.streak++;if(st.streak>st.best)st.best=st.streak;}
   else{st.af++;st.streak=0;
     if(!requeued[c.w]){requeued[c.w]=1;deck.push(c);}}
-  render1();
+  ses1Save();render1();
 }
 function next1(){
   if(pos>=deck.length)return;
   if(!picked){answer1("__skip__");return;}
-  pos++;picked=null;rulePicked=null;curOpts=null;render1();
+  pos++;picked=null;rulePicked=null;curOpts=null;ses1Save();render1();
 }
 function up1(){
   $("#s1").innerHTML='Artikel <b class="r">'+st.a+'</b>/<b class="f">'+st.af+'</b>'+
     (ruleStep?' · Regel <b class="r">'+st.r+'</b>/<b class="f">'+st.rf+'</b>':'')+
     ' · Serie <b>'+st.streak+'</b>';
+  var seen=0,mast=0;
+  for(var i=0;i<BANK.length;i++){var b=box(BANK[i].w);if(b>=0)seen++;if(b>=3)mast++;}
+  $("#p1text").innerHTML='Fortschritt · progress: <b>'+seen+'</b> / '+BANK.length+' Nomen geübt · <b>'+mast+'</b> sicher';
   $("#fcount").textContent="TELC B2 · Genus · "+BANK.length+" Nomen · "+L2.length+" Sätze";
 }
 [].slice.call(document.querySelectorAll(".chip[data-f]")).forEach(function(ch){
   ch.addEventListener("click",function(){
     document.querySelectorAll(".chip[data-f]").forEach(function(x){x.setAttribute("aria-pressed",String(x===ch));});
-    filter=ch.dataset.f;build();});});
+    filter=ch.dataset.f;build(true);});});
 $("#ruleToggle").addEventListener("click",function(){
-  ruleStep=!ruleStep;this.setAttribute("aria-pressed",String(ruleStep));render1();});
+  ruleStep=!ruleStep;DB.ruleStep=ruleStep?1:0;dbSave();
+  this.setAttribute("aria-pressed",String(ruleStep));render1();});
+$("#roundSize").value=String(DB.round);
+$("#roundSize").addEventListener("change",function(){
+  DB.round=parseInt(this.value,10)||0;dbSave();build(true);});
 $("#next1").addEventListener("click",next1);
-$("#shuf1").addEventListener("click",function(){deck=shuffle(deck);pos=0;picked=null;rulePicked=null;curOpts=null;render1();});
-$("#res1").addEventListener("click",build);
+$("#shuf1").addEventListener("click",function(){
+  deck=deck.slice(0,pos).concat(shuffle(deck.slice(pos)));
+  picked=null;rulePicked=null;curOpts=null;ses1Save();render1();});
+$("#res1").addEventListener("click",function(){build(true);});
+(function(){                                     /* two-click wipe, no browser dialog */
+  var btn=$("#wipe1"),armed=false,t=null,label=btn.textContent;
+  btn.addEventListener("click",function(){
+    if(!armed){armed=true;btn.textContent="Wirklich löschen?";btn.setAttribute("aria-pressed","true");
+      t=setTimeout(function(){armed=false;btn.textContent=label;btn.setAttribute("aria-pressed","false");},4000);return;}
+    clearTimeout(t);armed=false;btn.textContent=label;btn.setAttribute("aria-pressed","false");
+    DB.stats={};DB.ses1=null;DB.ses2=null;dbSave();build(true);build2(true);
+  });
+})();
+
 /* ============ LEVEL 2 ============ */
 var d2=[],p2=0,pick2=null,opts2=null,s2={a:0,f:0,streak:0,best:0};
-function build2(){d2=shuffle(L2.slice());p2=0;pick2=null;opts2=null;s2={a:0,f:0,streak:0,best:0};render2();}
+function k2(q){return "s2_"+L2.indexOf(q);}
+function ses2Save(){
+  DB.ses2={l:d2.map(function(q){return L2.indexOf(q);}),p:p2,st:s2};dbSave();
+}
+function ses2Load(){
+  var sv=DB.ses2;
+  if(!sv||!sv.l||!sv.l.length)return false;
+  var list=sv.l.map(function(i){return L2[i];}).filter(Boolean);
+  var p=sv.p|0;
+  if(!list.length||p>=list.length)return false;
+  d2=list;p2=p;s2=sv.st||{a:0,f:0,streak:0,best:0};
+  return true;
+}
+function build2(fresh){
+  pick2=null;opts2=null;
+  if(fresh||!ses2Load()){
+    d2=draw(L2.slice(),k2,0);p2=0;s2={a:0,f:0,streak:0,best:0};
+  }
+  ses2Save();render2();
+}
 function render2(){
   var host=$("#l2stage");
   if(p2>=d2.length){
     host.innerHTML='<div class="stage"><div class="done"><div class="big">'+s2.a+' / '+(s2.a+s2.f)+'</div>'+
-      '<p style="color:var(--muted);margin:6px 0 0">Runde beendet · round complete. Längste Serie: <b style="color:var(--ink)">'+s2.best+'</b>.</p></div></div>';
+      '<p style="color:var(--muted);margin:6px 0 0">Runde beendet · round complete. Längste Serie: <b style="color:var(--head)">'+s2.best+'</b>.</p></div></div>';
     $("#m2").style.width="100%";up2();return;
   }
   var it=d2[p2];
   if(!opts2)opts2=shuffle([it.ok].concat(it.alt));
+  var bx=box(k2(it));
+  var badge=bx<0?"neu · new":(bx>=3?"sicher · Box "+bx+"/5":"Box "+bx+"/5");
   var sent=it.s.replace("%",'<span class="blank">'+(pick2?it.ok:"&nbsp;&nbsp;&nbsp;&nbsp;")+'</span>');
-  var h='<div class="stage"><span class="tag">Satz · sentence</span><span class="idx">'+(p2+1)+' / '+d2.length+'</span>'+
+  var h='<div class="stage"><span class="tag">Satz · sentence</span><span class="idx">'+(p2+1)+' / '+d2.length+'<span class="badge">'+badge+'</span></span>'+
         '<div class="sentence de">'+sent+'<span class="cue">'+it.c+' — '+it.n+'</span></div></div>'+
         '<div class="choices">'+opts2.map(function(o){
           var cls="opt";
@@ -940,15 +1062,25 @@ function render2(){
   [].slice.call(host.querySelectorAll(".opt-2")).forEach(function(b){
     b.addEventListener("click",function(){
       if(pick2)return;pick2=b.dataset.o;
-      if(pick2===it.ok){s2.a++;s2.streak++;if(s2.streak>s2.best)s2.best=s2.streak;}
+      var good=(pick2===it.ok);
+      mark(k2(it),good);
+      if(good){s2.a++;s2.streak++;if(s2.streak>s2.best)s2.best=s2.streak;}
       else{s2.f++;s2.streak=0;if(d2.indexOf(it)===p2&&d2.lastIndexOf(it)===p2)d2.push(it);}
-      render2();});});
+      ses2Save();render2();});});
   up2();
 }
-function up2(){$("#s2").innerHTML='Richtig <b class="r">'+s2.a+'</b> · Falsch <b class="f">'+s2.f+'</b> · Serie <b>'+s2.streak+'</b>';}
-$("#next2").addEventListener("click",function(){if(p2>=d2.length)return;p2++;pick2=null;opts2=null;render2();});
-$("#shuf2").addEventListener("click",function(){d2=shuffle(d2);p2=0;pick2=null;opts2=null;render2();});
-$("#res2").addEventListener("click",build2);
+function up2(){
+  $("#s2").innerHTML='Richtig <b class="r">'+s2.a+'</b> · Falsch <b class="f">'+s2.f+'</b> · Serie <b>'+s2.streak+'</b>';
+  var seen=0,mast=0;
+  for(var i=0;i<L2.length;i++){var b=box("s2_"+i);if(b>=0)seen++;if(b>=3)mast++;}
+  $("#p2text").innerHTML='Fortschritt · progress: <b>'+seen+'</b> / '+L2.length+' Sätze geübt · <b>'+mast+'</b> sicher';
+}
+$("#next2").addEventListener("click",function(){
+  if(p2>=d2.length)return;p2++;pick2=null;opts2=null;ses2Save();render2();});
+$("#shuf2").addEventListener("click",function(){
+  d2=d2.slice(0,p2).concat(shuffle(d2.slice(p2)));pick2=null;opts2=null;ses2Save();render2();});
+$("#res2").addEventListener("click",function(){build2(true);});
+
 /* ============ REFERENCE TABLE ============ */
 (function(){
   var order={die:0,das:1,der:2,"?":3};
@@ -977,7 +1109,7 @@ document.addEventListener("keydown",function(e){
     else if(/^[1-3]$/.test(e.key)){var bs=document.querySelectorAll("#l2stage .opt-2");if(bs[+e.key-1])bs[+e.key-1].click();}
   }
 });
-build();build2();
+build(false);build2(false);
 })();
 </script>
 </body>
