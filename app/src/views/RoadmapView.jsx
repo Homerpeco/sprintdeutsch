@@ -1,7 +1,6 @@
 import { GRAMMAR } from '../data/grammar.js';
 import { ROADMAP, LEVELS } from '../data/roadmap.js';
 import { Card } from '../components/Card.jsx';
-import { Pill } from '../components/Pill.jsx';
 import { Progress } from '../components/Progress.jsx';
 
 // Hardcoded colours so they always render regardless of Tailwind custom-colour loading
@@ -15,42 +14,79 @@ const C = {
   pastBg:       '#e8f3de',
 };
 
-// ─── RoadmapView (tab router) ────────────────────────────────────────────────
-// Tab "roadmap" (default) = the level path. Tab "nomen" = the Genus-Trainer,
-// a self-contained page served from public/genus-trainer.html (same pattern as
-// the Verb Meister App). Update it by replacing that file.
+// ─── Special topics ──────────────────────────────────────────────────────────
+// Self-contained grammar trainers served from public/*.html (same pattern as the
+// Verb Meister App). Each keeps its own progress in the visitor's localStorage.
+// They live at the BOTTOM of the roadmap, not in a permanent tab bar: on a phone
+// a wrapping row of pills ate half the screen before the content even started.
+const TRAINERS = [
+  { id: "nomen",   src: "/genus-trainer.html",   title: "Nomen und Artikel",
+    sub: "der · die · das — 23 suffixes, 282 nouns", level: "A1" },
+  { id: "relativ", src: "/relativ-trainer.html", title: "Relativsätze",
+    sub: "der/die/das · was · wo — 157 exercises", level: "B1" },
+  { id: "lokal",   src: "/lokal-trainer.html",   title: "Lokalangaben",
+    sub: "wohin · wo · woher — 205 exercises", level: "A2" },
+];
 
 export function RoadmapView({ state, setState, view, setView, verbs }) {
   const tab = (view && view.tab) || "roadmap";
+  const trainer = TRAINERS.find(t => t.id === tab);
 
   return (
     <div className="fade-in">
-      <div className="px-4 sm:px-6 pt-4 sm:pt-6 max-w-4xl mx-auto flex flex-wrap items-center gap-2">
-        <Pill variant="light" active={tab === "roadmap"} onClick={() => setView({ section: "roadmap", tab: "roadmap" })}>Roadmap</Pill>
-        <Pill variant="light" active={tab === "nomen"}   onClick={() => setView({ section: "roadmap", tab: "nomen" })}>Nomen und Artikel</Pill>
-        <Pill variant="light" active={tab === "relativ"} onClick={() => setView({ section: "roadmap", tab: "relativ" })}>Relativsätze</Pill>
-        <Pill variant="light" active={tab === "lokal"}   onClick={() => setView({ section: "roadmap", tab: "lokal" })}>Lokalangaben</Pill>
-      </div>
+      <style>{`
+        .trainer-frame{height:calc(100vh - 118px);min-height:460px}
+        @supports (height:100dvh){.trainer-frame{height:calc(100dvh - 118px)}}
+        @media (max-width:640px){
+          .trainer-frame{height:calc(100vh - 190px);min-height:360px}
+        }
+        @supports (height:100dvh){
+          @media (max-width:640px){.trainer-frame{height:calc(100dvh - 190px)}}
+        }
+        .trainer-switch{display:flex;gap:6px;align-items:center;overflow-x:auto;
+          -webkit-overflow-scrolling:touch;scrollbar-width:none}
+        .trainer-switch::-webkit-scrollbar{display:none}
+      `}</style>
 
-      {tab === "nomen"   ? <TrainerFrame src="/genus-trainer.html"   title="Nomen und Artikel — Genus-Trainer" /> :
-       tab === "relativ" ? <TrainerFrame src="/relativ-trainer.html" title="Relativsätze — Trainer" /> :
-       tab === "lokal"   ? <TrainerFrame src="/lokal-trainer.html"   title="Lokalangaben — Trainer" /> :
-       <RoadmapBody state={state} setState={setState} setView={setView} verbs={verbs} />}
-    </div>
-  );
-}
-
-// Self-contained grammar trainers served from public/*.html (same pattern as the
-// Verb Meister App). Each keeps its own progress in the visitor's localStorage.
-function TrainerFrame({ src, title }) {
-  return (
-    <div className="mt-4">
-      <iframe
-        src={src}
-        title={title}
-        className="w-full block"
-        style={{ border: "none", height: "calc(100vh - 130px)", minHeight: "520px", display: "block" }}
-      />
+      {trainer
+        ? <>
+            {/* one slim, horizontally scrollable line instead of a wrapping pill grid */}
+            <div className="px-3 sm:px-6 pt-2 sm:pt-4 max-w-4xl mx-auto trainer-switch">
+              <button
+                onClick={() => setView({ section: "roadmap", tab: "roadmap" })}
+                className="shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-sm font-medium bg-white border border-slate-200 hover:bg-slate-50 transition"
+                style={{ color: C.forestDark }}
+              >
+                ← Roadmap
+              </button>
+              {TRAINERS.map(t => {
+                const active = t.id === trainer.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setView({ section: "roadmap", tab: t.id })}
+                    className={`shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-sm transition ${
+                      active ? "font-bold" : "font-medium bg-white border border-slate-200 hover:bg-slate-50"
+                    }`}
+                    style={active
+                      ? { backgroundColor: C.cream, color: C.forestDark, boxShadow: '0 1px 4px rgba(0,0,0,0.20)' }
+                      : { color: '#334155' }}
+                  >
+                    {t.title}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-2">
+              <iframe
+                src={trainer.src}
+                title={trainer.title}
+                className="w-full block trainer-frame"
+                style={{ border: "none", display: "block" }}
+              />
+            </div>
+          </>
+        : <RoadmapBody state={state} setState={setState} setView={setView} verbs={verbs} />}
     </div>
   );
 }
@@ -166,6 +202,34 @@ function RoadmapBody({ state, setState, setView, verbs }) {
             </button>
           );
         })}
+      </div>
+
+      {/* ─── Special topics: the self-contained grammar trainers ─────────── */}
+      <h2 className="text-lg font-semibold mt-8 mb-1" style={{color: C.forestDark}}>Special topics</h2>
+      <p className="text-sm mb-3" style={{color: C.forestMid}}>
+        Deep-dive trainers with their own rules, quizzes and saved progress.
+      </p>
+      <div className="space-y-3">
+        {TRAINERS.map(t => (
+          <button
+            key={t.id}
+            onClick={() => setView({ section: "roadmap", tab: t.id })}
+            className="flex items-center gap-4 p-4 rounded-xl border w-full text-left transition hover:opacity-90 cursor-pointer"
+            style={{ backgroundColor: '#ffffff', borderColor: C.sageBorder }}
+          >
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+              style={{ backgroundColor: C.cream, color: C.forestDark }}
+            >
+              {t.level}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold" style={{color: C.forestDark}}>{t.title}</div>
+              <div className="text-sm mt-0.5" style={{color: C.forestMid}}>{t.sub}</div>
+            </div>
+            <span className="text-sm font-medium shrink-0" style={{color: C.forestMid}}>Open →</span>
+          </button>
+        ))}
       </div>
     </div>
   );
