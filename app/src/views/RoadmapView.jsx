@@ -27,7 +27,7 @@ const TRAINERS = [
   { id: "lokal",   src: "/lokal-trainer.html",   title: "Lokalangaben",
     sub: "wohin · wo · woher — 205 exercises", level: "A2" },
   { id: "adjektiv", src: "/adjektiv-trainer.html", title: "Adjectives with Prepositions",
-    sub: "stolz auf · interessiert an · mir egal — 198 exercises", level: "B2" },
+    sub: "stolz auf · interessiert an · mir egal — 229 exercises", level: "B2" },
 ];
 
 export function RoadmapView({ state, setState, view, setView, verbs }) {

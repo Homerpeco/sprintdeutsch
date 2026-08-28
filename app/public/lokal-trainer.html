@@ -215,7 +215,11 @@ footer b{color:var(--head)}
   .meter{margin-bottom:14px}
   h2.sec{font-size:1.08rem;margin:26px 0 6px}
   .lede{margin-bottom:16px}
-  .stage{padding:22px 16px;min-height:130px}
+  .stage{padding:26px 16px 20px;min-height:130px}
+  /* the stage label only repeats the tab name and collides with the counter on a phone */
+  .stage .tag{display:none}
+  .stage .idx{top:9px;right:14px;font-size:.68rem}
+  .stage .idx .badge{margin-left:6px;padding:2px 7px;font-size:.62rem}
   .word{font-size:1.85rem} .sentence{font-size:1.08rem}
   .choices{grid-template-columns:1fr}
   .wrap{padding:0 14px 40px}
