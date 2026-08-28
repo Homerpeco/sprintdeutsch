@@ -26,6 +26,8 @@ const TRAINERS = [
     sub: "der/die/das · was · wo — 157 exercises", level: "B1" },
   { id: "lokal",   src: "/lokal-trainer.html",   title: "Lokalangaben",
     sub: "wohin · wo · woher — 205 exercises", level: "A2" },
+  { id: "adjektiv", src: "/adjektiv-trainer.html", title: "Adjectives with Prepositions",
+    sub: "stolz auf · interessiert an · mir egal — 198 exercises", level: "B2" },
 ];
 
 export function RoadmapView({ state, setState, view, setView, verbs }) {

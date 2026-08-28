@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adjektive mit Ergänzungen — adjectives with prepositions</title>
+<style>
+/* ───────────────────────────────────────────────────────────────
+   SprintDeutsch theme — matches the host app:
+   sage-200 #d4e8c2 page · forest-700 #355f1f nav · forest-800 #284a18 headings
+   cream-200 #f9e96a accent · sage-300 #b8d99e lines · white cards
+   Same system font stack as the app (no web fonts).
+   ─────────────────────────────────────────────────────────────── */
+:root{
+  --bg:#d4e8c2;          /* sage-200 — app content background */
+  --bg2:#e8f3de;         /* sage-100 — inset panels */
+  --surface:#ffffff;     /* cards */
+  --surface2:#f6faf2;    /* sage-50 — buttons */
+  --line:#b8d99e;        /* sage-300 */
+  --line-soft:#dcecca;
+  --ink:#1e293b;         /* slate-800 — body copy */
+  --head:#284a18;        /* forest-800 — headings */
+  --muted:#5c6b5a;
+  --accent:#427726;      /* forest-600 — labels, rules, meters */
+  --cream:#f9e96a;       /* cream-200 — active pills, badges */
+  --der:#2a6db0; --die:#c2415c; --das:#16806a;
+  --ok:#42802a; --ok-bg:#eaf5df; --bad:#c0392b; --bad-bg:#fdecea;
+  --radius:16px;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:var(--sans);
+  --display:var(--sans);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px 80px}
+.wrap.top{padding-bottom:0}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--display);color:var(--head);text-wrap:balance;margin:0}
+.de{font-weight:500}
+.en{color:var(--muted);font-style:italic}
+/* ---------- header ---------- */
+header{padding:28px 0 20px;border-bottom:1px solid var(--line)}
+h1{font-size:1.9rem;line-height:1.15;font-weight:700;letter-spacing:-.01em}
+h1 .sep{color:var(--accent);font-weight:500;margin:0 .35em}
+.sub{margin-top:10px;font-size:1rem}
+.sub .l1{color:var(--head);font-weight:500}
+.sub .l2{color:var(--muted);font-size:.94rem;margin-top:3px}
+/* ---------- tabs ---------- */
+nav.tabs{position:sticky;top:0;z-index:30;background:rgba(212,232,194,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);margin-bottom:26px}
+.tabs-inner{max-width:860px;margin:0 auto;padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap}
+.tab{font:inherit;font-size:.86rem;font-weight:500;color:#334155;background:#fff;
+  border:1px solid var(--line);border-radius:999px;padding:7px 15px;cursor:pointer;transition:.15s}
+.tab:hover{border-color:#93c872;background:#f6faf2}
+.tab[aria-selected="true"]{background:var(--cream);color:var(--head);border-color:var(--cream);font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.tab .num{font-variant-numeric:tabular-nums;opacity:.55;margin-right:6px}
+.tab:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section[hidden]{display:none}
+.lede{color:var(--muted);max-width:62ch;margin:0 0 26px}
+/* ---------- method ---------- */
+.gates{display:grid;gap:12px;margin:0 0 40px;padding:0;list-style:none;counter-reset:g}
+.gate{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px 16px 60px;position:relative;box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.gate::before{counter-increment:g;content:counter(g);position:absolute;left:18px;top:15px;
+  font-weight:700;font-size:1rem;color:var(--head);background:var(--cream);
+  width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%}
+.gate h3{font-size:1.02rem;margin-bottom:4px}
+.gate p{margin:0;font-size:.93rem;color:var(--muted)}
+.gate .demo{margin-top:8px;font-size:.95rem;color:var(--ink)}
+.gate .demo b{color:var(--accent);font-weight:600}
+.hook{background:linear-gradient(180deg,#fdf7cf,#f7fbf1);
+  border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin:0 0 34px;
+  box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.hook .k{font-size:1.4rem;font-weight:700;color:var(--head);letter-spacing:.01em}
+.hook p{margin:6px 0 0;color:var(--muted);font-size:.95rem}
+h2.sec{font-size:1.28rem;margin:38px 0 6px}
+h2.sec + .lede{margin-top:6px}
+.worlds{display:grid;gap:18px}
+.world{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.world .rail{height:4px}
+.world .body{padding:20px 22px 22px}
+.world .art{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.world .art .a{font-size:1.8rem;font-weight:700;line-height:1}
+.world .art .scene{font-size:1.05rem;color:var(--head);font-weight:600}
+.world .story{font-size:1rem;line-height:1.75;background:var(--bg2);
+  border-left:3px solid;padding:12px 16px;border-radius:0 8px 8px 0;margin:0 0 6px;color:var(--ink)}
+.world .story em{font-style:normal;font-weight:700}
+.world .story-en{font-size:.9rem;color:var(--muted);font-style:italic;margin:0 0 16px;padding-left:16px}
+.world .take{font-size:.95rem;margin:0 0 16px}
+.beat{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:0 0 10px}
+.beat .bar{width:1px;height:20px;background:var(--line);margin:0 4px}
+.pill{font-size:.92rem;font-weight:600;padding:4px 12px;border-radius:999px;
+  border:1px solid;background:#fff;white-space:nowrap}
+.mini{font-size:.88rem;color:var(--muted);margin:0}
+.mini b{color:var(--ink);font-weight:600}
+.world.m{--c:var(--der)} .world.n{--c:var(--das)} .world.f{--c:var(--die)}
+.world .rail{background:var(--c)} .world .art .a{color:var(--c)}
+.world .story{border-left-color:var(--c)} .world .story em{color:var(--c)}
+.pill{border-color:var(--c);color:var(--c)}
+.count{font-weight:700;color:var(--c);font-size:.8rem;
+  border:1px solid var(--c);border-radius:6px;padding:1px 7px;letter-spacing:.04em}
+table{width:100%;border-collapse:collapse;font-size:.92rem;background:var(--surface)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);margin:0 0 30px;
+  background:var(--surface);box-shadow:0 1px 2px rgba(40,74,24,.06)}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);font-weight:700;
+  background:var(--bg2);border-bottom-color:var(--line)}
+tr:last-child td{border-bottom:none}
+td .de{font-size:.98rem}
+.g-der{color:var(--der);font-weight:600} .g-das{color:var(--das);font-weight:600} .g-die{color:var(--die);font-weight:600}
+</style>
+<style>
+/* ---------- quiz ---------- */
+.quizbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 18px}
+.chip{font:inherit;font-size:.8rem;color:#334155;background:#fff;border:1px solid var(--line);
+  border-radius:999px;padding:5px 13px;cursor:pointer;transition:.15s}
+.chip:hover{border-color:#93c872;background:#f6faf2}
+.chip[aria-pressed="true"]{background:var(--cream);color:var(--head);border-color:var(--cream);font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.spacer{flex:1}
+.progrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 10px;font-size:.84rem}
+.ptext{color:var(--muted)}
+.ptext b{color:var(--head);font-weight:700}
+.rsel{color:var(--muted);display:flex;align-items:center;gap:6px}
+.rsel select{font:inherit;font-size:.82rem;color:#334155;background:#fff;border:1px solid var(--line);
+  border-radius:999px;padding:4px 10px;cursor:pointer}
+.badge{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);
+  background:var(--bg2);border-radius:999px;padding:2px 8px;margin-left:8px}
+.meter{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:0 0 22px}
+.meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:30px 24px;text-align:center;position:relative;min-height:170px;display:flex;
+  flex-direction:column;justify-content:center;gap:8px;box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.stage .tag{position:absolute;top:12px;left:16px;font-size:.68rem;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--muted)}
+.stage .idx{position:absolute;top:12px;right:16px;font-size:.72rem;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.word{font-size:2.4rem;line-height:1.15;font-weight:600;color:var(--head)}
+.word small{display:block;font-size:.95rem;font-style:italic;color:var(--muted);
+  margin-top:8px;font-weight:400}
+.sentence{font-size:1.3rem;line-height:1.7;max-width:34ch;margin:0 auto;color:var(--head);font-weight:500}
+.sentence .blank{color:var(--accent);border-bottom:2px solid var(--accent);padding:0 .5em}
+.sentence .cue{display:block;margin-top:10px;font-size:.9rem;color:var(--muted);font-weight:400}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 0}
+.choices.two{grid-template-columns:repeat(2,1fr)}
+.choices.one{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.opt{font:inherit;font-size:1.25rem;font-weight:600;padding:16px 10px;border-radius:12px;
+  background:var(--surface2);border:1px solid var(--line);color:var(--head);cursor:pointer;transition:.15s}
+.opt:hover:not(:disabled){border-color:#529530;background:#fff;transform:translateY(-1px);
+  box-shadow:0 2px 6px rgba(40,74,24,.10)}
+.opt:disabled{cursor:default}
+.opt.der{color:var(--der)} .opt.das{color:var(--das)} .opt.die{color:var(--die)}
+.opt.hit{border-color:var(--ok);background:#d3ecbc;color:#24500f;box-shadow:inset 0 0 0 2px var(--ok)}
+.opt.miss{border-color:var(--bad);background:var(--bad-bg)}
+.opt.dim{opacity:.45}
+.opt.small{font-size:.98rem;font-weight:500;padding:13px 14px;text-align:left;line-height:1.4;color:var(--ink)}
+.fb{margin-top:16px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:0 12px 12px 0;padding:16px 18px;text-align:left}
+.fb .verdict{font-weight:700;font-size:1rem;margin-bottom:10px;display:flex;
+  gap:9px;align-items:baseline;flex-wrap:wrap}
+.fb .verdict .rulename{font-weight:600;font-size:.8rem;color:var(--head);background:var(--cream);
+  border-radius:6px;padding:2px 9px;letter-spacing:.01em}
+.fb.right{border-left-color:var(--ok)} .fb.right .verdict{color:var(--ok)}
+.fb.wrong{border-left-color:var(--bad)} .fb.wrong .verdict{color:var(--bad)}
+.fb dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:.92rem}
+.fb dt{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);
+  font-weight:700;padding-top:4px;white-space:nowrap}
+.fb dd{margin:0;color:var(--ink)}
+.fb .sib{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);font-size:.9rem;color:var(--muted)}
+.fb .sib b{color:var(--head);font-weight:600}
+.fb .warn{margin-top:11px;font-size:.88rem;color:#7a5c00;background:#fdf7cf;
+  border-radius:8px;padding:8px 11px}
+.ask{margin-top:16px;font-size:.9rem;color:var(--muted);text-align:left}
+.ask b{color:var(--head);font-weight:600}
+.navrow{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
+.btn{font:inherit;font-size:.88rem;font-weight:500;padding:9px 18px;border-radius:12px;cursor:pointer;transition:.15s;
+  background:#fff;border:1px solid var(--line);color:#334155}
+.btn:hover{border-color:#93c872;background:#f6faf2}
+.btn.primary{background:var(--cream);border-color:var(--cream);color:var(--head);font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.btn.primary:hover{filter:brightness(1.04);background:var(--cream)}
+.score{font-size:.86rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.score b{color:var(--head)} .score .r{color:var(--ok)} .score .f{color:var(--bad)}
+.done{text-align:center;padding:30px 20px}
+.done .big{font-size:2.3rem;font-weight:700;color:var(--head)}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem;
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+footer b{color:var(--head)}
+@media(max-width:640px){
+  /* mobile: give the content the screen back — compact header, tabs on ONE scrollable line */
+  header{padding:10px 0 8px;border-bottom:none}
+  h1{font-size:1.05rem;line-height:1.25}
+  .sub{display:none}                     /* the tagline is a luxury on a phone — the method tab repeats it */
+  nav.tabs{margin-bottom:14px}
+  /* the tab bar already names the level, so drop the heading + intro inside the quiz views */
+  #view-l1 > h2.sec, #view-l1 > .lede, #view-l2 > h2.sec, #view-l2 > .lede{display:none}
+  /* filter chips: one scrollable line instead of three wrapped rows */
+  .quizbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .quizbar::-webkit-scrollbar{display:none}
+  .quizbar .chip{white-space:nowrap;flex:0 0 auto}
+  .quizbar .spacer{display:none}
+  .progrow{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .progrow::-webkit-scrollbar{display:none}
+  .progrow > *{flex:0 0 auto}
+  .tabs-inner{flex-wrap:nowrap;overflow-x:auto;padding:8px 14px;gap:6px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .tabs-inner::-webkit-scrollbar{display:none}
+  .tab{white-space:nowrap;font-size:.78rem;padding:6px 12px}
+  .quizbar{gap:6px;margin-bottom:12px}
+  .chip{font-size:.74rem;padding:4px 10px}
+  .progrow{margin-bottom:8px;font-size:.78rem}
+  .meter{margin-bottom:14px}
+  h2.sec{font-size:1.08rem;margin:26px 0 6px}
+  .lede{margin-bottom:16px}
+  .stage{padding:22px 16px;min-height:130px}
+  .word{font-size:1.85rem} .sentence{font-size:1.08rem}
+  .choices{grid-template-columns:1fr}
+  .wrap{padding:0 14px 40px}
+  .fb{padding:14px 14px}
+  .fb dl{grid-template-columns:1fr;gap:2px} .fb dt{padding-top:8px}
+  .navrow{gap:8px} .btn{padding:8px 14px}
+  footer{margin-top:32px;font-size:.74rem}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style><style>
+/* Relativsatz-specific */
+.sentence{max-width:44ch}
+.sentence .blank{min-width:4.5em;display:inline-block;text-align:center}
+.choices.quad{grid-template-columns:repeat(4,1fr)}
+@media(max-width:600px){.choices.quad{grid-template-columns:repeat(2,1fr)}}
+.opt.clause{font-size:1rem;font-weight:500;padding:14px 16px;text-align:left;line-height:1.45;color:var(--ink)}
+.fb .full{font-size:1rem;color:var(--head);font-weight:500}
+.fb .full b{color:var(--accent);font-weight:700}
+.fb .trans{color:var(--muted);font-style:italic;font-size:.88rem;margin-top:2px}
+.matrix td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+.matrix td{font-size:1rem}
+.key{background:var(--cream);border-radius:6px;padding:1px 7px;font-weight:700;color:var(--head)}
+.twocol{display:grid;gap:18px}
+@media(min-width:700px){.twocol{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap top">
+<header>
+  <h1>Adjektive + Ergänzung<span class="sep">·</span>stolz auf · interessiert an · mir egal</h1>
+  <div class="sub">
+    <div class="l1">The adjective picks the preposition — the preposition picks the case.</div>
+    <div class="l2">Prepositional complements, the an/in split, direct dative, accusative and genitive, pronominal adverbs.</div>
+  </div>
+</header>
+</div>
+<nav class="tabs"><div class="tabs-inner">
+  <button class="tab" role="tab" aria-selected="true" data-view="method"><span class="num">01</span>The method</button>
+  <button class="tab" role="tab" aria-selected="false" data-view="l1"><span class="num">02</span>Level 1 · preposition + case</button>
+  <button class="tab" role="tab" aria-selected="false" data-view="l2"><span class="num">03</span>Level 2 · building phrases</button>
+  <button class="tab" role="tab" aria-selected="false" data-view="ref"><span class="num">04</span>Reference</button>
+</div></nav>
+<div class="wrap">
+
+<section id="view-method">
+  <div class="hook">
+    <div class="k">The adjective picks the preposition. The preposition picks the case.</div>
+    <p>Just like verbs, German adjectives carry a complement — and it is fixed by the adjective, not by the meaning.
+    <span class="de">stolz</span> always takes <span class="de">auf + Akkusativ</span>, <span class="de">interessiert</span>
+    always takes <span class="de">an + Dativ</span>, and no amount of logic will get you there: they are learned as pairs.
+    What you CAN reason about is the case, because most prepositions only ever take one.</p>
+  </div>
+
+  <h2 class="sec">The four-step method</h2>
+  <ol class="gates">
+    <li class="gate">
+      <h3>Is there a preposition at all?</h3>
+      <p>A large group of adjectives takes a bare case instead: a <b>dative</b> for the person affected, an <b>accusative</b> for measurements, a <b>genitive</b> in a few formal cases.</p>
+      <div class="demo">Bist du <b>mir</b> böse? · Das Gebäude ist <b>400 Jahre</b> alt. · Ich bin mir <b>der Verantwortung</b> bewusst.</div>
+    </li>
+    <li class="gate">
+      <h3>If yes: which preposition? → learn adjective + preposition as ONE word</h3>
+      <p>There is no rule connecting meaning to preposition. Store them the way you store a noun with its article — always as a pair, always with an example sentence.</p>
+      <div class="demo">stolz <b>auf</b> · interessiert <b>an</b> · zufrieden <b>mit</b> · verantwortlich <b>für</b> · abhängig <b>von</b> · beliebt <b>bei</b></div>
+    </li>
+    <li class="gate">
+      <h3>Which case? → the preposition decides, and most of them never change</h3>
+      <p>Always dative: <span class="de">von, mit, zu, bei, gegenüber, nach, vor, aus</span>. Always accusative: <span class="de">auf, für, gegen, über, um</span>. Only <span class="de">an</span> and <span class="de">in</span> split — and there the ADJECTIVE decides, not the wo?/wohin? question you know from places.</p>
+      <div class="demo">interessiert <b>an dem</b> Projekt (dat.) ← → gewöhnt <b>an das</b> Klima (acc.)<br>gut <b>in dem</b> Fach (dat.) ← → verliebt <b>in den</b> Nachbarn (acc.)</div>
+    </li>
+    <li class="gate">
+      <h3>Replacing and asking: thing or person?</h3>
+      <p>A <b>thing</b> becomes <span class="de">da(r) + Präposition</span> and is asked about with <span class="de">wo(r) + Präposition</span>. A <b>person</b> keeps the preposition and takes a pronoun, or <span class="de">wen/wem</span> in the question.</p>
+      <div class="demo">Daran bin ich interessiert. → <b>Woran</b> bist du interessiert?<br>Auf ihn bin ich stolz. → <b>Auf wen</b> bist du stolz?</div>
+    </li>
+  </ol>
+
+  <h2 class="sec">The master table — every preposition, its case, its adjectives</h2>
+  <p class="lede">This is the list to learn. Read down a column and you have a whole family at once.</p>
+  <div class="tablewrap"><table class="matrix">
+    <thead><tr><th>Preposition</th><th>Case</th><th>Adjectives</th></tr></thead>
+    <tbody>
+      <tr><td class="de g-das">von</td><td>dative</td><td class="de">abhängig · begeistert · überzeugt · enttäuscht · entfernt · müde · frei · angetan</td></tr>
+      <tr><td class="de g-das">mit</td><td>dative</td><td class="de">zufrieden · unzufrieden · einverstanden · verwandt · befreundet · verheiratet · beschäftigt · fertig · vergleichbar · identisch</td></tr>
+      <tr><td class="de g-das">zu</td><td>dative</td><td class="de">freundlich · nett · höflich · unfreundlich · bereit · entschlossen · fähig · imstande</td></tr>
+      <tr><td class="de g-das">bei</td><td>dative</td><td class="de">beliebt · unbeliebt · angesehen · bekannt · verhasst</td></tr>
+      <tr><td class="de g-das">gegenüber</td><td>dative</td><td class="de">aufgeschlossen · zurückhaltend · misstrauisch · kritisch · tolerant · verantwortlich</td></tr>
+      <tr><td class="de g-das">nach</td><td>dative</td><td class="de">verrückt · süchtig · begierig · hungrig</td></tr>
+      <tr><td class="de g-das">vor</td><td>dative</td><td class="de">blass · stumm · sprachlos · sicher · geschützt</td></tr>
+      <tr><td class="de g-der">auf</td><td>accusative</td><td class="de">stolz · gespannt · neugierig · ärgerlich · böse · wütend · eifersüchtig · neidisch · angewiesen · scharf</td></tr>
+      <tr><td class="de g-der">für</td><td>accusative</td><td class="de">verantwortlich · zuständig · wichtig · unwichtig · geeignet · ungeeignet · schädlich · nützlich · dankbar · typisch · bekannt · offen</td></tr>
+      <tr><td class="de g-der">gegen</td><td>accusative</td><td class="de">immun · empfindlich · unempfindlich · allergisch · resistent · machtlos</td></tr>
+      <tr><td class="de g-der">über</td><td>accusative</td><td class="de">glücklich · froh · erfreut · traurig · erstaunt · verwundert · entsetzt · wütend · verärgert · empört · informiert</td></tr>
+      <tr><td class="de g-der">um</td><td>accusative</td><td class="de">besorgt · bemüht · verlegen</td></tr>
+      <tr><td class="de g-die">an + DATIV</td><td>dative</td><td class="de">interessiert · beteiligt · reich · arm · schuld · erkrankt</td></tr>
+      <tr><td class="de g-die">an + AKKUSATIV</td><td>accusative</td><td class="de">gewöhnt · adressiert · gerichtet</td></tr>
+      <tr><td class="de g-die">in + DATIV</td><td>dative</td><td class="de">gut · schlecht · erfahren · unerfahren · geübt · nachlässig</td></tr>
+      <tr><td class="de g-die">in + AKKUSATIV</td><td>accusative</td><td class="de">verliebt · unterteilt · eingeteilt · verwickelt</td></tr>
+    </tbody>
+  </table></div>
+  <p class="mini" style="margin:-18px 0 30px">The last four rows are the ones that cost marks. <b>an</b> and <b>in</b> look like the two-way prepositions you know from places — but here there is no wo?/wohin? test. The adjective simply owns its case.</p>
+
+  <h2 class="sec">The three worlds</h2>
+  <div class="worlds">
+    <article class="world n">
+      <div class="rail"></div>
+      <div class="body">
+        <div class="art"><span class="a de">+ Dativ</span><span class="scene">von · mit · zu · bei · gegenüber · nach · vor</span></div>
+        <p class="story de">Ich bin <em>von</em> dem Ergebnis begeistert, <em>mit</em> der Arbeit zufrieden, <em>zu</em> allen freundlich, <em>bei</em> den Kollegen beliebt und <em>gegenüber</em> jeder Kritik aufgeschlossen.</p>
+        <p class="story-en">I'm delighted with the result, satisfied with the work, friendly to everybody, popular with my colleagues and open to any criticism.</p>
+        <p class="take"><b>These seven never change case.</b> If you can name the preposition, the case is already decided — plus an and in when the adjective belongs to the dative group.</p>
+        <div class="beat"><span class="pill">von</span><span class="pill">mit</span><span class="pill">zu</span><span class="pill">bei</span><span class="bar"></span><span class="pill">gegenüber</span><span class="pill">nach</span><span class="pill">vor</span></div>
+      </div>
+    </article>
+    <article class="world m">
+      <div class="rail"></div>
+      <div class="body">
+        <div class="art"><span class="a de">+ Akkusativ</span><span class="scene">auf · für · gegen · über · um</span></div>
+        <p class="story de">Ich bin <em>auf</em> das Ergebnis gespannt, <em>für</em> das Projekt verantwortlich, <em>gegen</em> Kritik nicht immun, <em>über</em> die Verspätung verärgert und <em>um</em> meine Kollegin besorgt.</p>
+        <p class="story-en">I'm curious about the result, responsible for the project, not immune to criticism, annoyed about the delay and worried about my colleague.</p>
+        <p class="take"><b>über after an adjective is ALWAYS accusative.</b> There is no wo?/wohin? question here — the two-way logic you learned for places does not apply to adjective complements.</p>
+        <div class="beat"><span class="pill">auf</span><span class="pill">für</span><span class="pill">gegen</span><span class="bar"></span><span class="pill">über</span><span class="pill">um</span></div>
+      </div>
+    </article>
+    <article class="world f">
+      <div class="rail"></div>
+      <div class="body">
+        <div class="art"><span class="a de">ohne Präposition</span><span class="scene">Dativ · Akkusativ · Genitiv</span></div>
+        <p class="story de">Bist du <em>mir</em> böse? Das ist <em>mir</em> egal. Die Arbeit ist <em>mir</em> zu anstrengend. <em>Mir</em> ist kalt. Das Gebäude ist <em>400 Jahre</em> alt. Ich bin mir <em>der Verantwortung</em> bewusst.</p>
+        <p class="story-en">Are you cross with me? I don't mind. The work is too strenuous for me. I'm cold. The building is 400 years old. I'm aware of the responsibility.</p>
+        <p class="take"><b>Four sub-groups:</b> a dative for the person affected · dative + zu ("too … for me") · a subjectless dative for sensations · a bare accusative for measures · a genitive with bewusst, sicher, würdig, mächtig.</p>
+        <div class="beat"><span class="pill">mir böse</span><span class="pill">mir zu laut</span><span class="pill">mir ist kalt</span><span class="bar"></span><span class="pill">400 Jahre alt</span><span class="pill">der Sache bewusst</span></div>
+      </div>
+    </article>
+  </div>
+
+  <h2 class="sec">The ten most expensive mistakes</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Wrong</th><th>Right</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td class="de" style="color:var(--bad)">Ich bin kalt.</td><td class="de g-der">Mir ist kalt.</td><td>»Ich bin kalt« describes your character. Sensations use a subjectless dative.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">interessiert an das Projekt</td><td class="de g-der">interessiert an dem Projekt</td><td>interessiert an takes the DATIVE.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">gewöhnt an dem Klima</td><td class="de g-der">gewöhnt an das Klima</td><td>gewöhnt an takes the ACCUSATIVE — the same preposition, the other case.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Wir sind von der Zusammenarbeit angewiesen.</td><td class="de g-der">auf die Zusammenarbeit angewiesen</td><td>English "reliant on" misleads: angewiesen takes auf + accusative.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">stolz über meine Tochter</td><td class="de g-der">stolz auf meine Tochter</td><td>stolz is one of the auf-adjectives.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">beliebt für die Studenten</td><td class="de g-der">beliebt bei den Studenten</td><td>The group that likes you takes bei.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">schuld für den Unfall</td><td class="de g-der">schuld an dem Unfall</td><td>"To blame for" is schuld AN + dative.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Auf was bist du stolz?</td><td class="de g-der">Worauf bist du stolz?</td><td>Things take wo(r) + preposition in careful German.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Darauf bin ich stolz (about a person)</td><td class="de g-der">Auf ihn bin ich stolz.</td><td>People never take da(r)- — the preposition keeps a pronoun.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Ich bin dich dankbar.</td><td class="de g-der">Ich bin dir für deine Hilfe dankbar.</td><td>dankbar takes a dative person AND für + accusative for the reason.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Two prepositions, two meanings</h2>
+  <p class="lede">At C1 the preposition is not decoration — it changes what the sentence says.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Adjective</th><th>Version A</th><th>Version B</th></tr></thead>
+    <tbody>
+      <tr><td class="de">böse</td><td class="de">Bist du <b>mir</b> böse? — cross with me (mild, personal)</td><td class="de">Er ist böse <b>auf</b> mich. — angry at me</td></tr>
+      <tr><td class="de">bekannt</td><td class="de">bekannt <b>für</b> die Altstadt — famous for a quality</td><td class="de">bekannt <b>als</b> Kämpfer / <b>bei</b> jungen Leuten — in a role / among a group</td></tr>
+      <tr><td class="de">besorgt</td><td class="de">besorgt <b>um</b> den Patienten — worried for a person</td><td class="de">besorgt <b>über</b> die Entwicklung — concerned about a development</td></tr>
+      <tr><td class="de">enttäuscht</td><td class="de">enttäuscht <b>von</b> dir — let down by a person</td><td class="de">enttäuscht <b>über</b> das Ergebnis — disappointed at a result</td></tr>
+      <tr><td class="de">verantwortlich</td><td class="de">verantwortlich <b>für</b> die Finanzen — for a task</td><td class="de">der Geschäftsführung <b>gegenüber</b> verantwortlich — answerable to a person</td></tr>
+      <tr><td class="de">dankbar</td><td class="de"><b>dir</b> dankbar — dative for the person</td><td class="de">dankbar <b>für</b> deine Hilfe — für for the reason</td></tr>
+      <tr><td class="de">froh</td><td class="de">froh <b>über</b> die Nachricht — glad about a fact</td><td class="de">froh <b>um</b> jede Hilfe — relieved to have something</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Word order — before or after the adjective</h2>
+  <p class="lede">The prepositional phrase may stand in front of the adjective or behind it; both are correct German, and the version after the adjective (the Nachfeld) is common when the phrase is long. Only <span class="de">gegenüber</span> has a preference: it usually FOLLOWS its noun, and after a pronoun it must.</p>
+  <div class="tablewrap"><table>
+    <tbody>
+      <tr><td class="de">Autoabgase sind <b>für die Umwelt</b> schädlich.</td><td class="de">= Autoabgase sind sehr schädlich <b>für die Umwelt</b>.</td></tr>
+      <tr><td class="de">Wir sind <b>jeglicher Kritik gegenüber</b> aufgeschlossen.</td><td class="de">= Wir sind <b>gegenüber jeglicher Kritik</b> aufgeschlossen.</td></tr>
+      <tr><td class="de">Friedrich war <b>uns gegenüber</b> zurückhaltend.</td><td class="de" style="color:var(--bad)">✗ gegenüber uns zurückhaltend</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">How to use this</h2>
+  <p class="lede"><b>Level 1</b> gives you a sentence with a gap: choose the preposition (and, where it matters, the article that shows the case), then name the rule. The feedback always shows the adjective with its fixed preposition, why that case, and the finished sentence. <b>Level 2</b> builds whole phrases: the an/in split, the direct cases, pronominal adverbs and questions, word order, and the adjectives that take two prepositions. Wrong answers come back later in the same round and are drawn first in the next one. Your progress is saved in the browser.</p>
+</section>
+
+<section id="view-l1" hidden>
+  <h2 class="sec">Level 1 — which preposition, which case?</h2>
+  <p class="lede">Choose the missing word, then name the rule that decided it. Sentences you get wrong come back later in the same round.</p>
+  <div class="quizbar">
+    <button class="chip" data-f="alle" aria-pressed="true">All</button>
+    <button class="chip" data-f="praep_dat" aria-pressed="false">Preposition + dative</button>
+    <button class="chip" data-f="praep_akk" aria-pressed="false">Preposition + accusative</button>
+    <button class="chip" data-f="direkt" aria-pressed="false">Direct case</button>
+    <button class="chip" data-f="form" aria-pressed="false">da(r)/wo(r) &amp; form</button>
+    <button class="chip" data-f="fallen" aria-pressed="false">Traps</button>
+    <span class="spacer"></span>
+    <button class="chip" id="ruleToggle" aria-pressed="true">Rule step</button>
+  </div>
+  <div class="progrow">
+    <span id="p1text" class="ptext"></span>
+    <span class="spacer"></span>
+    <label class="rsel">Round
+      <select id="roundSize"><option value="25">25</option><option value="50">50</option><option value="0">all</option></select>
+    </label>
+    <button class="chip" id="wipe1">Delete progress</button>
+  </div>
+  <div class="meter"><i id="m1"></i></div>
+  <div id="l1stage"></div>
+  <div class="navrow">
+    <button class="btn primary" id="next1">Next →</button>
+    <span class="score" id="s1"></span>
+    <span class="spacer"></span>
+    <button class="btn" id="shuf1">Shuffle ⇄</button>
+    <button class="btn" id="res1">New round ↻</button>
+  </div>
+</section>
+<section id="view-l2" hidden>
+  <h2 class="sec">Level 2 — build the whole phrase</h2>
+  <p class="lede">The an/in split, direct cases, pronominal adverbs and questions, word order, and the adjectives that take two prepositions.</p>
+  <div class="progrow"><span id="p2text" class="ptext"></span></div>
+  <div class="meter"><i id="m2"></i></div>
+  <div id="l2stage"></div>
+  <div class="navrow">
+    <button class="btn primary" id="next2">Next →</button>
+    <span class="score" id="s2"></span>
+    <span class="spacer"></span>
+    <button class="btn" id="shuf2">Shuffle ⇄</button>
+    <button class="btn" id="res2">New round ↻</button>
+  </div>
+</section>
+<section id="view-ref" hidden>
+  <h2 class="sec">Reference — every rule</h2>
+  <p class="lede">Every rule the trainer tests, with the exceptions that belong to it.</p>
+  <div class="tablewrap"><table id="reftable">
+    <thead><tr><th>Rule</th><th>How to spot it &amp; what to do</th><th>Examples</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h2 class="sec">Adjectives with a direct dative — the person affected</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Adjective</th><th>Example</th><th>English</th></tr></thead>
+    <tbody>
+      <tr><td class="de">ähnlich sein/sehen</td><td class="de">Mein Bruder ist/sieht mir ähnlich.</td><td>to look like</td></tr>
+      <tr><td class="de">behilflich sein</td><td class="de">Kannst du uns behilflich sein?</td><td>to be of help</td></tr>
+      <tr><td class="de">böse sein</td><td class="de">Bist du mir immer noch böse?</td><td>to be cross with</td></tr>
+      <tr><td class="de">egal / gleichgültig sein</td><td class="de">Das ist mir egal.</td><td>not to matter to</td></tr>
+      <tr><td class="de">lieb / teuer sein</td><td class="de">Du bist mir lieb und teuer.</td><td>to be dear to</td></tr>
+      <tr><td class="de">peinlich sein</td><td class="de">Das ist mir aber peinlich!</td><td>to be embarrassing for</td></tr>
+      <tr><td class="de">recht sein</td><td class="de">Die Entscheidung ist mir recht.</td><td>to be fine by</td></tr>
+      <tr><td class="de">unangenehm sein</td><td class="de">Die Frage war dem Politiker unangenehm.</td><td>to be unpleasant for</td></tr>
+      <tr><td class="de">verbunden sein</td><td class="de">Wir sind dir sehr verbunden.</td><td>to be obliged to</td></tr>
+      <tr><td class="de">treu · fremd · überlegen · unterlegen · dankbar</td><td class="de">Sie ist ihm treu geblieben.</td><td>faithful / alien / superior / inferior / grateful to</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Dative + zu, and the subjectless dative</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Pattern</th><th>Example</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="de">Dativ + zu + Adjektiv</td><td class="de">Die Arbeit ist mir zu anstrengend.</td><td>= zu anstrengend für mich</td></tr>
+      <tr><td class="de">anstrengend · gefährlich · langweilig · leicht · schwierig · kompliziert · teuer · laut</td><td class="de">Mir war die Aufgabe zu schwierig.</td><td>the dative goes directly before zu</td></tr>
+      <tr><td class="de">Subjektlos: Mir ist / wird …</td><td class="de">Mir ist kalt. · Ihm wurde übel.</td><td>no nominative subject at all</td></tr>
+      <tr><td class="de">schlecht · übel · kalt · warm · heiß · schwindlig</td><td class="de">Ist euch nicht kalt?</td><td class="de" style="color:var(--bad)">✗ Ich bin kalt</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Direct accusative and genitive</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Case</th><th>Adjectives</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>accusative — measures, age, weight, distance, value</td><td class="de">alt · breit · hoch · tief · lang · schwer · entfernt · wert</td><td class="de">Das Fahrzeug ist drei Meter breit und zwei Tonnen schwer.</td></tr>
+      <tr><td>accusative + von</td><td class="de">entfernt</td><td class="de">Das Krankenhaus ist einen Kilometer von dem Ort entfernt.</td></tr>
+      <tr><td>genitive (with a reflexive dative)</td><td class="de">bewusst · sicher</td><td class="de">Ich bin mir der Verantwortung bewusst.</td></tr>
+      <tr><td>genitive (formal)</td><td class="de">würdig · verdächtig · mächtig · überdrüssig</td><td class="de">Er ist der deutschen Sprache mächtig.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Pronominal adverbs and questions</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Preposition</th><th>Thing — replacement</th><th>Thing — question</th><th>Person</th></tr></thead>
+    <tbody>
+      <tr><td class="de">an</td><td class="de">daran</td><td class="de">woran</td><td class="de">an ihn / an wen</td></tr>
+      <tr><td class="de">auf</td><td class="de">darauf</td><td class="de">worauf</td><td class="de">auf ihn / auf wen</td></tr>
+      <tr><td class="de">über</td><td class="de">darüber</td><td class="de">worüber</td><td class="de">über ihn / über wen</td></tr>
+      <tr><td class="de">für</td><td class="de">dafür</td><td class="de">wofür</td><td class="de">für ihn / für wen</td></tr>
+      <tr><td class="de">von</td><td class="de">davon</td><td class="de">wovon</td><td class="de">von ihm / von wem</td></tr>
+      <tr><td class="de">mit</td><td class="de">damit</td><td class="de">womit</td><td class="de">mit ihm / mit wem</td></tr>
+      <tr><td class="de">zu</td><td class="de">dazu</td><td class="de">wozu</td><td class="de">zu ihm / zu wem</td></tr>
+      <tr><td colspan="4" style="color:#8a6a12">The -r- appears only before a vowel: da<b>r</b>an, da<b>r</b>auf, da<b>r</b>über — but damit, davon, dafür. A dass-clause is announced the same way: Ich bin froh <b>darüber</b>, dass …</td></tr>
+    </tbody>
+  </table></div>
+
+</section>
+<footer>
+  <span>Keyboard: <b>1 · 2 · 3 · 4</b> answer · <b>Enter</b> next · <b>S</b> shuffle · progress is saved in this browser</span>
+  <span id="fcount">TELC B2/C1 · Adjektive</span>
+</footer>
+</div>
+<script>
+(function(){
+"use strict";
+var RL={"adj_von": {"k": "praep_dat", "l": "von + dative", "sig": "The adjective names where a state comes from, or what someone is convinced / enthusiastic about.", "req": "von always takes the dative: abhängig, begeistert, überzeugt, enttäuscht, entfernt, müde, angetan, frei von.", "ex": ["Frau Marx war von unseren Vorschlägen begeistert.", "Das Gehalt ist von der Erfahrung abhängig.", "Ich bin von der zweistündigen Rede müde."], "warn": "enttäuscht works with both: enttäuscht VON a person, enttäuscht ÜBER a result. And note entfernt von = away from (Der Sportler ist von seiner Bestform weit entfernt)."}, "adj_mit": {"k": "praep_dat", "l": "mit + dative", "sig": "The adjective describes a connection or a relationship to somebody or something.", "req": "mit always takes the dative: zufrieden, unzufrieden, einverstanden, verwandt, befreundet, verheiratet, beschäftigt, fertig, vergleichbar, identisch.", "ex": ["Wir sind mit der Zusammenarbeit sehr zufrieden.", "Sind Sie mit dem Schauspieler verwandt?", "Mit der Aufgabe sind wir schon lange fertig."], "warn": "fertig mit = finished with something; fertig für = ready for something. And zufrieden mit ≠ glücklich über."}, "adj_zu": {"k": "praep_dat", "l": "zu + dative", "sig": "The adjective describes behaviour TOWARDS a person, or a readiness to do something.", "req": "zu always takes the dative: freundlich, nett, höflich, unfreundlich, grausam — and bereit, entschlossen, fähig, imstande, in der Lage.", "ex": ["Du solltest zu den Kunden etwas netter sein.", "Sie ist zum Sieg entschlossen.", "Gerade in Stresssituationen ist man zu Höchstleistungen fähig."], "warn": "Behaviour towards people is zu, not mit: »nett zu mir«, never »nett mit mir«. But: fähig zu etwas ≠ fähig sein, etwas zu tun (infinitive clause)."}, "adj_bei": {"k": "praep_dat", "l": "bei + dative", "sig": "The adjective says with WHOM somebody enjoys a reputation.", "req": "bei + dative, and it is mostly this small group: beliebt, unbeliebt, angesehen, bekannt bei, verhasst.", "ex": ["Die Sängerin ist vor allem bei jungen Leuten beliebt.", "Die Band ist bei einem jungen Publikum beliebt.", "Er ist bei den Kollegen sehr angesehen."], "warn": "beliebt BEI the people who like you; beliebt FÜR does not exist. Compare bekannt für (a quality) vs bekannt bei (an audience)."}, "adj_gegenueber": {"k": "praep_dat", "l": "gegenüber + dative", "sig": "The adjective describes an attitude towards somebody or something.", "req": "gegenüber + dative. It very often FOLLOWS the noun: jeglicher Kritik gegenüber aufgeschlossen.", "ex": ["Wir sind jeglicher Kritik gegenüber aufgeschlossen.", "Die Vorgesetzte ist allen Ideen gegenüber aufgeschlossen.", "Sie ist fremden Menschen gegenüber erst mal misstrauisch."], "warn": "Both word orders are correct: gegenüber der Kritik aufgeschlossen = der Kritik gegenüber aufgeschlossen. After a pronoun it must follow: mir gegenüber."}, "adj_nach": {"k": "praep_dat", "l": "nach + dative", "sig": "The adjective expresses a craving for something.", "req": "nach + dative: verrückt nach, süchtig nach, begierig nach, hungrig nach.", "ex": ["Mika ist verrückt nach Schokolade.", "Viele Neureiche sind verrückt nach Luxusartikeln.", "Er ist süchtig nach Anerkennung."], "warn": "verrückt nach = crazy about; verrückt vor Liebe = out of one's mind with love. Different preposition, different meaning."}, "adj_vor": {"k": "praep_dat", "l": "vor + dative", "sig": "The adjective names the emotion that CAUSES a physical state, or the danger you are protected from.", "req": "vor + dative: blass vor Angst, stumm vor Staunen, sicher vor, geschützt vor.", "ex": ["Frau Dix war vor Angst ganz blass.", "Hier sind wir vor dem Regen sicher.", "Sie war vor Freude sprachlos."], "warn": "No article is used in the emotion phrases: vor Angst, vor Freude, vor Wut."}, "adj_an_dat": {"k": "praep_dat", "l": "an + DATIVE", "sig": "The adjective describes participation, interest, guilt, illness or abundance.", "req": "These an-adjectives take the DATIVE: interessiert, beteiligt, reich, arm, schuld, erkrankt, gewöhnt? (no — gewöhnt takes the accusative).", "ex": ["Ich bin an dem Projekt sehr interessiert.", "Das Land ist reich an Bodenschätzen.", "Der Fahrradfahrer war an diesem Unfall nicht schuld."], "warn": "an is a two-way preposition, so it splits: interessiert/beteiligt/reich/schuld an + DATIVE, but gewöhnt/adressiert an + ACCUSATIVE. This pair is the classic exam trap."}, "adj_in_dat": {"k": "praep_dat", "l": "in + DATIVE", "sig": "The adjective rates an ability in a field or subject.", "req": "These in-adjectives take the DATIVE: gut, schlecht, erfahren, unerfahren, geübt, nachlässig.", "ex": ["In diesem Fach war Jan noch nie gut.", "Der junge Mitarbeiter ist im Protokollschreiben noch unerfahren.", "In dieser Beziehung ist er etwas nachlässig."], "warn": "in also splits: gut/erfahren in + DATIVE, but verliebt/unterteilt in + ACCUSATIVE."}, "adj_auf": {"k": "praep_akk", "l": "auf + accusative", "sig": "The adjective points forward to something, or names the target of an emotion.", "req": "auf always takes the accusative: stolz, gespannt, neugierig, ärgerlich, böse, wütend, eifersüchtig, neidisch, angewiesen, scharf.", "ex": ["Wir sind auf das Ergebnis gespannt.", "Otto ist auf seine Leistung stolz.", "Wir sind auf die gute Zusammenarbeit angewiesen."], "warn": "angewiesen sein AUF + accusative is easy to get wrong because it feels dative in English (»reliant on«). And böse/wütend auf a PERSON, but über a THING or an event."}, "adj_fuer": {"k": "praep_akk", "l": "für + accusative", "sig": "The adjective says who or what something is good, bad, important or responsible for.", "req": "für always takes the accusative: verantwortlich, zuständig, wichtig, unwichtig, geeignet, ungeeignet, schädlich, nützlich, dankbar, typisch, bekannt, offen, charakteristisch.", "ex": ["Der Master-Abschluss ist für meine Bewerbung sehr wichtig.", "Klaus ist für die Finanzen verantwortlich.", "Zu lange Lieferzeiten sind auf Dauer schädlich für unser Geschäft."], "warn": "verantwortlich FÜR a task, but verantwortlich GEGENÜBER the person you answer to. dankbar FÜR the thing + DATIVE for the person: Ich bin dir für deine Hilfe dankbar."}, "adj_gegen": {"k": "praep_akk", "l": "gegen + accusative", "sig": "The adjective describes resistance or sensitivity to something.", "req": "gegen always takes the accusative: immun, empfindlich, unempfindlich, allergisch, resistent, machtlos.", "ex": ["Jetzt ist er gegen die Krankheit immun.", "Ich bin im Moment so empfindlich gegen Süßes.", "Gegen diesen Vorwurf war er machtlos."], "warn": "empfindlich gegen (sensitive to a substance) but empfindlich gegenüber Kritik is also possible for people's reactions."}, "adj_ueber": {"k": "praep_akk", "l": "über + accusative", "sig": "The adjective names an emotional reaction to something that has happened.", "req": "über always takes the accusative: glücklich, froh, erfreut, traurig, erstaunt, verwundert, entsetzt, wütend, verärgert, empört, informiert.", "ex": ["Über diese Produktbeurteilung sind wir sehr verwundert.", "Wir sind über die unpünktliche Lieferung verärgert.", "Ich bin doch sehr verwundert über dein Verhalten!"], "warn": "über looks like a two-way preposition, but after an adjective of emotion it is ALWAYS accusative — there is no wo?/wohin? question here."}, "adj_um": {"k": "praep_akk", "l": "um + accusative", "sig": "The adjective expresses worry or effort about somebody.", "req": "um always takes the accusative: besorgt, bemüht, verlegen.", "ex": ["Die Ärzte sind um diesen Patienten sehr besorgt.", "Wir sind um eine schnelle Lösung bemüht.", "Er war um eine Antwort nicht verlegen."], "warn": "besorgt UM somebody (worried about them) vs besorgt ÜBER a development. Both exist, with different meanings."}, "adj_an_akk": {"k": "praep_akk", "l": "an + ACCUSATIVE", "sig": "The adjective describes getting used to something or a message being directed somewhere.", "req": "These an-adjectives take the ACCUSATIVE: gewöhnt, adressiert, gerichtet.", "ex": ["Wir sind an diese Kälte nicht gewöhnt.", "Die E-Mail ist an die gesamte Belegschaft adressiert.", "Die Frage war an mich gerichtet."], "warn": "Contrast with the dative group: interessiert AN DEM Projekt (dat.) but gewöhnt AN DIE Kälte (acc.). The adjective decides, not the preposition."}, "adj_in_akk": {"k": "praep_akk", "l": "in + ACCUSATIVE", "sig": "The adjective describes falling in love or a division into parts.", "req": "These in-adjectives take the ACCUSATIVE: verliebt, unterteilt, eingeteilt, verwickelt.", "ex": ["Anke ist in ihren Nachbarn verliebt.", "Das Buch ist in acht Kapitel unterteilt.", "Er war in einen Unfall verwickelt."], "warn": "verliebt IN + accusative even though nothing moves — with adjectives the case is fixed by the adjective, not by wo?/wohin?."}, "adj_dativ": {"k": "direkt", "l": "Direct dative — the person affected", "sig": "The adjective has no preposition at all; a person in the dative says who it applies to.", "req": "Dative of the person: ähnlich, behilflich, böse, egal, gleichgültig, lieb, teuer, peinlich, recht, unangenehm, verbunden, treu, dankbar, überlegen, unterlegen, fremd, bekannt.", "ex": ["Mein Bruder sieht mir ähnlich.", "Bist du mir immer noch böse?", "Die Frage war dem Politiker sehr unangenehm."], "warn": "These datives always refer to PEOPLE. Note the double life of böse: böse + dative (annoyed with me) vs böse auf + accusative (angry at someone)."}, "adj_dativ_zu": {"k": "direkt", "l": "Dative + zu — too … for me", "sig": "The sentence says that something is too much or too little FOR somebody.", "req": "Dative of the person + zu + adjective: anstrengend, gefährlich, langweilig, leicht, schwierig, schwer, kompliziert, teuer, kalt, warm, laut.", "ex": ["Die Arbeit ist mir zu anstrengend.", "Mir war die Aufgabe zu schwierig.", "In Grönland ist es mir zu kalt."], "warn": "There is always an alternative with für: Die Arbeit ist mir zu anstrengend = Die Arbeit ist zu anstrengend für mich."}, "adj_subjektlos": {"k": "direkt", "l": "Subjectless dative — Mir ist kalt", "sig": "A physical sensation, with no nominative subject at all.", "req": "schlecht, übel, kalt, warm, heiß, schwindlig, langweilig are used as: Mir ist / wird + adjective.", "ex": ["Mir ist kalt.", "Plötzlich wurde ihm übel.", "Ist euch nicht kalt? Es sind nur zehn Grad!"], "warn": "»Ich bin kalt« means you are a cold-hearted person. The correct sentence is »Mir ist kalt«."}, "adj_akk": {"k": "direkt", "l": "Direct accusative — measures and value", "sig": "The adjective states an age, a size, a weight, a distance or a value.", "req": "A bare accusative measurement stands in front of the adjective: alt, breit, hoch, tief, lang, schwer, entfernt, wert.", "ex": ["Das Gebäude ist 400 Jahre alt.", "Das Fahrzeug ist drei Meter breit und zwei Tonnen schwer.", "Das Haus ist den hohen Preis nicht wert."], "warn": "No preposition at all here: »Das Gebäude ist 400 Jahre alt«, not »von 400 Jahren«. With entfernt the starting point takes von: einen Kilometer VON dem Ort entfernt."}, "adj_genitiv": {"k": "direkt", "l": "Genitive complement — rare and fixed", "sig": "A small, formal group of adjectives takes a genitive, usually together with a reflexive dative.", "req": "bewusst, sicher, würdig, verdächtig, überdrüssig, mächtig: Ich bin mir der Verantwortung bewusst.", "ex": ["Ich bin mir der Verantwortung bewusst.", "Ich bin mir seiner Loyalität nicht sicher.", "Er ist der deutschen Sprache mächtig."], "warn": "Note the reflexive dative in bewusst/sicher: »Ich bin MIR dessen bewusst«. Without it the sentence is incomplete."}, "adj_pronominal": {"k": "form", "l": "Pronominal adverbs — daran, darüber, wofür", "sig": "You replace the prepositional object with a pronoun, or ask a question about it.", "req": "THINGS: da(r) + preposition (daran, darüber, dafür, davon, damit) and wo(r) + preposition for the question (woran, worüber, wofür, wovon, womit). PEOPLE: preposition + pronoun (auf ihn, mit ihr) and preposition + wen/wem in the question (auf wen, mit wem).", "ex": ["Bist du am Projekt interessiert? — Nein, daran bin ich nicht interessiert.", "Woran bist du interessiert?", "Auf wen bist du stolz?"], "warn": "Never »auf was« or »über was« in careful German — use worauf, worüber. And never daran/darauf for a person: it must be auf ihn, an sie."}, "adj_stellung": {"k": "form", "l": "Word order — the phrase may come before or after", "sig": "The adjective has a prepositional complement in a main clause.", "req": "Both positions are correct: Autoabgase sind für die Umwelt schädlich. = Autoabgase sind sehr schädlich für die Umwelt. Putting it after the adjective (the Nachfeld) is common when the phrase is long.", "ex": ["Der Master-Abschluss ist für meine Bewerbung sehr wichtig.", "Zu lange Lieferzeiten sind schädlich für unser Geschäft.", "Wir sind jeglicher Kritik gegenüber aufgeschlossen."], "warn": "Only gegenüber has a real preference: it is usually placed AFTER the noun."}, "adj_als": {"k": "form", "l": "als + equating case", "sig": "The adjective introduces a role or a label, not a case-governed object.", "req": "als takes no case of its own — the noun after it copies the case of the word it refers to (usually nominative).", "ex": ["Der Autor ist als Kämpfer für den Frieden überall bekannt.", "Sie gilt als beste Kandidatin.", "Er ist als Experte anerkannt."], "warn": "Do not confuse bekannt ALS (in the role of) with bekannt FÜR (famous for a quality) and bekannt BEI (known among a group)."}, "adj_doppel": {"k": "form", "l": "Two prepositions, two meanings", "sig": "The same adjective takes different prepositions depending on what you mean.", "req": "Learn the pairs: böse + dat. (annoyed with) / böse auf (angry at) / böse über (angry about) · froh über (a fact) / froh um (relieved to have) · bekannt für / als / bei · dankbar für + dat. person · besorgt um (a person) / über (a development) · enttäuscht von (a person) / über (a result) · verantwortlich für (a task) / gegenüber (a person).", "ex": ["Bist du mir böse? ↔ Er ist böse auf mich.", "Ich bin dir für deine Hilfe dankbar.", "Sie ist um ihren Sohn besorgt ↔ über die Entwicklung besorgt."], "warn": "This is where marks are lost at C1: the preposition is not decoration, it changes the meaning."}};
+var Q1=[{"s": "Frau Marx war ___ unseren Vorschlägen begeistert.", "o": ["von", "über", "für", "auf"], "a": "von", "r": "adj_von", "b": "begeistert sein VON", "c": "von always takes the dative.", "f": "von + dative plural = von unseren Vorschlägen", "en": "Ms Marx was delighted with our proposals.", "t": 0}, {"s": "Die Höhe des Rabatts ist ___ der Anzahl der bestellten Computer abhängig.", "o": ["von", "auf", "für", "an"], "a": "von", "r": "adj_von", "b": "abhängig sein VON", "c": "von + dative.", "f": "von + dative feminine = von der Anzahl", "en": "The size of the discount depends on the number of computers ordered.", "t": 0}, {"s": "Er ist ___ überzeugt, dass ich ihm die Stelle weggenommen habe.", "o": ["davon", "darüber", "dafür", "daran"], "a": "davon", "r": "adj_von", "b": "überzeugt sein VON — replaced by a pronominal adverb", "c": "The dass-clause is the object, so von + da(r) = davon.", "f": "da + von = davon", "en": "He is convinced that I took the job from him.", "t": 1}, {"s": "Die Kritiker waren ___ dem neuen Film enttäuscht.", "o": ["von", "über", "auf", "für"], "a": "von", "r": "adj_von", "b": "enttäuscht sein VON", "c": "von + dative. (enttäuscht ÜBER + accusative is also possible for a result.)", "f": "von + dative masculine = von dem Film", "en": "The critics were disappointed by the new film.", "t": 1}, {"s": "Der Sportler ist ___ seiner Bestform noch meilenweit entfernt.", "o": ["von", "aus", "zu", "für"], "a": "von", "r": "adj_von", "b": "entfernt sein VON", "c": "von + dative marks the starting point.", "f": "von + dative feminine = von seiner Bestform", "en": "The athlete is still miles from his best form.", "t": 1}, {"s": "Ich bin ___ der zweistündigen Rede müde.", "o": ["von", "über", "auf", "an"], "a": "von", "r": "adj_von", "b": "müde sein VON", "c": "von + dative.", "f": "von + dative feminine = von der Rede", "en": "I'm tired from the two-hour speech.", "t": 0}, {"s": "Was halten Sie von dem Vertrag? — Ich bin noch nicht ___ überzeugt.", "o": ["davon", "darüber", "daran", "dafür"], "a": "davon", "r": "adj_von", "b": "überzeugt sein VON", "c": "A thing → da(r) + von = davon.", "f": "da + von = davon", "en": "What do you think of the contract? — I'm not convinced of it yet.", "t": 0}, {"s": "Wir sind ___ der Zusammenarbeit sehr zufrieden.", "o": ["mit", "über", "für", "von"], "a": "mit", "r": "adj_mit", "b": "zufrieden sein MIT", "c": "mit always takes the dative.", "f": "mit + dative feminine = mit der Zusammenarbeit", "en": "We are very satisfied with the cooperation.", "t": 0}, {"s": "Sind Sie ___ dem berühmten Schauspieler verwandt?", "o": ["mit", "von", "zu", "an"], "a": "mit", "r": "adj_mit", "b": "verwandt sein MIT", "c": "mit + dative.", "f": "mit + dative masculine = mit dem Schauspieler", "en": "Are you related to the famous actor?", "t": 0}, {"s": "Die Germanistikstudentin ist ___ Theaterstücken von Elfriede Jelinek beschäftigt.", "o": ["mit", "an", "über", "für"], "a": "mit", "r": "adj_mit", "b": "beschäftigt sein MIT", "c": "mit + dative plural.", "f": "mit + dative plural = mit Theaterstücken", "en": "The German-studies student is working on plays by Elfriede Jelinek.", "t": 0}, {"s": "David ist ___ der Abrechnung beschäftigt.", "o": ["mit", "an", "bei", "über"], "a": "mit", "r": "adj_mit", "b": "beschäftigt sein MIT", "c": "mit + dative.", "f": "mit + dative feminine = mit der Abrechnung", "en": "David is busy with the accounts.", "t": 0}, {"s": "Wir sind ___ der Entscheidung nicht einverstanden.", "o": ["mit", "über", "zu", "für"], "a": "mit", "r": "adj_mit", "b": "einverstanden sein MIT", "c": "mit + dative.", "f": "mit + dative feminine = mit der Entscheidung", "en": "We do not agree with the decision.", "t": 1}, {"s": "___ der Aufgabe sind wir schon lange fertig.", "o": ["Mit", "An", "Über", "Für"], "a": "Mit", "r": "adj_mit", "b": "fertig sein MIT", "c": "mit + dative. (fertig FÜR would mean ready for something.)", "f": "mit + dative feminine = mit der Aufgabe", "en": "We finished the task a long time ago.", "t": 1}, {"s": "Die beiden sind seit der Schulzeit ___ einander befreundet.", "o": ["mit", "zu", "bei", "für"], "a": "mit", "r": "adj_mit", "b": "befreundet sein MIT", "c": "mit + dative.", "f": "mit + dative = mit einander (miteinander)", "en": "The two have been friends since school.", "t": 0}, {"s": "___ der Stelle war sie von Anfang an unzufrieden.", "o": ["Mit", "Über", "Für", "An"], "a": "Mit", "r": "adj_mit", "b": "unzufrieden sein MIT", "c": "mit + dative — the negative form keeps the same preposition.", "f": "mit + dative feminine = mit der Stelle", "en": "She was dissatisfied with the job from the start.", "t": 0}, {"s": "Du solltest ___ den Kunden etwas netter sein.", "o": ["zu", "mit", "für", "gegenüber"], "a": "zu", "r": "adj_zu", "b": "nett sein ZU", "c": "Behaviour towards people takes zu + dative.", "f": "zu + dative plural = zu den Kunden", "en": "You should be a bit nicer to the customers.", "t": 1}, {"s": "Alle Mitarbeiterinnen und Mitarbeiter müssen ___ den Kundinnen und Kunden freundlich sein.", "o": ["zu", "mit", "für", "bei"], "a": "zu", "r": "adj_zu", "b": "freundlich sein ZU", "c": "zu + dative for behaviour towards someone.", "f": "zu + dative plural = zu den Kunden", "en": "All employees have to be friendly to the customers.", "t": 0}, {"s": "Der Kellner ist ___ den Gästen oft unfreundlich.", "o": ["zu", "mit", "gegen", "für"], "a": "zu", "r": "adj_zu", "b": "unfreundlich sein ZU", "c": "zu + dative.", "f": "zu + dative plural = zu den Gästen", "en": "The waiter is often unfriendly to the guests.", "t": 0}, {"s": "Unsere Mannschaft ist ___ Sieg entschlossen.", "o": ["zum", "auf den", "für den", "über den"], "a": "zum", "r": "adj_zu", "b": "entschlossen sein ZU", "c": "zu + dative; zu dem contracts to zum.", "f": "zu + dative masculine = zum Sieg", "en": "Our team is determined to win.", "t": 1}, {"s": "Gerade in Stresssituationen ist man ___ Höchstleistungen fähig.", "o": ["zu", "für", "an", "auf"], "a": "zu", "r": "adj_zu", "b": "fähig sein ZU", "c": "zu + dative plural.", "f": "zu + dative plural = zu Höchstleistungen", "en": "Precisely in stressful situations people are capable of top performance.", "t": 1}, {"s": "Sind Sie ___ einem Kompromiss bereit?", "o": ["zu", "für", "auf", "an"], "a": "zu", "r": "adj_zu", "b": "bereit sein ZU", "c": "zu + dative.", "f": "zu + dative masculine = zu einem Kompromiss", "en": "Are you prepared to compromise?", "t": 0}, {"s": "Die Sängerin ist vor allem ___ jungen Leuten beliebt.", "o": ["bei", "für", "von", "mit"], "a": "bei", "r": "adj_bei", "b": "beliebt sein BEI", "c": "bei + dative names the group that likes someone.", "f": "bei + dative plural = bei jungen Leuten", "en": "The singer is popular above all with young people.", "t": 1}, {"s": "Warum hat Sonja gekündigt? Sie war doch ___ allen so beliebt.", "o": ["bei", "für", "von", "mit"], "a": "bei", "r": "adj_bei", "b": "beliebt sein BEI", "c": "bei + dative.", "f": "bei + dative plural = bei allen", "en": "Why did Sonja resign? She was so popular with everybody.", "t": 0}, {"s": "Der alte Professor ist ___ seinen Studierenden hoch angesehen.", "o": ["bei", "für", "von", "zu"], "a": "bei", "r": "adj_bei", "b": "angesehen sein BEI", "c": "bei + dative.", "f": "bei + dative plural = bei seinen Studierenden", "en": "The old professor is highly respected by his students.", "t": 0}, {"s": "Wir sind jeglicher Kritik ___ aufgeschlossen.", "o": ["gegenüber", "gegen", "für", "über"], "a": "gegenüber", "r": "adj_gegenueber", "b": "aufgeschlossen sein GEGENÜBER", "c": "gegenüber + dative, here placed after the noun.", "f": "dative + gegenüber = jeglicher Kritik gegenüber", "en": "We are open to any kind of criticism.", "t": 1}, {"s": "Die Leiterin ist neuen Projekten ___ aufgeschlossen.", "o": ["gegenüber", "gegen", "für", "zu"], "a": "gegenüber", "r": "adj_gegenueber", "b": "aufgeschlossen sein GEGENÜBER", "c": "gegenüber + dative plural.", "f": "dative plural + gegenüber = neuen Projekten gegenüber", "en": "The manager is open to new projects.", "t": 0}, {"s": "Sie ist fremden Menschen ___ erst mal misstrauisch.", "o": ["gegenüber", "gegen", "für", "zu"], "a": "gegenüber", "r": "adj_gegenueber", "b": "misstrauisch sein GEGENÜBER", "c": "gegenüber + dative.", "f": "dative plural + gegenüber = fremden Menschen gegenüber", "en": "She is suspicious of strangers at first.", "t": 0}, {"s": "Friedrich war uns ___ so zurückhaltend. Hat er ein Problem?", "o": ["gegenüber", "gegen", "zu", "für"], "a": "gegenüber", "r": "adj_gegenueber", "b": "zurückhaltend sein GEGENÜBER", "c": "After a pronoun gegenüber must follow: uns gegenüber.", "f": "pronoun + gegenüber = uns gegenüber", "en": "Friedrich was so reserved towards us. Has he got a problem?", "t": 1}, {"s": "Mika ist verrückt ___ Schokolade.", "o": ["nach", "auf", "für", "über"], "a": "nach", "r": "adj_nach", "b": "verrückt sein NACH", "c": "nach + dative.", "f": "nach + dative = nach Schokolade", "en": "Mika is crazy about chocolate.", "t": 1}, {"s": "Viele Neureiche sind verrückt ___ Luxusartikeln und Markenkleidung.", "o": ["nach", "auf", "für", "über"], "a": "nach", "r": "adj_nach", "b": "verrückt sein NACH", "c": "nach + dative plural.", "f": "nach + dative plural = nach Luxusartikeln", "en": "Many of the newly rich are crazy about luxury goods and designer clothes.", "t": 0}, {"s": "Frau Dix war ___ Angst ganz blass.", "o": ["vor", "von", "aus", "über"], "a": "vor", "r": "adj_vor", "b": "blass sein VOR", "c": "vor + dative names the emotion that causes the state; no article.", "f": "vor + dative, no article = vor Angst", "en": "Ms Dix was quite pale with fear.", "t": 1}, {"s": "Unter dem Dach sind wir ___ dem Regen sicher.", "o": ["vor", "von", "gegen", "für"], "a": "vor", "r": "adj_vor", "b": "sicher sein VOR", "c": "vor + dative for the danger you are protected from.", "f": "vor + dative masculine = vor dem Regen", "en": "Under the roof we're safe from the rain.", "t": 0}, {"s": "Ich bin ___ dem Projekt sehr interessiert.", "o": ["an", "auf", "für", "über"], "a": "an", "r": "adj_an_dat", "b": "interessiert sein AN + dative", "c": "an is a two-way preposition, but with interessiert it is fixed to the DATIVE.", "f": "an + dative neuter = an dem Projekt", "en": "I'm very interested in the project.", "t": 1}, {"s": "Wir sind ___ einer Zusammenarbeit interessiert.", "o": ["an", "auf", "für", "über"], "a": "an", "r": "adj_an_dat", "b": "interessiert sein AN + dative", "c": "an + dative.", "f": "an + dative feminine = an einer Zusammenarbeit", "en": "We are interested in working together.", "t": 0}, {"s": "Herr und Frau Krüger sind ___ den Angeboten von Immobilienfirmen nicht mehr interessiert.", "o": ["an", "auf", "für", "über"], "a": "an", "r": "adj_an_dat", "b": "interessiert sein AN + dative", "c": "an + dative plural.", "f": "an + dative plural = an den Angeboten", "en": "Mr and Mrs Krüger are no longer interested in offers from estate agents.", "t": 0}, {"s": "Wir sind ___ dem Projekt beteiligt.", "o": ["an", "bei", "in", "für"], "a": "an", "r": "adj_an_dat", "b": "beteiligt sein AN + dative", "c": "an + dative.", "f": "an + dative neuter = an dem Projekt", "en": "We are involved in the project.", "t": 1}, {"s": "Der deutsche Physiker war ___ der Erfindung maßgeblich beteiligt.", "o": ["an", "bei", "für", "in"], "a": "an", "r": "adj_an_dat", "b": "beteiligt sein AN + dative", "c": "an + dative.", "f": "an + dative feminine = an der Erfindung", "en": "The German physicist was decisively involved in the invention.", "t": 0}, {"s": "Das Land ist reich ___ Bodenschätzen.", "o": ["an", "mit", "von", "in"], "a": "an", "r": "adj_an_dat", "b": "reich sein AN + dative", "c": "an + dative plural, without an article.", "f": "an + dative plural = an Bodenschätzen", "en": "The country is rich in mineral resources.", "t": 1}, {"s": "Der Fahrradfahrer war ___ diesem Unfall nicht schuld.", "o": ["an", "für", "über", "auf"], "a": "an", "r": "adj_an_dat", "b": "schuld sein AN + dative", "c": "an + dative.", "f": "an + dative masculine = an diesem Unfall", "en": "The cyclist was not to blame for this accident.", "t": 1}, {"s": "Ihre Großmutter ist ___ einer Lungenentzündung erkrankt.", "o": ["an", "mit", "von", "auf"], "a": "an", "r": "adj_an_dat", "b": "erkrankt sein AN + dative", "c": "an + dative.", "f": "an + dative feminine = an einer Lungenentzündung", "en": "Her grandmother has fallen ill with pneumonia.", "t": 0}, {"s": "In diesem Fach war Jan noch nie gut. — Und ___ Mathematik?", "o": ["in", "für", "an", "bei"], "a": "in", "r": "adj_in_dat", "b": "gut sein IN + dative", "c": "in + dative for a subject or field.", "f": "in + dative = in Mathematik", "en": "Jan was never good at this subject. — And at maths?", "t": 0}, {"s": "Der junge Mitarbeiter ist ___ Protokollschreiben noch unerfahren.", "o": ["im", "ins", "am", "beim"], "a": "im", "r": "adj_in_dat", "b": "unerfahren sein IN + dative", "c": "in + dative; in dem contracts to im.", "f": "in + dative neuter = im Protokollschreiben", "en": "The young colleague is still inexperienced at writing minutes.", "t": 1}, {"s": "___ dieser Beziehung ist er etwas nachlässig.", "o": ["In", "An", "Für", "Bei"], "a": "In", "r": "adj_in_dat", "b": "nachlässig sein IN + dative", "c": "in + dative.", "f": "in + dative feminine = in dieser Beziehung", "en": "In this respect he is a little careless.", "t": 0}, {"s": "Wir sind ___ das Ergebnis gespannt.", "o": ["auf", "für", "über", "an"], "a": "auf", "r": "adj_auf", "b": "gespannt sein AUF + accusative", "c": "auf always takes the accusative after an adjective.", "f": "auf + accusative neuter = auf das Ergebnis", "en": "We're curious about the result.", "t": 1}, {"s": "Otto ist ___ seine Leistung stolz.", "o": ["auf", "über", "für", "an"], "a": "auf", "r": "adj_auf", "b": "stolz sein AUF + accusative", "c": "auf + accusative.", "f": "auf + accusative feminine = auf seine Leistung", "en": "Otto is proud of his achievement.", "t": 1}, {"s": "Dr. Kurz ist unheimlich stolz ___ die Forschungsergebnisse.", "o": ["auf", "über", "von", "für"], "a": "auf", "r": "adj_auf", "b": "stolz sein AUF + accusative", "c": "auf + accusative plural.", "f": "auf + accusative plural = auf die Ergebnisse", "en": "Dr Kurz is incredibly proud of the research results.", "t": 0}, {"s": "Warum ist Rudolf so wütend ___ dich?", "o": ["auf", "über", "gegen", "für"], "a": "auf", "r": "adj_auf", "b": "wütend sein AUF a PERSON", "c": "auf + accusative for the person you are angry with. (wütend ÜBER a thing.)", "f": "auf + accusative = auf dich", "en": "Why is Rudolf so furious with you?", "t": 1}, {"s": "Wir sind ___ die gute Zusammenarbeit mit der Forschungsabteilung angewiesen.", "o": ["auf", "von", "an", "für"], "a": "auf", "r": "adj_auf", "b": "angewiesen sein AUF + accusative", "c": "auf + accusative — despite the English »reliant on«, never von.", "f": "auf + accusative feminine = auf die Zusammenarbeit", "en": "We depend on good cooperation with the research department.", "t": 1}, {"s": "Ich bin ___ den Vortrag von Dr. Rau gespannt.", "o": ["auf", "über", "für", "an"], "a": "auf", "r": "adj_auf", "b": "gespannt sein AUF + accusative", "c": "auf + accusative.", "f": "auf + accusative masculine = auf den Vortrag", "en": "I'm looking forward to Dr Rau's talk.", "t": 0}, {"s": "Meine kleine Schwester ist ___ meinen neuen Freund eifersüchtig.", "o": ["auf", "über", "gegen", "von"], "a": "auf", "r": "adj_auf", "b": "eifersüchtig sein AUF + accusative", "c": "auf + accusative.", "f": "auf + accusative masculine = auf meinen Freund", "en": "My little sister is jealous of my new boyfriend.", "t": 1}, {"s": "Bist du ___ mich böse? Ich wollte dich nicht ärgern.", "o": ["auf", "über", "zu", "für"], "a": "auf", "r": "adj_auf", "b": "böse sein AUF a person = angry at", "c": "böse AUF + accusative. (böse + bare dative means »annoyed with« and is milder.)", "f": "auf + accusative = auf mich", "en": "Are you angry with me? I didn't mean to annoy you.", "t": 1}, {"s": "Die Kinder waren sehr neugierig ___ das Geschenk.", "o": ["auf", "über", "für", "nach"], "a": "auf", "r": "adj_auf", "b": "neugierig sein AUF + accusative", "c": "auf + accusative.", "f": "auf + accusative neuter = auf das Geschenk", "en": "The children were very curious about the present.", "t": 0}, {"s": "Der Master-Abschluss ist ___ meine Bewerbung sehr wichtig.", "o": ["für", "zu", "an", "auf"], "a": "für", "r": "adj_fuer", "b": "wichtig sein FÜR + accusative", "c": "für always takes the accusative.", "f": "für + accusative feminine = für meine Bewerbung", "en": "The master's degree is very important for my application.", "t": 0}, {"s": "Klaus ist ___ die Finanzen verantwortlich.", "o": ["für", "über", "an", "auf"], "a": "für", "r": "adj_fuer", "b": "verantwortlich sein FÜR + accusative", "c": "für + accusative for the task you are responsible for.", "f": "für + accusative plural = für die Finanzen", "en": "Klaus is responsible for the finances.", "t": 1}, {"s": "Die Verwaltungsmitarbeiterin ist ___ die Fehler in der Rechnung verantwortlich.", "o": ["für", "an", "über", "auf"], "a": "für", "r": "adj_fuer", "b": "verantwortlich sein FÜR + accusative", "c": "für + accusative.", "f": "für + accusative plural = für die Fehler", "en": "The administrator is responsible for the mistakes in the invoice.", "t": 0}, {"s": "Sie ist jetzt ___ internationale Lieferungen zuständig.", "o": ["für", "über", "an", "zu"], "a": "für", "r": "adj_fuer", "b": "zuständig sein FÜR + accusative", "c": "für + accusative.", "f": "für + accusative plural = für internationale Lieferungen", "en": "She is now in charge of international deliveries.", "t": 1}, {"s": "Zwei der drei Bewerberinnen waren ___ die Stelle nicht geeignet.", "o": ["für", "zu", "auf", "an"], "a": "für", "r": "adj_fuer", "b": "geeignet sein FÜR + accusative", "c": "für + accusative.", "f": "für + accusative feminine = für die Stelle", "en": "Two of the three applicants were not suitable for the position.", "t": 1}, {"s": "Zu lange Lieferzeiten sind auf Dauer schädlich ___ unser Geschäft.", "o": ["für", "zu", "auf", "gegen"], "a": "für", "r": "adj_fuer", "b": "schädlich sein FÜR + accusative", "c": "für + accusative.", "f": "für + accusative neuter = für unser Geschäft", "en": "Excessively long delivery times damage our business in the long run.", "t": 0}, {"s": "Autoabgase sind ___ die Umwelt schädlich.", "o": ["für", "zu", "auf", "gegen"], "a": "für", "r": "adj_fuer", "b": "schädlich sein FÜR + accusative", "c": "für + accusative.", "f": "für + accusative feminine = für die Umwelt", "en": "Car exhaust fumes are harmful to the environment.", "t": 0}, {"s": "Ich bin dir ___ deine Hilfe sehr dankbar.", "o": ["für", "über", "zu", "an"], "a": "für", "r": "adj_fuer", "b": "dankbar sein + dative person + FÜR the thing", "c": "The person is a bare dative (dir), the thing takes für + accusative.", "f": "dative + für + accusative = dir für deine Hilfe", "en": "I'm very grateful to you for your help.", "t": 1}, {"s": "Am wichtigsten war ___ ihn, dass sein Name unter der Publikation steht.", "o": ["für", "zu", "an", "auf"], "a": "für", "r": "adj_fuer", "b": "wichtig sein FÜR + accusative", "c": "für + accusative, here with a personal pronoun.", "f": "für + accusative = für ihn", "en": "The most important thing for him was that his name appears on the publication.", "t": 0}, {"s": "Diese Software ist ___ kleine Betriebe besonders nützlich.", "o": ["für", "zu", "an", "bei"], "a": "für", "r": "adj_fuer", "b": "nützlich sein FÜR + accusative", "c": "für + accusative plural.", "f": "für + accusative plural = für kleine Betriebe", "en": "This software is particularly useful for small businesses.", "t": 0}, {"s": "Diese Reaktion ist typisch ___ ihn.", "o": ["für", "zu", "von", "an"], "a": "für", "r": "adj_fuer", "b": "typisch sein FÜR + accusative", "c": "für + accusative.", "f": "für + accusative = für ihn", "en": "That reaction is typical of him.", "t": 0}, {"s": "Die Stadt ist ___ ihre Altstadt bekannt.", "o": ["für", "als", "bei", "von"], "a": "für", "r": "adj_fuer", "b": "bekannt sein FÜR a quality", "c": "bekannt FÜR + accusative = famous for something. (bekannt ALS = in the role of, bekannt BEI = known among.)", "f": "für + accusative feminine = für ihre Altstadt", "en": "The town is famous for its old quarter.", "t": 1}, {"s": "Er hatte die Krankheit schon. Jetzt ist er ___ sie immun.", "o": ["gegen", "für", "vor", "von"], "a": "gegen", "r": "adj_gegen", "b": "immun sein GEGEN + accusative", "c": "gegen always takes the accusative.", "f": "gegen + accusative = gegen sie", "en": "He has already had the illness. Now he is immune to it.", "t": 1}, {"s": "Ich habe wohl ein Loch im Zahn — ich bin so empfindlich ___ Süßes.", "o": ["gegen", "für", "auf", "über"], "a": "gegen", "r": "adj_gegen", "b": "empfindlich sein GEGEN + accusative", "c": "gegen + accusative.", "f": "gegen + accusative neuter = gegen Süßes", "en": "I think I have a hole in my tooth — I'm so sensitive to sweet things.", "t": 1}, {"s": "Meine Tochter ist ___ Nüsse allergisch.", "o": ["gegen", "auf", "für", "von"], "a": "gegen", "r": "adj_gegen", "b": "allergisch sein GEGEN + accusative", "c": "gegen + accusative plural.", "f": "gegen + accusative plural = gegen Nüsse", "en": "My daughter is allergic to nuts.", "t": 1}, {"s": "Gegen diesen Vorwurf war der Angeklagte ___ .", "o": ["machtlos", "machtvoll", "mächtig", "kraftlos"], "a": "machtlos", "r": "adj_gegen", "b": "machtlos sein GEGEN + accusative", "c": "The preposition gegen already sets the accusative; here you supply the adjective.", "f": "gegen + accusative masculine = gegen diesen Vorwurf", "en": "The accused was powerless against this accusation.", "t": 0}, {"s": "___ diese Produktbeurteilung sind wir sehr verwundert.", "o": ["Über", "Von", "Auf", "Für"], "a": "Über", "r": "adj_ueber", "b": "verwundert sein ÜBER + accusative", "c": "über + accusative — after an adjective of emotion über is never dative.", "f": "über + accusative feminine = über diese Beurteilung", "en": "We are very surprised at this product review.", "t": 1}, {"s": "Ich bin doch sehr verwundert ___ dein Verhalten!", "o": ["über", "von", "auf", "an"], "a": "über", "r": "adj_ueber", "b": "verwundert sein ÜBER + accusative", "c": "über + accusative.", "f": "über + accusative neuter = über dein Verhalten", "en": "I'm really rather astonished at your behaviour.", "t": 0}, {"s": "Das Management war ___ den Bericht sehr erstaunt.", "o": ["über", "von", "auf", "an"], "a": "über", "r": "adj_ueber", "b": "erstaunt sein ÜBER + accusative", "c": "über + accusative.", "f": "über + accusative masculine = über den Bericht", "en": "Management was very astonished at the report.", "t": 0}, {"s": "Wir sind ___ die unpünktliche Lieferung verärgert.", "o": ["über", "von", "auf", "gegen"], "a": "über", "r": "adj_ueber", "b": "verärgert sein ÜBER + accusative", "c": "über + accusative.", "f": "über + accusative feminine = über die Lieferung", "en": "We're annoyed about the late delivery.", "t": 1}, {"s": "___ den Kleinkunstpreis ist der Kabarettist sehr glücklich.", "o": ["Über", "Von", "Für", "An"], "a": "Über", "r": "adj_ueber", "b": "glücklich sein ÜBER + accusative", "c": "über + accusative for a piece of news or an event.", "f": "über + accusative masculine = über den Preis", "en": "The comedian is very happy about the cabaret prize.", "t": 1}, {"s": "Die Lehrerin ist ___ die Leistungen der Schülerinnen und Schüler erfreut.", "o": ["über", "von", "an", "für"], "a": "über", "r": "adj_ueber", "b": "erfreut sein ÜBER + accusative", "c": "über + accusative plural.", "f": "über + accusative plural = über die Leistungen", "en": "The teacher is delighted with the pupils' performance.", "t": 0}, {"s": "Er ist froh ___ , dass sie ihn bei seiner Arbeit unterstützt.", "o": ["darüber", "davon", "dafür", "daran"], "a": "darüber", "r": "adj_ueber", "b": "froh sein ÜBER — pointing to a dass-clause", "c": "A dass-clause needs the pronominal adverb da(r) + über = darüber.", "f": "da + r + über = darüber", "en": "He's glad that she supports him in his work.", "t": 1}, {"s": "Sie war zutiefst traurig ___ den Verlust ihres Hundes.", "o": ["über", "von", "um", "an"], "a": "über", "r": "adj_ueber", "b": "traurig sein ÜBER + accusative", "c": "über + accusative.", "f": "über + accusative masculine = über den Verlust", "en": "She was deeply sad about the loss of her dog.", "t": 0}, {"s": "Die Belegschaft war ___ die Entscheidung des Vorstands empört.", "o": ["über", "von", "auf", "gegen"], "a": "über", "r": "adj_ueber", "b": "empört sein ÜBER + accusative", "c": "über + accusative.", "f": "über + accusative feminine = über die Entscheidung", "en": "The workforce was outraged at the board's decision.", "t": 0}, {"s": "Sind Sie ___ die neuen Regeln schon informiert?", "o": ["über", "von", "an", "auf"], "a": "über", "r": "adj_ueber", "b": "informiert sein ÜBER + accusative", "c": "über + accusative.", "f": "über + accusative plural = über die Regeln", "en": "Have you already been informed about the new rules?", "t": 0}, {"s": "Die Ärzte sind ___ diesen Patienten sehr besorgt.", "o": ["um", "über", "für", "an"], "a": "um", "r": "adj_um", "b": "besorgt sein UM a person", "c": "um + accusative when you are worried ABOUT somebody.", "f": "um + accusative masculine = um diesen Patienten", "en": "The doctors are very worried about this patient.", "t": 1}, {"s": "Wir sind ___ eine schnelle Lösung bemüht.", "o": ["um", "für", "auf", "an"], "a": "um", "r": "adj_um", "b": "bemüht sein UM + accusative", "c": "um + accusative.", "f": "um + accusative feminine = um eine Lösung", "en": "We are endeavouring to find a quick solution.", "t": 0}, {"s": "Er war ___ eine Antwort nie verlegen.", "o": ["um", "für", "auf", "über"], "a": "um", "r": "adj_um", "b": "verlegen sein UM + accusative", "c": "um + accusative in this fixed phrase.", "f": "um + accusative feminine = um eine Antwort", "en": "He was never at a loss for an answer.", "t": 0}, {"s": "Wir sind ___ diese Kälte nicht gewöhnt.", "o": ["an", "auf", "für", "in"], "a": "an", "r": "adj_an_akk", "b": "gewöhnt sein AN + ACCUSATIVE", "c": "This an-adjective takes the accusative — unlike interessiert an + dative.", "f": "an + accusative feminine = an diese Kälte", "en": "We're not used to this cold.", "t": 1}, {"s": "Die E-Mail ist ___ die gesamte Belegschaft adressiert.", "o": ["an", "auf", "für", "zu"], "a": "an", "r": "adj_an_akk", "b": "adressiert sein AN + ACCUSATIVE", "c": "an + accusative.", "f": "an + accusative feminine = an die Belegschaft", "en": "The e-mail is addressed to the whole workforce.", "t": 1}, {"s": "Die Frage war ___ mich gerichtet, nicht an dich.", "o": ["an", "auf", "für", "zu"], "a": "an", "r": "adj_an_akk", "b": "gerichtet sein AN + ACCUSATIVE", "c": "an + accusative.", "f": "an + accusative = an mich", "en": "The question was directed at me, not at you.", "t": 0}, {"s": "Ich bin ___ das frühe Aufstehen noch nicht gewöhnt.", "o": ["an", "auf", "für", "zu"], "a": "an", "r": "adj_an_akk", "b": "gewöhnt sein AN + ACCUSATIVE", "c": "an + accusative — compare interessiert AN DEM Projekt (dative).", "f": "an + accusative neuter = an das Aufstehen", "en": "I'm not used to getting up early yet.", "t": 1}, {"s": "Anke ist ___ ihren Nachbarn verliebt.", "o": ["in", "an", "auf", "für"], "a": "in", "r": "adj_in_akk", "b": "verliebt sein IN + ACCUSATIVE", "c": "in + accusative, even though nothing moves — the adjective fixes the case.", "f": "in + accusative masculine = in ihren Nachbarn", "en": "Anke is in love with her neighbour.", "t": 1}, {"s": "Ist Mathilde noch immer ___ ihren Nachbarn verliebt?", "o": ["in", "an", "auf", "zu"], "a": "in", "r": "adj_in_akk", "b": "verliebt sein IN + ACCUSATIVE", "c": "in + accusative.", "f": "in + accusative masculine = in ihren Nachbarn", "en": "Is Mathilde still in love with her neighbour?", "t": 0}, {"s": "Das Buch ist ___ acht Kapitel unterteilt.", "o": ["in", "an", "auf", "zu"], "a": "in", "r": "adj_in_akk", "b": "unterteilt sein IN + ACCUSATIVE", "c": "in + accusative plural.", "f": "in + accusative plural = in acht Kapitel", "en": "The book is divided into eight chapters.", "t": 1}, {"s": "Er war ___ einen schweren Unfall verwickelt.", "o": ["in", "an", "bei", "auf"], "a": "in", "r": "adj_in_akk", "b": "verwickelt sein IN + ACCUSATIVE", "c": "in + accusative.", "f": "in + accusative masculine = in einen Unfall", "en": "He was involved in a serious accident.", "t": 0}, {"s": "Mein Bruder sieht ___ ähnlich.", "o": ["mir", "mich", "zu mir", "an mich"], "a": "mir", "r": "adj_dativ", "b": "ähnlich sein/sehen + bare DATIVE", "c": "No preposition at all: the person stands in the dative.", "f": "dative pronoun = mir", "en": "My brother looks like me.", "t": 1}, {"s": "Bist du ___ immer noch böse?", "o": ["mir", "mich", "auf mich", "über mich"], "a": "mir", "r": "adj_dativ", "b": "böse sein + bare DATIVE = annoyed with", "c": "böse + dative is the milder, personal version. (böse AUF + accusative is stronger.)", "f": "dative pronoun = mir", "en": "Are you still cross with me?", "t": 1}, {"s": "Die Frage war ___ Politiker sehr unangenehm.", "o": ["dem", "den", "für den", "über den"], "a": "dem", "r": "adj_dativ", "b": "unangenehm sein + bare DATIVE", "c": "The affected person stands in the dative.", "f": "dative masculine = dem Politiker", "en": "The question was very unpleasant for the politician.", "t": 1}, {"s": "Das ist ___ völlig egal.", "o": ["mir", "mich", "für mich", "zu mir"], "a": "mir", "r": "adj_dativ", "b": "egal sein + bare DATIVE", "c": "egal / gleichgültig always take a plain dative.", "f": "dative pronoun = mir", "en": "That's completely irrelevant to me.", "t": 1}, {"s": "Die Entscheidung ist ___ recht.", "o": ["mir", "mich", "für mich", "an mich"], "a": "mir", "r": "adj_dativ", "b": "recht sein + bare DATIVE", "c": "recht sein takes a plain dative.", "f": "dative pronoun = mir", "en": "The decision is fine by me.", "t": 0}, {"s": "Könntest du ___ bitte bei der Abrechnung behilflich sein?", "o": ["mir", "mich", "für mich", "zu mir"], "a": "mir", "r": "adj_dativ", "b": "behilflich sein + bare DATIVE", "c": "behilflich takes a plain dative.", "f": "dative pronoun = mir", "en": "Could you help me with the accounts, please?", "t": 1}, {"s": "Es ist ___ wirklich sehr peinlich, aber ich muss dich noch einmal fragen.", "o": ["mir", "mich", "für mich", "an mir"], "a": "mir", "r": "adj_dativ", "b": "peinlich sein + bare DATIVE", "c": "peinlich takes a plain dative.", "f": "dative pronoun = mir", "en": "It's really very embarrassing for me, but I have to ask you again.", "t": 0}, {"s": "Wir sind ___ für Ihre Unterstützung sehr verbunden.", "o": ["Ihnen", "Sie", "für Sie", "an Sie"], "a": "Ihnen", "r": "adj_dativ", "b": "verbunden sein + bare DATIVE", "c": "The person is a plain dative; the reason takes für.", "f": "dative = Ihnen", "en": "We are much obliged to you for your support.", "t": 0}, {"s": "Dieser Gedanke war ___ völlig fremd.", "o": ["ihr", "sie", "für sie", "zu ihr"], "a": "ihr", "r": "adj_dativ", "b": "fremd sein + bare DATIVE", "c": "fremd takes a plain dative.", "f": "dative pronoun = ihr", "en": "That thought was completely alien to her.", "t": 0}, {"s": "In Mathematik ist sie allen anderen weit ___ .", "o": ["überlegen", "überlegt", "unterlegen", "gelegen"], "a": "überlegen", "r": "adj_dativ", "b": "überlegen sein + bare DATIVE", "c": "The dative allen anderen is already there; the adjective is überlegen (superior).", "f": "dative plural + überlegen = allen anderen überlegen", "en": "In maths she is far superior to everybody else.", "t": 0}, {"s": "Steigst du mit uns auf den Berg? — Nein, das ist ___ zu anstrengend.", "o": ["mir", "mich", "für mir", "an mir"], "a": "mir", "r": "adj_dativ_zu", "b": "zu anstrengend + DATIVE of the person", "c": "Dative + zu + adjective. The alternative is für mich.", "f": "dative pronoun = mir", "en": "Are you climbing the mountain with us? — No, that's too strenuous for me.", "t": 1}, {"s": "Machst du die Wanderung mit? — Nein, das ist ___ zu gefährlich.", "o": ["mir", "mich", "für mir", "zu mir"], "a": "mir", "r": "adj_dativ_zu", "b": "zu gefährlich + DATIVE", "c": "Dative + zu.", "f": "dative pronoun = mir", "en": "Are you coming on the hike? — No, that's too dangerous for me.", "t": 0}, {"s": "Hast du den Roman zu Ende gelesen? — Nein, der war ___ zu langweilig.", "o": ["mir", "mich", "für mir", "an mir"], "a": "mir", "r": "adj_dativ_zu", "b": "zu langweilig + DATIVE", "c": "Dative + zu.", "f": "dative pronoun = mir", "en": "Did you finish the novel? — No, it was too boring for me.", "t": 0}, {"s": "Die Tabelle ist ___ zu kompliziert.", "o": ["mir", "mich", "für mir", "zu mir"], "a": "mir", "r": "adj_dativ_zu", "b": "zu kompliziert + DATIVE", "c": "Dative + zu; equivalently zu kompliziert für mich.", "f": "dative pronoun = mir", "en": "The table is too complicated for me.", "t": 0}, {"s": "In Grönland ist es ___ zu kalt.", "o": ["mir", "mich", "für mir", "an mir"], "a": "mir", "r": "adj_dativ_zu", "b": "zu kalt + DATIVE", "c": "Dative + zu with a weather adjective.", "f": "dative pronoun = mir", "en": "Greenland is too cold for me.", "t": 0}, {"s": "Kannst du bitte das Fenster öffnen? ___ ist warm.", "o": ["Mir", "Ich", "Für mich", "Mich"], "a": "Mir", "r": "adj_subjektlos", "b": "warm sein — subjectless dative", "c": "German says Mir ist warm. »Ich bin warm« would describe your character.", "f": "dative + sein = Mir ist warm", "en": "Could you open the window, please? I'm hot.", "t": 1}, {"s": "Karl war krank. Plötzlich wurde ___ übel.", "o": ["ihm", "er", "für ihn", "ihn"], "a": "ihm", "r": "adj_subjektlos", "b": "übel werden — subjectless dative", "c": "There is no nominative subject at all: Ihm wurde übel.", "f": "dative pronoun = ihm", "en": "Karl was ill. Suddenly he felt sick.", "t": 1}, {"s": "Ist ___ nicht kalt? Es sind nur zehn Grad und ihr habt keine Mäntel an!", "o": ["euch", "ihr", "für euch", "euer"], "a": "euch", "r": "adj_subjektlos", "b": "kalt sein — subjectless dative", "c": "Dative plural of ihr = euch.", "f": "dative = euch", "en": "Aren't you cold? It's only ten degrees and you have no coats on!", "t": 1}, {"s": "Nach der Achterbahnfahrt war ___ ganz schwindlig.", "o": ["ihr", "sie", "für sie", "ihre"], "a": "ihr", "r": "adj_subjektlos", "b": "schwindlig sein — subjectless dative", "c": "Dative of the person; no subject.", "f": "dative pronoun = ihr", "en": "After the roller coaster she felt quite dizzy.", "t": 0}, {"s": "Das Gebäude ist ___ alt.", "o": ["400 Jahre", "von 400 Jahren", "seit 400 Jahren", "für 400 Jahre"], "a": "400 Jahre", "r": "adj_akk", "b": "alt sein + bare ACCUSATIVE of measure", "c": "Ages, sizes and weights stand in the bare accusative before the adjective.", "f": "accusative measure = 400 Jahre alt", "en": "The building is 400 years old.", "t": 1}, {"s": "Das Fahrzeug ist drei Meter breit und ___ schwer.", "o": ["zwei Tonnen", "von zwei Tonnen", "mit zwei Tonnen", "auf zwei Tonnen"], "a": "zwei Tonnen", "r": "adj_akk", "b": "schwer sein + bare ACCUSATIVE of measure", "c": "Bare accusative, no preposition.", "f": "accusative measure = zwei Tonnen schwer", "en": "The vehicle is three metres wide and weighs two tonnes.", "t": 0}, {"s": "Das Krankenhaus ist nur einen Kilometer ___ dem Ort entfernt.", "o": ["von", "aus", "zu", "bei"], "a": "von", "r": "adj_akk", "b": "entfernt sein: accusative distance + VON the starting point", "c": "The distance is a bare accusative; the starting point takes von + dative.", "f": "accusative + von + dative = einen Kilometer von dem Ort entfernt", "en": "The hospital is only one kilometre from the village.", "t": 1}, {"s": "Das Haus ist ___ hohen Preis nicht wert.", "o": ["den", "dem", "für den", "des"], "a": "den", "r": "adj_akk", "b": "wert sein + bare ACCUSATIVE", "c": "wert takes a plain accusative object.", "f": "accusative masculine = den Preis wert", "en": "The house is not worth the high price.", "t": 1}, {"s": "Ich bin ___ der Verantwortung bewusst.", "o": ["mir", "mich", "für mich", "von mir"], "a": "mir", "r": "adj_genitiv", "b": "bewusst sein: reflexive DATIVE + GENITIVE", "c": "bewusst needs both — the reflexive dative mir and the genitive der Verantwortung.", "f": "mir (dat.) + der Verantwortung (gen.)", "en": "I'm aware of the responsibility.", "t": 1}, {"s": "Ich bin mir ___ Loyalität nicht sicher.", "o": ["seiner", "seine", "seinem", "von seiner"], "a": "seiner", "r": "adj_genitiv", "b": "sicher sein: reflexive dative + GENITIVE", "c": "The thing you are sure of stands in the genitive.", "f": "genitive feminine = seiner Loyalität", "en": "I'm not sure of his loyalty.", "t": 1}, {"s": "Er ist der deutschen Sprache durchaus ___ .", "o": ["mächtig", "machtlos", "mächtigen", "gemächlich"], "a": "mächtig", "r": "adj_genitiv", "b": "mächtig sein + GENITIVE", "c": "der deutschen Sprache is genitive; the adjective is mächtig (to have command of).", "f": "genitive + mächtig = der Sprache mächtig", "en": "He has a thorough command of German.", "t": 0}, {"s": "Dieses Verhalten ist eines Vorgesetzten nicht ___ .", "o": ["würdig", "wert", "wichtig", "sicher"], "a": "würdig", "r": "adj_genitiv", "b": "würdig sein + GENITIVE", "c": "eines Vorgesetzten is genitive; würdig governs it.", "f": "genitive + würdig = eines Vorgesetzten würdig", "en": "This behaviour is not worthy of a superior.", "t": 0}, {"s": "Bist du an dem Projekt interessiert? — Nein, ___ bin ich nicht interessiert.", "o": ["daran", "darauf", "dafür", "davon"], "a": "daran", "r": "adj_pronominal", "b": "interessiert an — the object is a THING", "c": "Things are replaced by da(r) + preposition: an → daran.", "f": "da + r + an = daran", "en": "Are you interested in the project? — No, I'm not interested in it.", "t": 1}, {"s": "___ bist du eigentlich interessiert?", "o": ["Woran", "Worauf", "Wofür", "Wovon"], "a": "Woran", "r": "adj_pronominal", "b": "interessiert an — question about a THING", "c": "Questions about things use wo(r) + preposition: an → woran.", "f": "wo + r + an = woran", "en": "What are you actually interested in?", "t": 1}, {"s": "___ bist du so stolz?", "o": ["Worauf", "Woran", "Wofür", "Worüber"], "a": "Worauf", "r": "adj_pronominal", "b": "stolz auf — question about a THING", "c": "auf → wo + r + auf = worauf.", "f": "wo + r + auf = worauf", "en": "What are you so proud of?", "t": 1}, {"s": "___ bist du so stolz? — Auf meine Tochter.", "o": ["Auf wen", "Worauf", "Auf wem", "Wofür"], "a": "Auf wen", "r": "adj_pronominal", "b": "stolz auf — question about a PERSON", "c": "People never take wo(r)-: the question is preposition + wen/wem. auf + accusative → auf wen.", "f": "auf + wen (accusative) = Auf wen", "en": "Who are you so proud of? — Of my daughter.", "t": 1}, {"s": "___ bist du verheiratet? — Mit einer Ärztin.", "o": ["Mit wem", "Womit", "Mit wen", "Wovon"], "a": "Mit wem", "r": "adj_pronominal", "b": "verheiratet mit — question about a PERSON", "c": "mit + dative → Mit wem.", "f": "mit + wem (dative) = Mit wem", "en": "Who are you married to? — To a doctor.", "t": 0}, {"s": "Sie ist sehr zufrieden mit ihrer neuen Wohnung. — Ja, sie ist wirklich sehr ___ zufrieden.", "o": ["damit", "dazu", "dafür", "davon"], "a": "damit", "r": "adj_pronominal", "b": "zufrieden mit — a THING", "c": "mit → damit (no -r-, because mit begins with a consonant).", "f": "da + mit = damit", "en": "She's very happy with her new flat. — Yes, she really is very happy with it.", "t": 1}, {"s": "Ich bin auf meinen Chef angewiesen. — ___ bist du angewiesen?", "o": ["Auf wen", "Worauf", "Auf wem", "Wofür"], "a": "Auf wen", "r": "adj_pronominal", "b": "angewiesen auf — a PERSON", "c": "A person → auf + wen (accusative).", "f": "auf + wen = Auf wen", "en": "I depend on my boss. — Who do you depend on?", "t": 1}, {"s": "Aber ___ ist sie doch gar nicht geeignet!", "o": ["dafür", "darauf", "dazu", "davon"], "a": "dafür", "r": "adj_pronominal", "b": "geeignet für — a THING", "c": "für → dafür.", "f": "da + für = dafür", "en": "But she isn't at all suited to it!", "t": 1}, {"s": "___ ärgerst du dich? — Über die Verspätung.", "o": ["Worüber", "Über was", "Worauf", "Wovon"], "a": "Worüber", "r": "adj_pronominal", "b": "verärgert/ärgerlich über — a THING", "c": "über → wo + r + über = worüber. »Über was« is colloquial and avoided in writing.", "f": "wo + r + über = worüber", "en": "What are you annoyed about? — About the delay.", "t": 1}, {"s": "Der Autor ist ___ Kämpfer für den Frieden überall bekannt.", "o": ["als", "für", "wie", "zu"], "a": "als", "r": "adj_als", "b": "bekannt sein ALS a role", "c": "als introduces a role and takes no case of its own.", "f": "als + nominative = als Kämpfer", "en": "The author is known everywhere as a fighter for peace.", "t": 1}, {"s": "Sie gilt ___ beste Kandidatin für den Posten.", "o": ["als", "für", "wie", "zu"], "a": "als", "r": "adj_als", "b": "gelten ALS a role", "c": "als + the equating case.", "f": "als + nominative = als beste Kandidatin", "en": "She is regarded as the best candidate for the post.", "t": 0}, {"s": "Die Vorgesetzte ist allen Ideen ___ aufgeschlossen.", "o": ["gegenüber", "gegen", "für", "über"], "a": "gegenüber", "r": "adj_gegenueber", "b": "aufgeschlossen sein GEGENÜBER", "c": "gegenüber + dative, placed after the noun.", "f": "dative plural + gegenüber = allen Ideen gegenüber", "en": "The manager is open to all ideas.", "t": 0}, {"s": "Wir sind sehr zufrieden ___ der Zusammenarbeit.", "o": ["mit", "über", "an", "von"], "a": "mit", "r": "adj_mit", "b": "zufrieden sein MIT", "c": "mit + dative; here the phrase follows the adjective.", "f": "mit + dative feminine = mit der Zusammenarbeit", "en": "We're very satisfied with the cooperation.", "t": 0}, {"s": "Die Kritiker sind ___ dem neuen Film begeistert.", "o": ["von", "über", "für", "auf"], "a": "von", "r": "adj_von", "b": "begeistert sein VON", "c": "von + dative.", "f": "von + dative masculine = von dem Film", "en": "The critics are thrilled with the new film.", "t": 0}, {"s": "Man muss nicht immer ___ allen nett sein.", "o": ["zu", "mit", "für", "gegen"], "a": "zu", "r": "adj_zu", "b": "nett sein ZU", "c": "zu + dative plural.", "f": "zu + dative plural = zu allen", "en": "You don't always have to be nice to everybody.", "t": 0}, {"s": "Der Kabarettist ist ___ sein scharfes Wortspiel bekannt.", "o": ["für", "als", "bei", "von"], "a": "für", "r": "adj_fuer", "b": "bekannt sein FÜR a quality", "c": "bekannt für + accusative.", "f": "für + accusative neuter = für sein Wortspiel", "en": "The comedian is known for his sharp wordplay.", "t": 1}, {"s": "Bei diesem Wetter ist eine Wanderung ___ die Kinder zu anstrengend.", "o": ["für", "zu", "an", "mit"], "a": "für", "r": "adj_dativ_zu", "b": "zu anstrengend — the für alternative", "c": "Instead of a dative you may use für + accusative: zu anstrengend für die Kinder.", "f": "für + accusative plural = für die Kinder", "en": "In this weather a hike is too strenuous for the children.", "t": 1}, {"s": "Sie ist ihrem Mann immer ___ geblieben.", "o": ["treu", "treue", "für treu", "zu treu"], "a": "treu", "r": "adj_dativ", "b": "treu sein + bare DATIVE", "c": "ihrem Mann is already the dative; treu governs it directly.", "f": "dative + treu = ihrem Mann treu", "en": "She always remained faithful to her husband.", "t": 0}, {"s": "Er ist ___ sehr ähnlich.", "o": ["seinem Onkel", "seinen Onkel", "zu seinem Onkel", "mit seinem Onkel"], "a": "seinem Onkel", "r": "adj_dativ", "b": "ähnlich sein + bare DATIVE", "c": "No preposition at all — the person stands in the plain dative.", "f": "bare dative masculine = seinem Onkel", "en": "He looks very like his uncle.", "t": 1}];
+var Q2=[{"s": "Ich bin ___ sehr interessiert.", "o": ["an dem neuen Projekt", "an das neue Projekt", "für das neue Projekt"], "a": "an dem neuen Projekt", "r": "adj_an_dat", "b": "interessiert an + DATIVE", "c": "an is a two-way preposition, but this adjective fixes it to the dative.", "f": "Ich bin <b>an dem neuen Projekt</b> sehr interessiert.", "en": "I'm very interested in the new project.", "t": 1}, {"s": "Wir sind ___ nicht gewöhnt.", "o": ["an diese Kälte", "an dieser Kälte", "auf diese Kälte"], "a": "an diese Kälte", "r": "adj_an_akk", "b": "gewöhnt an + ACCUSATIVE", "c": "The same preposition, the other case — the adjective decides, not the meaning.", "f": "Wir sind <b>an diese Kälte</b> nicht gewöhnt.", "en": "We're not used to this cold.", "t": 1}, {"s": "Der Physiker war ___ maßgeblich beteiligt.", "o": ["an der Erfindung", "an die Erfindung", "bei der Erfindung"], "a": "an der Erfindung", "r": "adj_an_dat", "b": "beteiligt an + DATIVE", "c": "an + dative for participation.", "f": "Der Physiker war <b>an der Erfindung</b> maßgeblich beteiligt.", "en": "The physicist was decisively involved in the invention.", "t": 0}, {"s": "Die E-Mail ist ___ adressiert.", "o": ["an die gesamte Belegschaft", "an der gesamten Belegschaft", "für die gesamte Belegschaft"], "a": "an die gesamte Belegschaft", "r": "adj_an_akk", "b": "adressiert an + ACCUSATIVE", "c": "an + accusative for a message directed somewhere.", "f": "Die E-Mail ist <b>an die gesamte Belegschaft</b> adressiert.", "en": "The e-mail is addressed to the whole workforce.", "t": 1}, {"s": "Mathilde ist ___ verliebt.", "o": ["in ihren Nachbarn", "in ihrem Nachbarn", "an ihren Nachbarn"], "a": "in ihren Nachbarn", "r": "adj_in_akk", "b": "verliebt in + ACCUSATIVE", "c": "in + accusative although nothing moves — the adjective fixes the case.", "f": "Mathilde ist <b>in ihren Nachbarn</b> verliebt.", "en": "Mathilde is in love with her neighbour.", "t": 1}, {"s": "Der junge Mitarbeiter ist ___ noch unerfahren.", "o": ["im Protokollschreiben", "ins Protokollschreiben", "beim Protokollschreiben"], "a": "im Protokollschreiben", "r": "adj_in_dat", "b": "unerfahren in + DATIVE", "c": "in + dative when rating an ability in a field.", "f": "Der junge Mitarbeiter ist <b>im Protokollschreiben</b> noch unerfahren.", "en": "The young colleague is still inexperienced at writing minutes.", "t": 1}, {"s": "Das Buch ist ___ unterteilt.", "o": ["in acht Kapitel", "in acht Kapiteln", "auf acht Kapitel"], "a": "in acht Kapitel", "r": "adj_in_akk", "b": "unterteilt in + ACCUSATIVE", "c": "in + accusative for a division into parts.", "f": "Das Buch ist <b>in acht Kapitel</b> unterteilt.", "en": "The book is divided into eight chapters.", "t": 1}, {"s": "Wir sind ___ angewiesen.", "o": ["auf die gute Zusammenarbeit", "auf der guten Zusammenarbeit", "von der guten Zusammenarbeit"], "a": "auf die gute Zusammenarbeit", "r": "adj_auf", "b": "angewiesen auf + ACCUSATIVE", "c": "English »reliant on« tempts you into von — German uses auf + accusative.", "f": "Wir sind <b>auf die gute Zusammenarbeit</b> angewiesen.", "en": "We depend on good cooperation.", "t": 1}, {"s": "Die Verwaltungsmitarbeiterin ist ___ verantwortlich.", "o": ["für die Fehler in der Rechnung", "für den Fehlern in der Rechnung", "an den Fehlern in der Rechnung"], "a": "für die Fehler in der Rechnung", "r": "adj_fuer", "b": "verantwortlich für + ACCUSATIVE", "c": "für always takes the accusative.", "f": "Sie ist <b>für die Fehler in der Rechnung</b> verantwortlich.", "en": "She is responsible for the mistakes in the invoice.", "t": 0}, {"s": "Die Kritiker sind ___ begeistert.", "o": ["von dem neuen Film", "über den neuen Film", "für den neuen Film"], "a": "von dem neuen Film", "r": "adj_von", "b": "begeistert von + DATIVE", "c": "begeistert takes von, not über.", "f": "Die Kritiker sind <b>von dem neuen Film</b> begeistert.", "en": "The critics are thrilled with the new film.", "t": 1}, {"s": "Die Lehrerin ist ___ erfreut.", "o": ["über die Leistungen der Schüler", "von den Leistungen der Schüler", "an den Leistungen der Schüler"], "a": "über die Leistungen der Schüler", "r": "adj_ueber", "b": "erfreut über + ACCUSATIVE", "c": "Emotional reactions to an event take über + accusative.", "f": "Die Lehrerin ist <b>über die Leistungen der Schüler</b> erfreut.", "en": "The teacher is delighted with the pupils' results.", "t": 0}, {"s": "Wir sind ___ sehr zufrieden.", "o": ["mit der Zusammenarbeit", "über die Zusammenarbeit", "von der Zusammenarbeit"], "a": "mit der Zusammenarbeit", "r": "adj_mit", "b": "zufrieden mit + DATIVE", "c": "zufrieden always takes mit.", "f": "Wir sind <b>mit der Zusammenarbeit</b> sehr zufrieden.", "en": "We're very satisfied with the cooperation.", "t": 1}, {"s": "Die Höhe des Rabatts ist ___ abhängig.", "o": ["von der Anzahl der bestellten Computer", "an der Anzahl der bestellten Computer", "auf die Anzahl der bestellten Computer"], "a": "von der Anzahl der bestellten Computer", "r": "adj_von", "b": "abhängig von + DATIVE", "c": "abhängig takes von.", "f": "Die Höhe des Rabatts ist <b>von der Anzahl der bestellten Computer</b> abhängig.", "en": "The size of the discount depends on the number of computers ordered.", "t": 0}, {"s": "Zu lange Lieferzeiten sind auf Dauer ___ .", "o": ["schädlich für unser Geschäft", "schädlich zu unserem Geschäft", "schädlich an unserem Geschäft"], "a": "schädlich für unser Geschäft", "r": "adj_fuer", "b": "schädlich für + ACCUSATIVE", "c": "für + accusative; the phrase may follow the adjective.", "f": "Zu lange Lieferzeiten sind auf Dauer <b>schädlich für unser Geschäft</b>.", "en": "Excessively long delivery times damage our business in the long run.", "t": 0}, {"s": "Alle Mitarbeiterinnen und Mitarbeiter müssen ___ freundlich sein.", "o": ["zu den Kundinnen und Kunden", "mit den Kundinnen und Kunden", "für die Kundinnen und Kunden"], "a": "zu den Kundinnen und Kunden", "r": "adj_zu", "b": "freundlich zu + DATIVE", "c": "Behaviour towards people takes zu.", "f": "Alle müssen <b>zu den Kundinnen und Kunden</b> freundlich sein.", "en": "All employees have to be friendly to the customers.", "t": 1}, {"s": "Die Germanistikstudentin ist ___ beschäftigt.", "o": ["mit Theaterstücken von Elfriede Jelinek", "an Theaterstücken von Elfriede Jelinek", "über Theaterstücke von Elfriede Jelinek"], "a": "mit Theaterstücken von Elfriede Jelinek", "r": "adj_mit", "b": "beschäftigt mit + DATIVE", "c": "beschäftigt takes mit.", "f": "Sie ist <b>mit Theaterstücken von Elfriede Jelinek</b> beschäftigt.", "en": "She is working on plays by Elfriede Jelinek.", "t": 0}, {"s": "Welcher Satz ist richtig?", "o": ["Mir ist kalt.", "Ich bin kalt.", "Es ist mich kalt."], "a": "Mir ist kalt.", "r": "adj_subjektlos", "b": "subjectless dative", "c": "»Ich bin kalt« says you are a cold-hearted person. The sensation is expressed with a dative and no subject.", "f": "<b>Mir ist kalt.</b>", "en": "Which sentence is correct?", "t": 1}, {"s": "Karl war krank, und plötzlich ___ .", "o": ["wurde ihm übel", "wurde er übel", "war er übel"], "a": "wurde ihm übel", "r": "adj_subjektlos", "b": "übel werden + dative", "c": "No nominative subject: Ihm wurde übel.", "f": "Plötzlich <b>wurde ihm übel</b>.", "en": "Karl was ill, and suddenly he felt sick.", "t": 1}, {"s": "Steigst du mit auf den Berg? — Nein, ___ .", "o": ["das ist mir zu anstrengend", "das ist mich zu anstrengend", "das ist zu anstrengend mir"], "a": "das ist mir zu anstrengend", "r": "adj_dativ_zu", "b": "dative + zu + adjective", "c": "The person affected stands in the dative, directly before zu.", "f": "Nein, <b>das ist mir zu anstrengend</b>.", "en": "Are you climbing the mountain too? — No, that's too strenuous for me.", "t": 0}, {"s": "Welche Variante bedeutet dasselbe wie »Die Arbeit ist mir zu anstrengend«?", "o": ["Die Arbeit ist zu anstrengend für mich.", "Die Arbeit ist zu anstrengend zu mir.", "Die Arbeit ist mich zu anstrengend."], "a": "Die Arbeit ist zu anstrengend für mich.", "r": "adj_dativ_zu", "b": "the für alternative", "c": "Every dative + zu sentence can be rewritten with für + accusative.", "f": "Die Arbeit ist <b>zu anstrengend für mich</b>.", "en": "Which version means the same as 'the work is too strenuous for me'?", "t": 1}, {"s": "Kannst du ___ bei der Jahresendabrechnung behilflich sein?", "o": ["mir", "mich", "für mich"], "a": "mir", "r": "adj_dativ", "b": "behilflich + bare dative", "c": "No preposition — the person is a plain dative.", "f": "Kannst du <b>mir</b> bei der Jahresendabrechnung behilflich sein?", "en": "Could you help me with the year-end accounts?", "t": 1}, {"s": "Das Krankenhaus ist ___ entfernt.", "o": ["einen Kilometer von dem Ort", "einem Kilometer vom Ort", "ein Kilometer von dem Ort"], "a": "einen Kilometer von dem Ort", "r": "adj_akk", "b": "accusative distance + von + dative", "c": "The distance is a bare accusative; the starting point takes von.", "f": "Das Krankenhaus ist <b>einen Kilometer von dem Ort</b> entfernt.", "en": "The hospital is one kilometre from the village.", "t": 1}, {"s": "Das Haus ist ___ nicht wert.", "o": ["den hohen Preis", "dem hohen Preis", "des hohen Preises"], "a": "den hohen Preis", "r": "adj_akk", "b": "wert + bare ACCUSATIVE", "c": "wert governs a plain accusative.", "f": "Das Haus ist <b>den hohen Preis</b> nicht wert.", "en": "The house isn't worth the high price.", "t": 1}, {"s": "Ich bin ___ bewusst.", "o": ["mir der Verantwortung", "mich der Verantwortung", "mir die Verantwortung"], "a": "mir der Verantwortung", "r": "adj_genitiv", "b": "reflexive dative + genitive", "c": "bewusst needs both: mir (dative) and der Verantwortung (genitive).", "f": "Ich bin <b>mir der Verantwortung</b> bewusst.", "en": "I'm aware of the responsibility.", "t": 1}, {"s": "Ich bin ___ nicht sicher.", "o": ["mir seiner Loyalität", "mir seine Loyalität", "mich seiner Loyalität"], "a": "mir seiner Loyalität", "r": "adj_genitiv", "b": "reflexive dative + genitive", "c": "Like bewusst: sicher takes mir + genitive.", "f": "Ich bin <b>mir seiner Loyalität</b> nicht sicher.", "en": "I'm not sure of his loyalty.", "t": 0}, {"s": "Bist du an dem Projekt interessiert? — Nein, ___ .", "o": ["daran bin ich nicht interessiert", "an dem bin ich nicht interessiert", "darauf bin ich nicht interessiert"], "a": "daran bin ich nicht interessiert", "r": "adj_pronominal", "b": "a THING → da(r) + preposition", "c": "an → daran.", "f": "Nein, <b>daran</b> bin ich nicht interessiert.", "en": "Are you interested in the project? — No, I'm not interested in it.", "t": 1}, {"s": "Bist du auf deinen Bruder stolz? — Ja, ___ .", "o": ["auf ihn bin ich sehr stolz", "darauf bin ich sehr stolz", "auf ihm bin ich sehr stolz"], "a": "auf ihn bin ich sehr stolz", "r": "adj_pronominal", "b": "a PERSON → preposition + pronoun", "c": "People never take da(r)-: auf + accusative pronoun = auf ihn.", "f": "Ja, <b>auf ihn</b> bin ich sehr stolz.", "en": "Are you proud of your brother? — Yes, I'm very proud of him.", "t": 1}, {"s": "___ ist sie nicht geeignet.", "o": ["Dafür", "Darauf", "Davon"], "a": "Dafür", "r": "adj_pronominal", "b": "geeignet für → dafür", "c": "für → dafür (no -r-, für begins with a consonant).", "f": "<b>Dafür</b> ist sie nicht geeignet.", "en": "She isn't suited to it.", "t": 0}, {"s": "Welche Frage passt zu »Ich bin auf das Ergebnis gespannt«?", "o": ["Worauf bist du gespannt?", "Auf was bist du gespannt?", "Woran bist du gespannt?"], "a": "Worauf bist du gespannt?", "r": "adj_pronominal", "b": "question about a THING", "c": "auf → wo + r + auf = worauf. »Auf was« is colloquial and avoided in writing.", "f": "<b>Worauf</b> bist du gespannt?", "en": "Which question fits 'I'm curious about the result'?", "t": 1}, {"s": "Welche Frage passt zu »Ich bin mit einer Ärztin verheiratet«?", "o": ["Mit wem bist du verheiratet?", "Womit bist du verheiratet?", "Mit wen bist du verheiratet?"], "a": "Mit wem bist du verheiratet?", "r": "adj_pronominal", "b": "question about a PERSON", "c": "mit + dative → Mit wem. Never womit for a person.", "f": "<b>Mit wem</b> bist du verheiratet?", "en": "Which question fits 'I'm married to a doctor'?", "t": 1}, {"s": "Er ist froh ___ , dass sie ihn unterstützt.", "o": ["darüber", "davon", "dafür"], "a": "darüber", "r": "adj_pronominal", "b": "froh über + a dass-clause", "c": "A dass-clause is announced by da(r) + über = darüber.", "f": "Er ist froh <b>darüber</b>, dass sie ihn unterstützt.", "en": "He's glad that she supports him.", "t": 1}, {"s": "Ich bin überzeugt ___ , dass wir gewinnen.", "o": ["davon", "darüber", "dafür"], "a": "davon", "r": "adj_pronominal", "b": "überzeugt von + a dass-clause", "c": "von → davon.", "f": "Ich bin <b>davon</b> überzeugt, dass wir gewinnen.", "en": "I'm convinced that we'll win.", "t": 1}, {"s": "Welcher Satz bedeutet »he is angry AT me«?", "o": ["Er ist böse auf mich.", "Er ist mir böse.", "Er ist böse über mich."], "a": "Er ist böse auf mich.", "r": "adj_doppel", "b": "böse auf vs. böse + dative", "c": "böse AUF + accusative = angry at somebody. böse + bare dative is the milder »cross with me«.", "f": "<b>Er ist böse auf mich.</b>", "en": "Which sentence means 'he is angry at me'?", "t": 1}, {"s": "Welcher Satz ist die mildere Variante — »are you still cross with me?«", "o": ["Bist du mir noch böse?", "Bist du auf mich noch böse?", "Bist du über mich noch böse?"], "a": "Bist du mir noch böse?", "r": "adj_doppel", "b": "böse + bare dative", "c": "The plain dative is the personal, milder version.", "f": "<b>Bist du mir noch böse?</b>", "en": "Which sentence is the milder version — 'are you still cross with me?'", "t": 1}, {"s": "Die Stadt ist ___ bekannt — sie hat eine wunderschöne Altstadt.", "o": ["für ihre Altstadt", "als ihre Altstadt", "bei ihrer Altstadt"], "a": "für ihre Altstadt", "r": "adj_doppel", "b": "bekannt für a quality", "c": "bekannt FÜR = famous for. bekannt ALS = in the role of. bekannt BEI = known among a group.", "f": "Die Stadt ist <b>für ihre Altstadt</b> bekannt.", "en": "The town is known for its old quarter.", "t": 1}, {"s": "Der Autor ist ___ bekannt.", "o": ["als Kämpfer für den Frieden", "für einen Kämpfer für den Frieden", "bei einem Kämpfer für den Frieden"], "a": "als Kämpfer für den Frieden", "r": "adj_doppel", "b": "bekannt als a role", "c": "als introduces a role and takes the equating case.", "f": "Der Autor ist <b>als Kämpfer für den Frieden</b> bekannt.", "en": "The author is known as a fighter for peace.", "t": 1}, {"s": "Die Ärzte sind ___ besorgt — er hat hohes Fieber.", "o": ["um diesen Patienten", "über diesen Patienten", "für diesen Patienten"], "a": "um diesen Patienten", "r": "adj_doppel", "b": "besorgt um a person", "c": "besorgt UM somebody (worried for them) vs besorgt ÜBER a development.", "f": "Die Ärzte sind <b>um diesen Patienten</b> besorgt.", "en": "The doctors are worried about this patient — he has a high fever.", "t": 1}, {"s": "Ich bin ___ dankbar.", "o": ["dir für deine Hilfe", "dich für deine Hilfe", "für dich für deine Hilfe"], "a": "dir für deine Hilfe", "r": "adj_doppel", "b": "dankbar: dative person + für the thing", "c": "Two complements at once: the person is a plain dative, the reason takes für.", "f": "Ich bin <b>dir für deine Hilfe</b> dankbar.", "en": "I'm grateful to you for your help.", "t": 1}, {"s": "Wem gegenüber ist die Abteilungsleiterin verantwortlich?", "o": ["Sie ist der Geschäftsführung gegenüber verantwortlich.", "Sie ist für die Geschäftsführung verantwortlich.", "Sie ist auf die Geschäftsführung verantwortlich."], "a": "Sie ist der Geschäftsführung gegenüber verantwortlich.", "r": "adj_doppel", "b": "verantwortlich gegenüber a person", "c": "verantwortlich FÜR a task, but GEGENÜBER the person you answer to.", "f": "Sie ist <b>der Geschäftsführung gegenüber</b> verantwortlich.", "en": "Who is the head of department answerable to?", "t": 1}, {"s": "Welche Satzstellung ist FALSCH?", "o": ["Autoabgase sind schädlich die Umwelt für.", "Autoabgase sind für die Umwelt schädlich.", "Autoabgase sind sehr schädlich für die Umwelt."], "a": "Autoabgase sind schädlich die Umwelt für.", "r": "adj_stellung", "b": "the phrase goes before OR after the adjective", "c": "Both of the other versions are correct German; the preposition can never be split from its noun.", "f": "Correct: <b>für die Umwelt schädlich</b> or <b>schädlich für die Umwelt</b>.", "en": "Which word order is wrong?", "t": 1}, {"s": "Welche Stellung ist bei gegenüber die übliche?", "o": ["Wir sind jeglicher Kritik gegenüber aufgeschlossen.", "Wir sind gegenüber jeglicher Kritik aufgeschlossen.", "Beide sind falsch."], "a": "Wir sind jeglicher Kritik gegenüber aufgeschlossen.", "r": "adj_stellung", "b": "gegenüber usually follows the noun", "c": "Both are grammatical, but gegenüber is normally placed after the noun — and after a pronoun it must be.", "f": "Wir sind <b>jeglicher Kritik gegenüber</b> aufgeschlossen.", "en": "Which position is the usual one with gegenüber?", "t": 1}, {"s": "wir – sehr zufrieden sein – Zusammenarbeit →", "o": ["Wir sind mit der Zusammenarbeit sehr zufrieden.", "Wir sind über die Zusammenarbeit sehr zufrieden.", "Wir sind an der Zusammenarbeit sehr zufrieden."], "a": "Wir sind mit der Zusammenarbeit sehr zufrieden.", "r": "adj_mit", "b": "zufrieden mit + dative", "c": "mit + dative.", "f": "<b>Wir sind mit der Zusammenarbeit sehr zufrieden.</b>", "en": "We are very satisfied with the cooperation.", "t": 0}, {"s": "Kritiker – begeistert sein – neuer Film →", "o": ["Die Kritiker sind von dem neuen Film begeistert.", "Die Kritiker sind über den neuen Film begeistert.", "Die Kritiker sind auf den neuen Film begeistert."], "a": "Die Kritiker sind von dem neuen Film begeistert.", "r": "adj_von", "b": "begeistert von + dative", "c": "von + dative.", "f": "<b>Die Kritiker sind von dem neuen Film begeistert.</b>", "en": "The critics are thrilled with the new film.", "t": 0}, {"s": "E-Mail – adressiert sein – die gesamte Belegschaft →", "o": ["Die E-Mail ist an die gesamte Belegschaft adressiert.", "Die E-Mail ist an der gesamten Belegschaft adressiert.", "Die E-Mail ist für die gesamte Belegschaft adressiert."], "a": "Die E-Mail ist an die gesamte Belegschaft adressiert.", "r": "adj_an_akk", "b": "adressiert an + accusative", "c": "an + accusative.", "f": "<b>Die E-Mail ist an die gesamte Belegschaft adressiert.</b>", "en": "The e-mail is addressed to the whole workforce.", "t": 0}, {"s": "man – nicht immer – nett sein – müssen – alle →", "o": ["Man muss nicht immer zu allen nett sein.", "Man muss nicht immer mit allen nett sein.", "Man muss nicht immer für alle nett sein."], "a": "Man muss nicht immer zu allen nett sein.", "r": "adj_zu", "b": "nett zu + dative", "c": "zu + dative plural.", "f": "<b>Man muss nicht immer zu allen nett sein.</b>", "en": "You don't always have to be nice to everybody.", "t": 1}, {"s": "deutscher Physiker – maßgeblich beteiligt sein – Erfindung →", "o": ["Der deutsche Physiker war an der Erfindung maßgeblich beteiligt.", "Der deutsche Physiker war an die Erfindung maßgeblich beteiligt.", "Der deutsche Physiker war bei der Erfindung maßgeblich beteiligt."], "a": "Der deutsche Physiker war an der Erfindung maßgeblich beteiligt.", "r": "adj_an_dat", "b": "beteiligt an + dative", "c": "an + dative.", "f": "<b>Der deutsche Physiker war an der Erfindung maßgeblich beteiligt.</b>", "en": "The German physicist was decisively involved in the invention.", "t": 1}, {"s": "Höhe des Rabatts – abhängig sein – Anzahl der bestellten Computer →", "o": ["Die Höhe des Rabatts ist von der Anzahl der bestellten Computer abhängig.", "Die Höhe des Rabatts ist an der Anzahl der bestellten Computer abhängig.", "Die Höhe des Rabatts ist auf die Anzahl der bestellten Computer abhängig."], "a": "Die Höhe des Rabatts ist von der Anzahl der bestellten Computer abhängig.", "r": "adj_von", "b": "abhängig von + dative", "c": "von + dative.", "f": "<b>Die Höhe des Rabatts ist von der Anzahl der bestellten Computer abhängig.</b>", "en": "The size of the discount depends on the number of computers ordered.", "t": 0}, {"s": "Lehrerin – erfreut sein – Leistungen der Schüler →", "o": ["Die Lehrerin ist über die Leistungen der Schüler erfreut.", "Die Lehrerin ist von den Leistungen der Schüler erfreut.", "Die Lehrerin ist an den Leistungen der Schüler erfreut."], "a": "Die Lehrerin ist über die Leistungen der Schüler erfreut.", "r": "adj_ueber", "b": "erfreut über + accusative", "c": "über + accusative.", "f": "<b>Die Lehrerin ist über die Leistungen der Schüler erfreut.</b>", "en": "The teacher is delighted with the pupils' results.", "t": 0}, {"s": "Sie ist jetzt ___ zuständig.", "o": ["für internationale Lieferungen", "über internationale Lieferungen", "an internationalen Lieferungen"], "a": "für internationale Lieferungen", "r": "adj_fuer", "b": "zuständig für + accusative", "c": "für + accusative.", "f": "Sie ist jetzt <b>für internationale Lieferungen</b> zuständig.", "en": "She is now in charge of international deliveries.", "t": 0}, {"s": "Der Fahrradfahrer war ___ nicht schuld.", "o": ["an diesem Unfall", "für diesen Unfall", "über diesen Unfall"], "a": "an diesem Unfall", "r": "adj_an_dat", "b": "schuld an + dative", "c": "an + dative — English »to blame for« tempts you into für.", "f": "Der Fahrradfahrer war <b>an diesem Unfall</b> nicht schuld.", "en": "The cyclist was not to blame for this accident.", "t": 1}, {"s": "Das Land ist ___ reich.", "o": ["an Bodenschätzen", "mit Bodenschätzen", "von Bodenschätzen"], "a": "an Bodenschätzen", "r": "adj_an_dat", "b": "reich an + dative", "c": "an + dative plural, without an article.", "f": "Das Land ist <b>an Bodenschätzen</b> reich.", "en": "The country is rich in mineral resources.", "t": 1}, {"s": "Die Band ist ___ beliebt.", "o": ["bei einem jungen Publikum", "für ein junges Publikum", "von einem jungen Publikum"], "a": "bei einem jungen Publikum", "r": "adj_bei", "b": "beliebt bei + dative", "c": "bei + dative names the group.", "f": "Die Band ist <b>bei einem jungen Publikum</b> beliebt.", "en": "The band is popular with a young audience.", "t": 1}, {"s": "Man sagt, die Schriftstellerin sei ___ verwandt.", "o": ["mit dem englischen Königshaus", "zu dem englischen Königshaus", "an dem englischen Königshaus"], "a": "mit dem englischen Königshaus", "r": "adj_mit", "b": "verwandt mit + dative", "c": "mit + dative.", "f": "Sie sei <b>mit dem englischen Königshaus</b> verwandt.", "en": "They say the writer is related to the English royal family.", "t": 0}, {"s": "Unsere Mannschaft ist ___ entschlossen.", "o": ["zum Sieg", "auf den Sieg", "für den Sieg"], "a": "zum Sieg", "r": "adj_zu", "b": "entschlossen zu + dative", "c": "zu + dative (zu dem → zum).", "f": "Unsere Mannschaft ist <b>zum Sieg</b> entschlossen.", "en": "Our team is determined to win.", "t": 1}, {"s": "Ich bin im Moment sehr empfindlich ___ .", "o": ["gegen Süßes", "für Süßes", "auf Süßes"], "a": "gegen Süßes", "r": "adj_gegen", "b": "empfindlich gegen + accusative", "c": "gegen + accusative.", "f": "Ich bin im Moment sehr empfindlich <b>gegen Süßes</b>.", "en": "At the moment I'm very sensitive to sweet things.", "t": 1}, {"s": "Zwei der drei Bewerberinnen waren ___ nicht geeignet.", "o": ["für die Stelle", "zu der Stelle", "an der Stelle"], "a": "für die Stelle", "r": "adj_fuer", "b": "geeignet für + accusative", "c": "für + accusative.", "f": "Zwei der drei Bewerberinnen waren <b>für die Stelle</b> nicht geeignet.", "en": "Two of the three applicants were not suitable for the position.", "t": 0}, {"s": "Der Sportler ist ___ noch meilenweit entfernt.", "o": ["von seiner Bestform", "aus seiner Bestform", "zu seiner Bestform"], "a": "von seiner Bestform", "r": "adj_von", "b": "entfernt von + dative", "c": "von + dative for the starting point.", "f": "Der Sportler ist <b>von seiner Bestform</b> noch meilenweit entfernt.", "en": "The athlete is still miles from his best form.", "t": 0}, {"s": "Gerade in Stresssituationen ist man ___ fähig.", "o": ["zu Höchstleistungen", "für Höchstleistungen", "an Höchstleistungen"], "a": "zu Höchstleistungen", "r": "adj_zu", "b": "fähig zu + dative", "c": "zu + dative plural.", "f": "Gerade in Stresssituationen ist man <b>zu Höchstleistungen</b> fähig.", "en": "Precisely under stress people are capable of top performance.", "t": 1}, {"s": "Viele Neureiche sind ___ verrückt.", "o": ["nach Luxusartikeln", "auf Luxusartikel", "über Luxusartikel"], "a": "nach Luxusartikeln", "r": "adj_nach", "b": "verrückt nach + dative", "c": "nach + dative plural.", "f": "Viele Neureiche sind <b>nach Luxusartikeln</b> verrückt.", "en": "Many of the newly rich are crazy about luxury goods.", "t": 1}, {"s": "Frau Dix war ___ ganz blass.", "o": ["vor Angst", "von Angst", "aus Angst"], "a": "vor Angst", "r": "adj_vor", "b": "blass vor + dative", "c": "vor + dative, no article, for the emotion that causes the state.", "f": "Frau Dix war <b>vor Angst</b> ganz blass.", "en": "Ms Dix was quite pale with fear.", "t": 1}, {"s": "Er ist ___ immun.", "o": ["gegen die Krankheit", "für die Krankheit", "von der Krankheit"], "a": "gegen die Krankheit", "r": "adj_gegen", "b": "immun gegen + accusative", "c": "gegen + accusative.", "f": "Er ist <b>gegen die Krankheit</b> immun.", "en": "He is immune to the disease.", "t": 0}, {"s": "Das Gebäude ist ___ .", "o": ["400 Jahre alt", "von 400 Jahren alt", "seit 400 Jahren alt"], "a": "400 Jahre alt", "r": "adj_akk", "b": "bare accusative of measure", "c": "No preposition: the measurement stands in the accusative.", "f": "Das Gebäude ist <b>400 Jahre alt</b>.", "en": "The building is 400 years old.", "t": 1}, {"s": "Trudi fragt nach dem Termin. — Ich habe immer Zeit, ___ .", "o": ["mir sind beide Tage recht", "mich sind beide Tage recht", "für mich sind beide Tage recht"], "a": "mir sind beide Tage recht", "r": "adj_dativ", "b": "recht sein + bare dative", "c": "recht takes a plain dative.", "f": "Ich habe immer Zeit, <b>mir sind beide Tage recht</b>.", "en": "Trudi asks about the date. — I'm always free, both days are fine by me.", "t": 1}];
+
+/* ============ PROGRESS STORE ============ */
+/* One localStorage key. NEVER rename it — that would wipe the learner's history. */
+var LS_KEY="de_adjektiv_trainer_v1";
+var DB={v:1,stats:{},ses1:null,ses2:null,round:25,ruleStep:1};
+(function(){
+  try{var raw=localStorage.getItem(LS_KEY);
+    if(raw){var o=JSON.parse(raw);
+      if(o&&typeof o==="object"&&o.stats){
+        DB.stats=o.stats||{};DB.ses1=o.ses1||null;DB.ses2=o.ses2||null;
+        if(typeof o.round==="number")DB.round=o.round;
+        if(typeof o.ruleStep==="number")DB.ruleStep=o.ruleStep;
+      }}
+  }catch(e){}
+})();
+function dbSave(){try{localStorage.setItem(LS_KEY,JSON.stringify(DB));}catch(e){}}
+function box(key){var st=DB.stats[key];return st&&typeof st.b==="number"?st.b:-1;}
+function mark(key,ok){
+  var st=DB.stats[key]||(DB.stats[key]={s:0,c:0,f:0,b:-1});
+  st.s++;if(ok){st.c++;st.b=Math.min(5,(st.b<0?0:st.b)+1);}else{st.f++;st.b=0;}
+  dbSave();
+}
+var PRIO=[0,1.6,2.6,4.0,5.5,7.0];
+function prio(b){return b<0?1.0:(PRIO[b]!==undefined?PRIO[b]:7.0);}
+function draw(items,keyOf,n){
+  var scored=items.map(function(it){return {it:it,k:prio(box(keyOf(it)))+Math.random()*1.2};});
+  scored.sort(function(a,b){return a.k-b.k;});
+  var take=(n>0?scored.slice(0,Math.min(n,scored.length)):scored).map(function(o){return o.it;});
+  return shuffle(take);
+}
+function $(s){return document.querySelector(s);}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function k1(it){return "q1_"+Q1.indexOf(it);}
+function k2(it){return "q2_"+Q2.indexOf(it);}
+function gap(s,fill){return s.replace("___",'<span class="blank">'+fill+'</span>');}
+
+/* ============ TABS ============ */
+var tabs=[].slice.call(document.querySelectorAll(".tab"));
+tabs.forEach(function(t){t.addEventListener("click",function(){
+  tabs.forEach(function(x){x.setAttribute("aria-selected",String(x===t));});
+  ["method","l1","l2","ref"].forEach(function(v){$("#view-"+v).hidden=(v!==t.dataset.view);});
+  window.scrollTo({top:0,behavior:"auto"});
+});});
+
+/* ============ LEVEL 1 — the pronoun ============ */
+var filter="alle", ruleStep=DB.ruleStep!==0;
+var deck=[],pos=0,picked=null,rulePicked=null,curOpts=null,requeued={};
+var st={a:0,af:0,r:0,rf:0,streak:0,best:0};
+function pool(){
+  return Q1.filter(function(x){
+    if(filter==="alle")return true;
+    if(filter==="fallen")return x.t===1;
+    return RL[x.r].k===filter;
+  });
+}
+function ses1Save(){DB.ses1={f:filter,l:deck.map(function(d){return Q1.indexOf(d);}),p:pos,st:st};dbSave();}
+function ses1Load(){
+  var sv=DB.ses1;if(!sv||sv.f!==filter||!sv.l||!sv.l.length)return false;
+  var list=sv.l.map(function(i){return Q1[i];}).filter(Boolean);var p=sv.p|0;
+  if(!list.length||p>=list.length)return false;
+  deck=list;pos=p;st=sv.st||st;return true;
+}
+function build(fresh){
+  picked=null;rulePicked=null;curOpts=null;requeued={};
+  if(fresh||!ses1Load()){deck=draw(pool(),k1,DB.round);pos=0;st={a:0,af:0,r:0,rf:0,streak:0,best:0};}
+  ses1Save();render1();
+}
+function ruleOpts(item){
+  var cid=item.r,all=Object.keys(RL).filter(function(k){return k!==cid;});
+  var same=shuffle(all.filter(function(k){return RL[k].k===RL[cid].k;}));
+  var other=shuffle(all.filter(function(k){return same.indexOf(k)<0;}));
+  var picks=same.slice(0,2);
+  for(var i=0;i<other.length&&picks.length<3;i++)picks.push(other[i]);
+  return shuffle(picks.concat([cid]));
+}
+function fbBlock(it,ok,rule,rows){
+  var h='<div class="fb '+(ok?"right":"wrong")+'">'+
+    '<div class="verdict"><span>'+(ok?"✓ Correct":"✗ Wrong")+' — '+it.a+'</span><span class="rulename">'+rule.l+'</span></div><dl>';
+  for(var i=0;i<rows.length;i++)h+='<dt>'+rows[i][0]+'</dt><dd>'+rows[i][1]+'</dd>';
+  h+='</dl><div class="sib">Same rule: '+rule.ex.map(function(e){return "<b>"+e+"</b>";}).join(" · ")+'</div>'+
+     (rule.warn?'<div class="warn">'+rule.warn+'</div>':'')+'</div>';
+  return h;
+}
+function render1(){
+  var host=$("#l1stage");
+  if(pos>=deck.length){
+    host.innerHTML='<div class="stage"><div class="done"><div class="big">'+st.a+' / '+(st.a+st.af)+'</div>'+
+      '<p style="color:var(--muted);margin:6px 0 0">Round complete. Longest streak: <b style="color:var(--head)">'+st.best+'</b>.<br>'+
+      'Your progress is saved — "Neue Runde" draws a fresh set, the ones you missed first.</p></div></div>';
+    $("#m1").style.width="100%";up1();return;
+  }
+  var it=deck[pos],rule=RL[it.r],bx=box(k1(it));
+  var badge=bx<0?"new":(bx>=3?"safe · box "+bx+"/5":"box "+bx+"/5");
+  var h='<div class="stage"><span class="tag">Adjektiv · adjective + complement</span>'+
+        '<span class="idx">'+(pos+1)+' / '+deck.length+'<span class="badge">'+badge+'</span></span>'+
+        '<div class="sentence de">'+gap(it.s,picked?it.a:"&nbsp;&nbsp;&nbsp;")+
+        '<span class="cue">'+it.en+'</span></div></div>'+
+        '<div class="choices'+(it.o.length===4?" quad":"")+'">'+it.o.map(function(o){
+          var cls="opt";
+          if(picked){if(o===it.a)cls+=" hit";else if(o===picked)cls+=" miss";else cls+=" dim";}
+          return '<button class="opt-a '+cls+'" data-o="'+o+'"'+(picked?" disabled":"")+'>'+o+'</button>';
+        }).join("")+'</div>';
+  if(picked){
+    h+=fbBlock(it,picked===it.a,rule,[
+      ["Rule",rule.sig+" "+rule.req],
+      ["Adjective",it.b],
+      ["Case",it.c],
+      ["Form",it.f],
+      ["Sentence",'<span class="full">'+gap(it.s,"<b>"+it.a+"</b>")+'</span>']
+    ]);
+    if(ruleStep){
+      if(!curOpts)curOpts=ruleOpts(it);
+      h+='<div class="ask"><b>Which rule decides this one?</b></div>'+
+         '<div class="choices one">'+curOpts.map(function(id){
+           var cls="opt small";
+           if(rulePicked){if(id===it.r)cls+=" hit";else if(id===rulePicked)cls+=" miss";else cls+=" dim";}
+           return '<button class="opt-r '+cls+'" data-r="'+id+'"'+(rulePicked?" disabled":"")+'>'+RL[id].l+'</button>';
+         }).join("")+'</div>';
+    }
+  }
+  host.innerHTML=h;
+  $("#m1").style.width=(pos/deck.length*100)+"%";
+  [].slice.call(host.querySelectorAll(".opt-a")).forEach(function(b){
+    b.addEventListener("click",function(){answer1(b.dataset.o);});});
+  [].slice.call(host.querySelectorAll(".opt-r")).forEach(function(b){
+    b.addEventListener("click",function(){
+      if(rulePicked)return;rulePicked=b.dataset.r;
+      if(rulePicked===deck[pos].r)st.r++;else st.rf++;
+      ses1Save();render1();});});
+  up1();
+}
+function answer1(o){
+  if(picked)return;
+  var it=deck[pos];picked=o;curOpts=null;
+  var ok=(o===it.a);
+  if(o!=="__skip__")mark(k1(it),ok);
+  if(ok){st.a++;st.streak++;if(st.streak>st.best)st.best=st.streak;}
+  else{st.af++;st.streak=0;var key=k1(it);if(!requeued[key]){requeued[key]=1;deck.push(it);}}
+  ses1Save();render1();
+}
+function next1(){
+  if(pos>=deck.length)return;
+  if(!picked){answer1("__skip__");return;}
+  pos++;picked=null;rulePicked=null;curOpts=null;ses1Save();render1();
+}
+function up1(){
+  $("#s1").innerHTML='Pronoun <b class="r">'+st.a+'</b>/<b class="f">'+st.af+'</b>'+
+    (ruleStep?' · rule <b class="r">'+st.r+'</b>/<b class="f">'+st.rf+'</b>':'')+' · streak <b>'+st.streak+'</b>';
+  var seen=0,mast=0;
+  for(var i=0;i<Q1.length;i++){var b=box("q1_"+i);if(b>=0)seen++;if(b>=3)mast++;}
+  $("#p1text").innerHTML='Progress: <b>'+seen+'</b> / '+Q1.length+' sentences practised · <b>'+mast+'</b> safe';
+  $("#fcount").textContent="TELC B2/C1 · Adjektive · "+Q1.length+" sentences · "+Q2.length+" tasks";
+}
+[].slice.call(document.querySelectorAll(".chip[data-f]")).forEach(function(ch){
+  ch.addEventListener("click",function(){
+    document.querySelectorAll(".chip[data-f]").forEach(function(x){x.setAttribute("aria-pressed",String(x===ch));});
+    filter=ch.dataset.f;build(true);});});
+$("#ruleToggle").addEventListener("click",function(){
+  ruleStep=!ruleStep;DB.ruleStep=ruleStep?1:0;dbSave();
+  this.setAttribute("aria-pressed",String(ruleStep));render1();});
+$("#roundSize").value=String(DB.round);
+$("#roundSize").addEventListener("change",function(){DB.round=parseInt(this.value,10)||0;dbSave();build(true);});
+$("#next1").addEventListener("click",next1);
+$("#shuf1").addEventListener("click",function(){
+  deck=deck.slice(0,pos).concat(shuffle(deck.slice(pos)));
+  picked=null;rulePicked=null;curOpts=null;ses1Save();render1();});
+$("#res1").addEventListener("click",function(){build(true);});
+(function(){
+  var btn=$("#wipe1"),armed=false,t=null,label=btn.textContent;
+  btn.addEventListener("click",function(){
+    if(!armed){armed=true;btn.textContent="Really delete?";btn.setAttribute("aria-pressed","true");
+      t=setTimeout(function(){armed=false;btn.textContent=label;btn.setAttribute("aria-pressed","false");},4000);return;}
+    clearTimeout(t);armed=false;btn.textContent=label;btn.setAttribute("aria-pressed","false");
+    DB.stats={};DB.ses1=null;DB.ses2=null;dbSave();build(true);build2(true);});
+})();
+
+/* ============ LEVEL 2 — building the clause ============ */
+var d2=[],p2=0,pick2=null,opts2=null,s2={a:0,f:0,streak:0,best:0};
+function ses2Save(){DB.ses2={l:d2.map(function(x){return Q2.indexOf(x);}),p:p2,st:s2};dbSave();}
+function ses2Load(){
+  var sv=DB.ses2;if(!sv||!sv.l||!sv.l.length)return false;
+  var list=sv.l.map(function(i){return Q2[i];}).filter(Boolean);var p=sv.p|0;
+  if(!list.length||p>=list.length)return false;
+  d2=list;p2=p;s2=sv.st||s2;return true;
+}
+function build2(fresh){
+  pick2=null;opts2=null;
+  if(fresh||!ses2Load()){d2=draw(Q2.slice(),k2,DB.round);p2=0;s2={a:0,f:0,streak:0,best:0};}
+  ses2Save();render2();
+}
+function render2(){
+  var host=$("#l2stage");
+  if(p2>=d2.length){
+    host.innerHTML='<div class="stage"><div class="done"><div class="big">'+s2.a+' / '+(s2.a+s2.f)+'</div>'+
+      '<p style="color:var(--muted);margin:6px 0 0">Round complete. Longest streak: <b style="color:var(--head)">'+s2.best+'</b>.</p></div></div>';
+    $("#m2").style.width="100%";up2();return;
+  }
+  var it=d2[p2],rule=RL[it.r],bx=box(k2(it));
+  var badge=bx<0?"new":(bx>=3?"safe · box "+bx+"/5":"box "+bx+"/5");
+  if(!opts2)opts2=shuffle(it.o.slice());
+  var body=it.s.indexOf("___")>=0?gap(it.s,pick2?it.a:"&nbsp;&nbsp;&nbsp;"):it.s;
+  var h='<div class="stage"><span class="tag">Satzbau · sentence building</span>'+
+        '<span class="idx">'+(p2+1)+' / '+d2.length+'<span class="badge">'+badge+'</span></span>'+
+        '<div class="sentence de">'+body+'<span class="cue">'+it.en+'</span></div></div>'+
+        '<div class="choices one">'+opts2.map(function(o){
+          var cls="opt clause";
+          if(pick2){if(o===it.a)cls+=" hit";else if(o===pick2)cls+=" miss";else cls+=" dim";}
+          return '<button class="opt-2 '+cls+'" data-o="'+o.replace(/"/g,"&quot;")+'"'+(pick2?" disabled":"")+'>'+o+'</button>';
+        }).join("")+'</div>';
+  if(pick2){
+    h+=fbBlock(it,pick2===it.a,rule,[
+      ["Rule",rule.sig+" "+rule.req],
+      ["Structure",it.b],
+      ["Watch out",it.c],
+      ["Correct",'<span class="full">'+it.f+'</span><div class="trans">'+it.en+'</div>']
+    ]);
+  }
+  host.innerHTML=h;
+  $("#m2").style.width=(p2/d2.length*100)+"%";
+  [].slice.call(host.querySelectorAll(".opt-2")).forEach(function(b){
+    b.addEventListener("click",function(){
+      if(pick2)return;pick2=b.dataset.o;
+      var good=(pick2===it.a);
+      mark(k2(it),good);
+      if(good){s2.a++;s2.streak++;if(s2.streak>s2.best)s2.best=s2.streak;}
+      else{s2.f++;s2.streak=0;if(d2.indexOf(it)===p2&&d2.lastIndexOf(it)===p2)d2.push(it);}
+      ses2Save();render2();});});
+  up2();
+}
+function up2(){
+  $("#s2").innerHTML='Correct <b class="r">'+s2.a+'</b> · wrong <b class="f">'+s2.f+'</b> · streak <b>'+s2.streak+'</b>';
+  var seen=0,mast=0;
+  for(var i=0;i<Q2.length;i++){var b=box("q2_"+i);if(b>=0)seen++;if(b>=3)mast++;}
+  $("#p2text").innerHTML='Progress: <b>'+seen+'</b> / '+Q2.length+' tasks practised · <b>'+mast+'</b> safe';
+}
+$("#next2").addEventListener("click",function(){
+  if(p2>=d2.length)return;p2++;pick2=null;opts2=null;ses2Save();render2();});
+$("#shuf2").addEventListener("click",function(){
+  d2=d2.slice(0,p2).concat(shuffle(d2.slice(p2)));pick2=null;opts2=null;ses2Save();render2();});
+$("#res2").addEventListener("click",function(){build2(true);});
+
+/* ============ REFERENCE TABLE ============ */
+(function(){
+  var order={kasus:0,genitiv:1,praep:2,waswer:3,wo:4,bau:5,partizip:6};
+  var ids=Object.keys(RL).sort(function(a,b){
+    var d=order[RL[a].k]-order[RL[b].k];if(d)return d;
+    return RL[a].l.localeCompare(RL[b].l,"en");});
+  $("#reftable").querySelector("tbody").innerHTML=ids.map(function(id){
+    var r=RL[id];
+    return '<tr><td><b>'+r.l+'</b></td>'+
+      '<td>'+r.sig+' '+r.req+(r.warn?'<div style="color:#8a6a12;margin-top:5px">'+r.warn+'</div>':'')+'</td>'+
+      '<td class="de">'+r.ex.join('<br>')+'</td></tr>';}).join("");
+})();
+
+/* ============ KEYBOARD ============ */
+document.addEventListener("keydown",function(e){
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;
+  var v=tabs.filter(function(t){return t.getAttribute("aria-selected")==="true";})[0].dataset.view;
+  if(v==="l1"){
+    if(/^[1-4]$/.test(e.key)){var bs=document.querySelectorAll("#l1stage .opt-a");
+      if(bs[+e.key-1]){e.preventDefault();bs[+e.key-1].click();}}
+    else if(e.key==="Enter"){e.preventDefault();next1();}
+    else if(e.key==="s"||e.key==="S"){$("#shuf1").click();}
+  }else if(v==="l2"){
+    if(/^[1-3]$/.test(e.key)){var b2=document.querySelectorAll("#l2stage .opt-2");
+      if(b2[+e.key-1]){e.preventDefault();b2[+e.key-1].click();}}
+    else if(e.key==="Enter"){e.preventDefault();$("#next2").click();}
+    else if(e.key==="s"||e.key==="S"){$("#shuf2").click();}
+  }
+});
+build(false);build2(false);
+
+})();
+</script>
+</body>
+</html>
