@@ -28,6 +28,8 @@ const TRAINERS = [
     sub: "wohin · wo · woher — 205 exercises", level: "A2" },
   { id: "adjektiv", src: "/adjektiv-trainer.html", title: "Adjectives with Prepositions",
     sub: "stolz auf · interessiert an · mir egal — 229 exercises", level: "B2" },
+  { id: "verbpraep", src: "/verbpraep-trainer.html", title: "Verbs with the Prepositional Case",
+    sub: "warten auf · denken an · teilnehmen an — 378 exercises", level: "B2" },
 ];
 
 export function RoadmapView({ state, setState, view, setView, verbs }) {
