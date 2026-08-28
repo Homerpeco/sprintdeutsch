@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lokalangaben — wohin · wo · woher</title>
+<style>
+/* ───────────────────────────────────────────────────────────────
+   SprintDeutsch theme — matches the host app:
+   sage-200 #d4e8c2 page · forest-700 #355f1f nav · forest-800 #284a18 headings
+   cream-200 #f9e96a accent · sage-300 #b8d99e lines · white cards
+   Same system font stack as the app (no web fonts).
+   ─────────────────────────────────────────────────────────────── */
+:root{
+  --bg:#d4e8c2;          /* sage-200 — app content background */
+  --bg2:#e8f3de;         /* sage-100 — inset panels */
+  --surface:#ffffff;     /* cards */
+  --surface2:#f6faf2;    /* sage-50 — buttons */
+  --line:#b8d99e;        /* sage-300 */
+  --line-soft:#dcecca;
+  --ink:#1e293b;         /* slate-800 — body copy */
+  --head:#284a18;        /* forest-800 — headings */
+  --muted:#5c6b5a;
+  --accent:#427726;      /* forest-600 — labels, rules, meters */
+  --cream:#f9e96a;       /* cream-200 — active pills, badges */
+  --der:#2a6db0; --die:#c2415c; --das:#16806a;
+  --ok:#42802a; --ok-bg:#eaf5df; --bad:#c0392b; --bad-bg:#fdecea;
+  --radius:16px;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:var(--sans);
+  --display:var(--sans);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px 80px}
+.wrap.top{padding-bottom:0}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--display);color:var(--head);text-wrap:balance;margin:0}
+.de{font-weight:500}
+.en{color:var(--muted);font-style:italic}
+/* ---------- header ---------- */
+header{padding:28px 0 20px;border-bottom:1px solid var(--line)}
+h1{font-size:1.9rem;line-height:1.15;font-weight:700;letter-spacing:-.01em}
+h1 .sep{color:var(--accent);font-weight:500;margin:0 .35em}
+.sub{margin-top:10px;font-size:1rem}
+.sub .l1{color:var(--head);font-weight:500}
+.sub .l2{color:var(--muted);font-size:.94rem;margin-top:3px}
+/* ---------- tabs ---------- */
+nav.tabs{position:sticky;top:0;z-index:30;background:rgba(212,232,194,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);margin-bottom:26px}
+.tabs-inner{max-width:860px;margin:0 auto;padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap}
+.tab{font:inherit;font-size:.86rem;font-weight:500;color:#334155;background:#fff;
+  border:1px solid var(--line);border-radius:999px;padding:7px 15px;cursor:pointer;transition:.15s}
+.tab:hover{border-color:#93c872;background:#f6faf2}
+.tab[aria-selected="true"]{background:var(--cream);color:var(--head);border-color:var(--cream);font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.tab .num{font-variant-numeric:tabular-nums;opacity:.55;margin-right:6px}
+.tab:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section[hidden]{display:none}
+.lede{color:var(--muted);max-width:62ch;margin:0 0 26px}
+/* ---------- method ---------- */
+.gates{display:grid;gap:12px;margin:0 0 40px;padding:0;list-style:none;counter-reset:g}
+.gate{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px 16px 60px;position:relative;box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.gate::before{counter-increment:g;content:counter(g);position:absolute;left:18px;top:15px;
+  font-weight:700;font-size:1rem;color:var(--head);background:var(--cream);
+  width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%}
+.gate h3{font-size:1.02rem;margin-bottom:4px}
+.gate p{margin:0;font-size:.93rem;color:var(--muted)}
+.gate .demo{margin-top:8px;font-size:.95rem;color:var(--ink)}
+.gate .demo b{color:var(--accent);font-weight:600}
+.hook{background:linear-gradient(180deg,#fdf7cf,#f7fbf1);
+  border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin:0 0 34px;
+  box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.hook .k{font-size:1.4rem;font-weight:700;color:var(--head);letter-spacing:.01em}
+.hook p{margin:6px 0 0;color:var(--muted);font-size:.95rem}
+h2.sec{font-size:1.28rem;margin:38px 0 6px}
+h2.sec + .lede{margin-top:6px}
+.worlds{display:grid;gap:18px}
+.world{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.world .rail{height:4px}
+.world .body{padding:20px 22px 22px}
+.world .art{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.world .art .a{font-size:1.8rem;font-weight:700;line-height:1}
+.world .art .scene{font-size:1.05rem;color:var(--head);font-weight:600}
+.world .story{font-size:1rem;line-height:1.75;background:var(--bg2);
+  border-left:3px solid;padding:12px 16px;border-radius:0 8px 8px 0;margin:0 0 6px;color:var(--ink)}
+.world .story em{font-style:normal;font-weight:700}
+.world .story-en{font-size:.9rem;color:var(--muted);font-style:italic;margin:0 0 16px;padding-left:16px}
+.world .take{font-size:.95rem;margin:0 0 16px}
+.beat{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:0 0 10px}
+.beat .bar{width:1px;height:20px;background:var(--line);margin:0 4px}
+.pill{font-size:.92rem;font-weight:600;padding:4px 12px;border-radius:999px;
+  border:1px solid;background:#fff;white-space:nowrap}
+.mini{font-size:.88rem;color:var(--muted);margin:0}
+.mini b{color:var(--ink);font-weight:600}
+.world.m{--c:var(--der)} .world.n{--c:var(--das)} .world.f{--c:var(--die)}
+.world .rail{background:var(--c)} .world .art .a{color:var(--c)}
+.world .story{border-left-color:var(--c)} .world .story em{color:var(--c)}
+.pill{border-color:var(--c);color:var(--c)}
+.count{font-weight:700;color:var(--c);font-size:.8rem;
+  border:1px solid var(--c);border-radius:6px;padding:1px 7px;letter-spacing:.04em}
+table{width:100%;border-collapse:collapse;font-size:.92rem;background:var(--surface)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);margin:0 0 30px;
+  background:var(--surface);box-shadow:0 1px 2px rgba(40,74,24,.06)}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);font-weight:700;
+  background:var(--bg2);border-bottom-color:var(--line)}
+tr:last-child td{border-bottom:none}
+td .de{font-size:.98rem}
+.g-der{color:var(--der);font-weight:600} .g-das{color:var(--das);font-weight:600} .g-die{color:var(--die);font-weight:600}
+</style>
+<style>
+/* ---------- quiz ---------- */
+.quizbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 18px}
+.chip{font:inherit;font-size:.8rem;color:#334155;background:#fff;border:1px solid var(--line);
+  border-radius:999px;padding:5px 13px;cursor:pointer;transition:.15s}
+.chip:hover{border-color:#93c872;background:#f6faf2}
+.chip[aria-pressed="true"]{background:var(--cream);color:var(--head);border-color:var(--cream);font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.spacer{flex:1}
+.progrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 10px;font-size:.84rem}
+.ptext{color:var(--muted)}
+.ptext b{color:var(--head);font-weight:700}
+.rsel{color:var(--muted);display:flex;align-items:center;gap:6px}
+.rsel select{font:inherit;font-size:.82rem;color:#334155;background:#fff;border:1px solid var(--line);
+  border-radius:999px;padding:4px 10px;cursor:pointer}
+.badge{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);
+  background:var(--bg2);border-radius:999px;padding:2px 8px;margin-left:8px}
+.meter{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:0 0 22px}
+.meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:30px 24px;text-align:center;position:relative;min-height:170px;display:flex;
+  flex-direction:column;justify-content:center;gap:8px;box-shadow:0 1px 2px rgba(40,74,24,.06)}
+.stage .tag{position:absolute;top:12px;left:16px;font-size:.68rem;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--muted)}
+.stage .idx{position:absolute;top:12px;right:16px;font-size:.72rem;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.word{font-size:2.4rem;line-height:1.15;font-weight:600;color:var(--head)}
+.word small{display:block;font-size:.95rem;font-style:italic;color:var(--muted);
+  margin-top:8px;font-weight:400}
+.sentence{font-size:1.3rem;line-height:1.7;max-width:34ch;margin:0 auto;color:var(--head);font-weight:500}
+.sentence .blank{color:var(--accent);border-bottom:2px solid var(--accent);padding:0 .5em}
+.sentence .cue{display:block;margin-top:10px;font-size:.9rem;color:var(--muted);font-weight:400}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 0}
+.choices.two{grid-template-columns:repeat(2,1fr)}
+.choices.one{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.opt{font:inherit;font-size:1.25rem;font-weight:600;padding:16px 10px;border-radius:12px;
+  background:var(--surface2);border:1px solid var(--line);color:var(--head);cursor:pointer;transition:.15s}
+.opt:hover:not(:disabled){border-color:#529530;background:#fff;transform:translateY(-1px);
+  box-shadow:0 2px 6px rgba(40,74,24,.10)}
+.opt:disabled{cursor:default}
+.opt.der{color:var(--der)} .opt.das{color:var(--das)} .opt.die{color:var(--die)}
+.opt.hit{border-color:var(--ok);background:#d3ecbc;color:#24500f;box-shadow:inset 0 0 0 2px var(--ok)}
+.opt.miss{border-color:var(--bad);background:var(--bad-bg)}
+.opt.dim{opacity:.45}
+.opt.small{font-size:.98rem;font-weight:500;padding:13px 14px;text-align:left;line-height:1.4;color:var(--ink)}
+.fb{margin-top:16px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:0 12px 12px 0;padding:16px 18px;text-align:left}
+.fb .verdict{font-weight:700;font-size:1rem;margin-bottom:10px;display:flex;
+  gap:9px;align-items:baseline;flex-wrap:wrap}
+.fb .verdict .rulename{font-weight:600;font-size:.8rem;color:var(--head);background:var(--cream);
+  border-radius:6px;padding:2px 9px;letter-spacing:.01em}
+.fb.right{border-left-color:var(--ok)} .fb.right .verdict{color:var(--ok)}
+.fb.wrong{border-left-color:var(--bad)} .fb.wrong .verdict{color:var(--bad)}
+.fb dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:.92rem}
+.fb dt{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);
+  font-weight:700;padding-top:4px;white-space:nowrap}
+.fb dd{margin:0;color:var(--ink)}
+.fb .sib{margin-top:12px;padding-top:11px;border-top:1px solid var(--line-soft);font-size:.9rem;color:var(--muted)}
+.fb .sib b{color:var(--head);font-weight:600}
+.fb .warn{margin-top:11px;font-size:.88rem;color:#7a5c00;background:#fdf7cf;
+  border-radius:8px;padding:8px 11px}
+.ask{margin-top:16px;font-size:.9rem;color:var(--muted);text-align:left}
+.ask b{color:var(--head);font-weight:600}
+.navrow{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
+.btn{font:inherit;font-size:.88rem;font-weight:500;padding:9px 18px;border-radius:12px;cursor:pointer;transition:.15s;
+  background:#fff;border:1px solid var(--line);color:#334155}
+.btn:hover{border-color:#93c872;background:#f6faf2}
+.btn.primary{background:var(--cream);border-color:var(--cream);color:var(--head);font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.btn.primary:hover{filter:brightness(1.04);background:var(--cream)}
+.score{font-size:.86rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.score b{color:var(--head)} .score .r{color:var(--ok)} .score .f{color:var(--bad)}
+.done{text-align:center;padding:30px 20px}
+.done .big{font-size:2.3rem;font-weight:700;color:var(--head)}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem;
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+footer b{color:var(--head)}
+@media(max-width:600px){
+  h1{font-size:1.5rem} .word{font-size:1.9rem} .sentence{font-size:1.1rem}
+  .choices{grid-template-columns:1fr} .wrap{padding:0 14px 60px} .tabs-inner{padding:10px 14px}
+  .fb dl{grid-template-columns:1fr;gap:2px} .fb dt{padding-top:8px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style><style>
+/* Relativsatz-specific */
+.sentence{max-width:44ch}
+.sentence .blank{min-width:4.5em;display:inline-block;text-align:center}
+.choices.quad{grid-template-columns:repeat(4,1fr)}
+@media(max-width:600px){.choices.quad{grid-template-columns:repeat(2,1fr)}}
+.opt.clause{font-size:1rem;font-weight:500;padding:14px 16px;text-align:left;line-height:1.45;color:var(--ink)}
+.fb .full{font-size:1rem;color:var(--head);font-weight:500}
+.fb .full b{color:var(--accent);font-weight:700}
+.fb .trans{color:var(--muted);font-style:italic;font-size:.88rem;margin-top:2px}
+.matrix td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+.matrix td{font-size:1rem}
+.key{background:var(--cream);border-radius:6px;padding:1px 7px;font-weight:700;color:var(--head)}
+.twocol{display:grid;gap:18px}
+@media(min-width:700px){.twocol{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap top">
+<header>
+  <h1>Lokalangaben<span class="sep">·</span>wohin · wo · woher</h1>
+  <div class="sub">
+    <div class="l1">Ask the question first — the question decides the preposition and the case.</div>
+    <div class="l2">Direction, position and origin, from nach/zu/in to the genitive prepositions and the hin/her adverbs.</div>
+  </div>
+</header>
+</div>
+<nav class="tabs"><div class="tabs-inner">
+  <button class="tab" role="tab" aria-selected="true" data-view="method"><span class="num">01</span>The method</button>
+  <button class="tab" role="tab" aria-selected="false" data-view="l1"><span class="num">02</span>Level 1 · preposition + case</button>
+  <button class="tab" role="tab" aria-selected="false" data-view="l2"><span class="num">03</span>Level 2 · building phrases</button>
+  <button class="tab" role="tab" aria-selected="false" data-view="ref"><span class="num">04</span>Reference</button>
+</div></nav>
+<div class="wrap">
+
+<section id="view-method">
+  <div class="hook">
+    <div class="k">Three questions — wohin? wo? woher?</div>
+    <p>Every place expression in German answers exactly one of three questions, and the question decides everything
+    that follows: which preposition you may use, and which case comes after it. Ask the question first and the case
+    stops being a guess. <span class="de">Wohin?</span> = where to (movement to a new place) · <span class="de">Wo?</span>
+    = where (position, nothing moves) · <span class="de">Woher?</span> = where from (origin).</p>
+  </div>
+
+  <h2 class="sec">The four-step method</h2>
+  <p class="lede">Run every place expression through these steps in order. The first three decide the case, the fourth decides the word.</p>
+  <ol class="gates">
+    <li class="gate">
+      <h3>Which question does it answer? → wohin / wo / woher</h3>
+      <p>Look at the verb. Does something change place (gehen, fahren, legen, stellen), stay where it is (sein, liegen, stehen, wohnen, arbeiten), or come away from somewhere (kommen, nehmen)?</p>
+      <div class="demo">Ich gehe … (<b>wohin?</b>) · Ich bin … (<b>wo?</b>) · Ich komme … (<b>woher?</b>)</div>
+    </li>
+    <li class="gate">
+      <h3>Is the preposition one of the nine two-way ones? → then the question sets the case</h3>
+      <p><span class="de">an · auf · hinter · in · neben · über · unter · vor · zwischen</span> are the only prepositions that switch. <b>wo? → dative. wohin? → accusative.</b> Everything else has a fixed case whatever the question.</p>
+      <div class="demo">Das Bild hängt <b>an der</b> Wand (wo?) ← → Ich hänge das Bild <b>an die</b> Wand (wohin?)</div>
+    </li>
+    <li class="gate">
+      <h3>Not a two-way preposition? → the preposition itself fixes the case</h3>
+      <p>Always dative: <span class="de">aus, bei, mit, nach, seit, von, zu, gegenüber, ab</span>. Always accusative: <span class="de">durch, für, gegen, ohne, um, bis, entlang</span> (after the noun). Genitive: <span class="de">innerhalb, außerhalb, oberhalb, unterhalb, diesseits, jenseits, abseits, unweit</span>.</p>
+      <div class="demo">Ich komme <b>aus der</b> Türkei (dat.) · Wir fahren <b>durch die</b> Türkei (acc.) · <b>außerhalb der</b> Stadt (gen.)</div>
+    </li>
+    <li class="gate">
+      <h3>Which preposition? → the KIND of place decides</h3>
+      <p>This is the part that has to be learned, and it is short: a country with or without an article, a person, an island, a square, a body of water, a building you enter. The table below is the whole system.</p>
+      <div class="demo">nach München · in die Schweiz · zum Arzt · auf eine Insel · an die Nordsee · ins Restaurant</div>
+    </li>
+  </ol>
+
+  <h2 class="sec">The master table — one row per kind of place</h2>
+  <p class="lede">Read it across: the same place, in the three directions. Almost everything you need is on this one grid.</p>
+  <div class="tablewrap"><table class="matrix">
+    <thead><tr><th>Kind of place</th><th>Wohin? (where to)</th><th>Wo? (where)</th><th>Woher? (where from)</th></tr></thead>
+    <tbody>
+      <tr><td>country / city / continent <b>without</b> an article</td><td class="de g-der">nach Deutschland, nach München</td><td class="de g-das">in Deutschland, in München</td><td class="de g-die">aus Deutschland, aus München</td></tr>
+      <tr><td>country <b>with</b> an article</td><td class="de g-der">in die Schweiz, in den Sudan, in die USA</td><td class="de g-das">in der Schweiz, im Sudan, in den USA</td><td class="de g-die">aus der Schweiz, aus dem Sudan</td></tr>
+      <tr><td>compass point / direction</td><td class="de g-der">nach Norden, nach links</td><td class="de g-das">im Norden</td><td class="de g-die">von Norden, von links</td></tr>
+      <tr><td>person / company</td><td class="de g-der">zu meinen Eltern, zum Arzt, zu Siemens</td><td class="de g-das">bei meinen Eltern, beim Arzt, bei Siemens</td><td class="de g-die">von meinen Eltern, vom Arzt</td></tr>
+      <tr><td>authority, institution, event</td><td class="de g-der">zur Polizei, zur Party, zum Unterricht</td><td class="de g-das">bei der Polizei, auf der Party, beim Unterricht</td><td class="de g-die">von der Polizei, von der Party</td></tr>
+      <tr><td>building you go inside</td><td class="de g-der">in die Kirche, ins Kino, in den Park</td><td class="de g-das">in der Kirche, im Kino, im Park</td><td class="de g-die">aus der Kirche, aus dem Kino</td></tr>
+      <tr><td>water, coast, border</td><td class="de g-der">an die Nordsee, an den Strand</td><td class="de g-das">an der Nordsee, am Strand</td><td class="de g-die">von der Nordsee, vom Strand</td></tr>
+      <tr><td>island</td><td class="de g-der">auf eine Insel, auf die Kanaren</td><td class="de g-das">auf einer Insel, auf den Kanaren</td><td class="de g-die">von einer Insel</td></tr>
+      <tr><td>square, open space, some offices</td><td class="de g-der">auf den Platz, aufs Finanzamt</td><td class="de g-das">auf dem Platz, auf dem Finanzamt</td><td class="de g-die">vom Platz, vom Finanzamt</td></tr>
+      <tr><td>mountain, tower (going up)</td><td class="de g-der">auf den Berg, auf den Turm</td><td class="de g-das">auf dem Berg, auf dem Turm</td><td class="de g-die">vom Berg, vom Turm</td></tr>
+      <tr><td>home</td><td class="de g-der">nach Hause</td><td class="de g-das">zu Hause</td><td class="de g-die">von zu Hause</td></tr>
+    </tbody>
+  </table></div>
+  <p class="mini" style="margin:-18px 0 30px">Notice the pattern in the last two columns: <b>zu → bei → von</b> for people and institutions, <b>in → in → aus</b> for spaces you go inside. If you know the direction form, the other two follow.</p>
+
+  <h2 class="sec">The three worlds</h2>
+  <p class="lede">Three questions, three sets of prepositions. Learn them as three pictures rather than as one long list.</p>
+  <div class="worlds">
+    <article class="world m">
+      <div class="rail"></div>
+      <div class="body">
+        <div class="art"><span class="a de">wohin?</span><span class="scene">Movement to a new place</span></div>
+        <p class="story de">Ich fahre <em>nach</em> München, <em>in die</em> Schweiz, <em>zum</em> Arzt, <em>an die</em> Nordsee, <em>auf</em> eine Insel und <em>ins</em> Kino.</p>
+        <p class="story-en">I'm going to Munich, to Switzerland, to the doctor's, to the North Sea, to an island and to the cinema.</p>
+        <p class="take"><b>Two-way prepositions take the accusative here.</b> The others are fixed: nach and zu are dative words, in/an/auf are accusative when they mean movement into or onto.</p>
+        <div class="beat"><span class="pill">nach</span><span class="pill">zu</span><span class="bar"></span><span class="pill">in + acc</span><span class="pill">an + acc</span><span class="pill">auf + acc</span><span class="pill">bis · durch · um · gegen</span></div>
+      </div>
+    </article>
+    <article class="world n">
+      <div class="rail"></div>
+      <div class="body">
+        <div class="art"><span class="a de">wo?</span><span class="scene">Position — nothing moves</span></div>
+        <p class="story de">Ich bin <em>in</em> München, <em>in der</em> Schweiz, <em>beim</em> Arzt, <em>an der</em> Nordsee, <em>auf</em> einer Insel und <em>im</em> Kino.</p>
+        <p class="story-en">I'm in Munich, in Switzerland, at the doctor's, at the North Sea, on an island and at the cinema.</p>
+        <p class="take"><b>Everything here is dative</b> — the two-way prepositions because the question is wo?, and bei, gegenüber, ab because they are dative words anyway. Only the genitive group (innerhalb, außerhalb, unweit …) stands apart.</p>
+        <div class="beat"><span class="pill">in + dat</span><span class="pill">an + dat</span><span class="pill">auf + dat</span><span class="bar"></span><span class="pill">bei</span><span class="pill">gegenüber</span><span class="pill">innerhalb + gen</span></div>
+      </div>
+    </article>
+    <article class="world f">
+      <div class="rail"></div>
+      <div class="body">
+        <div class="art"><span class="a de">woher?</span><span class="scene">Origin — coming away from</span></div>
+        <p class="story de">Ich komme <em>aus</em> München, <em>aus der</em> Schweiz, <em>vom</em> Arzt, <em>von der</em> Nordsee und <em>aus dem</em> Kino. Der Zug fährt <em>ab</em> Frankfurt.</p>
+        <p class="story-en">I'm coming from Munich, from Switzerland, from the doctor's, from the North Sea and out of the cinema. The train departs from Frankfurt.</p>
+        <p class="take"><b>Only two words, and they mirror the direction:</b> aus is the mirror of in (you were inside), von is the mirror of zu and bei (a person, an institution, a starting point). ab is timetable language.</p>
+        <div class="beat"><span class="pill">aus + dat</span><span class="pill">von + dat</span><span class="pill">ab + dat</span></div>
+      </div>
+    </article>
+  </div>
+
+  <h2 class="sec">The verb test — the fastest way to the right case</h2>
+  <p class="lede">With a two-way preposition you do not even have to think about the question: the verb has already answered it. Position verbs take the dative, placement verbs take the accusative.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Position verb → dative (wo?)</th><th>Placement verb → accusative (wohin?)</th></tr></thead>
+    <tbody>
+      <tr><td class="de">liegen — Das Buch <b>liegt auf dem</b> Tisch.</td><td class="de">legen — Ich <b>lege</b> das Buch <b>auf den</b> Tisch.</td></tr>
+      <tr><td class="de">stehen — Das Fahrrad <b>steht vor dem</b> Haus.</td><td class="de">stellen — Er <b>stellt</b> das Fahrrad <b>vor das</b> Haus.</td></tr>
+      <tr><td class="de">sitzen — Er <b>sitzt am</b> Tisch.</td><td class="de">setzen — Er <b>setzt sich an den</b> Tisch.</td></tr>
+      <tr><td class="de">hängen — Das Bild <b>hängt an der</b> Wand.</td><td class="de">hängen — Ich <b>hänge</b> das Bild <b>an die</b> Wand.</td></tr>
+      <tr><td class="de">stecken — Der Schlüssel <b>steckt im</b> Schloss.</td><td class="de">stecken — Er <b>steckt</b> den Schlüssel <b>ins</b> Schloss.</td></tr>
+      <tr><td colspan="2" style="color:#8a6a12">hängen and stecken appear in both columns. The test: is there an accusative object being moved? Then it is the placement version.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">The ten most expensive mistakes</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Wrong</th><th>Right</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td class="de" style="color:var(--bad)">nach der Schweiz fahren</td><td class="de g-der">in die Schweiz fahren</td><td>A country with an article can never take nach.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Ich gehe zu Hause</td><td class="de g-der">Ich gehe nach Hause</td><td>Direction = nach Hause, position = zu Hause. Two fixed phrases.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Ich lege das Buch auf dem Tisch</td><td class="de g-der">auf den Tisch</td><td>legen moves something → accusative.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Das Buch liegt auf den Tisch</td><td class="de g-der">auf dem Tisch</td><td>liegen describes a position → dative.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Ich war in dem Arzt</td><td class="de g-der">beim Arzt</td><td>People take zu / bei / von, never in.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">auf dem Internet</td><td class="de g-der">im Internet</td><td>English "on" does not transfer: im Internet, im Fernsehen, im Radio.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">in der Straße spielen</td><td class="de g-der">auf der Straße spielen</td><td>in der …straße is only for an address.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">bis dem Bahnhof</td><td class="de g-der">bis zum Bahnhof</td><td>bis takes no article; with one, use bis zu + dative.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">außerhalb die Stadt</td><td class="de g-der">außerhalb der Stadt</td><td>innerhalb, außerhalb, unweit … take the genitive.</td></tr>
+      <tr><td class="de" style="color:var(--bad)">Wir liefen entlang dem Fluss</td><td class="de g-der">Wir liefen den Fluss entlang</td><td>entlang follows the noun and takes the accusative.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Two things that only look difficult</h2>
+  <div class="twocol">
+    <div class="gate" style="padding-left:18px">
+      <h3>zum Kino or ins Kino?</h3>
+      <p>Both are correct German — they mean different things. <b>zu</b> = the goal of the walk, the building. <b>in + accusative</b> = inside, to do what you do there.</p>
+      <div class="demo">Ich gehe <b>zum</b> Kino (I'm walking to the cinema) · Ich gehe <b>ins</b> Kino (I'm going to see a film)<br>Er geht <b>zur</b> Schule (he is a pupil) · Er geht <b>in die</b> Schule (he is walking in)</div>
+    </div>
+    <div class="gate" style="padding-left:18px">
+      <h3>hin and her</h3>
+      <p><b>hin</b> = away from the speaker, <b>her</b> = towards the speaker. Position words (oben, unten, drinnen, draußen, drüben) become direction words with these prefixes; in speech they shorten to rauf, runter, rein, raus, rüber.</p>
+      <div class="demo">Otto war draußen. Jetzt kommt er <b>herein</b> (rein).<br>Otto war unten. Jetzt geht er <b>hinauf</b> (rauf).<br>Question form: <b>Wo</b> gehst du <b>hin</b>? = Wohin gehst du?</div>
+    </div>
+  </div>
+
+  <h2 class="sec">How to use this</h2>
+  <p class="lede"><b>Level 1</b> gives you a sentence with a gap: choose the preposition together with its article, then name the rule that decided it. The feedback always shows which question was being asked, why that case, and the form. <b>Level 2</b> builds whole phrases: the verb pairs, zum/ins, hin and her, the word order of entlang and gegenüber, and the genitive prepositions. Items you get wrong come back later in the same round and are drawn first in the next one. Your progress is saved in the browser.</p>
+</section>
+
+<section id="view-l1" hidden>
+  <h2 class="sec">Level 1 — which preposition, which case?</h2>
+  <p class="lede">Choose the preposition together with its article, then name the rule that decided it. Sentences you get wrong come back later in the same round.</p>
+  <div class="quizbar">
+    <button class="chip" data-f="alle" aria-pressed="true">All</button>
+    <button class="chip" data-f="wohin" aria-pressed="false">Wohin? · direction</button>
+    <button class="chip" data-f="wo" aria-pressed="false">Wo? · position</button>
+    <button class="chip" data-f="woher" aria-pressed="false">Woher? · origin</button>
+    <button class="chip" data-f="wechsel" aria-pressed="false">Two-way + verbs</button>
+    <button class="chip" data-f="sonder" aria-pressed="false">Fixed &amp; adverbs</button>
+    <button class="chip" data-f="fallen" aria-pressed="false">Traps</button>
+    <span class="spacer"></span>
+    <button class="chip" id="ruleToggle" aria-pressed="true">Rule step</button>
+  </div>
+  <div class="progrow">
+    <span id="p1text" class="ptext"></span>
+    <span class="spacer"></span>
+    <label class="rsel">Round
+      <select id="roundSize"><option value="25">25</option><option value="50">50</option><option value="0">all</option></select>
+    </label>
+    <button class="chip" id="wipe1">Delete progress</button>
+  </div>
+  <div class="meter"><i id="m1"></i></div>
+  <div id="l1stage"></div>
+  <div class="navrow">
+    <button class="btn primary" id="next1">Next →</button>
+    <span class="score" id="s1"></span>
+    <span class="spacer"></span>
+    <button class="btn" id="shuf1">Shuffle ⇄</button>
+    <button class="btn" id="res1">New round ↻</button>
+  </div>
+</section>
+<section id="view-l2" hidden>
+  <h2 class="sec">Level 2 — build the whole phrase</h2>
+  <p class="lede">Position verbs against placement verbs, zum/ins, hin and her, the word order of entlang and gegenüber, the genitive prepositions — the places where marks actually get lost.</p>
+  <div class="progrow"><span id="p2text" class="ptext"></span></div>
+  <div class="meter"><i id="m2"></i></div>
+  <div id="l2stage"></div>
+  <div class="navrow">
+    <button class="btn primary" id="next2">Next →</button>
+    <span class="score" id="s2"></span>
+    <span class="spacer"></span>
+    <button class="btn" id="shuf2">Shuffle ⇄</button>
+    <button class="btn" id="res2">New round ↻</button>
+  </div>
+</section>
+<section id="view-ref" hidden>
+  <h2 class="sec">Reference — every rule</h2>
+  <p class="lede">Every rule the trainer tests, with the exceptions that belong to it.</p>
+  <div class="tablewrap"><table id="reftable">
+    <thead><tr><th>Rule</th><th>How to spot it &amp; what to do</th><th>Examples</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h2 class="sec">Which case does the preposition force?</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Always dative</th><th>Always accusative</th><th>Two-way (wo? / wohin?)</th><th>Genitive</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="de">aus · bei · mit · nach · seit · von · zu<br>gegenüber · ab</td>
+        <td class="de">durch · für · gegen · ohne · um<br>bis · entlang (after the noun)</td>
+        <td class="de">an · auf · hinter · in · neben<br>über · unter · vor · zwischen</td>
+        <td class="de">innerhalb · außerhalb · oberhalb<br>unterhalb · diesseits · jenseits<br>abseits · unweit</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Direction — wohin?</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Preposition</th><th>Case</th><th>Used for</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td class="de g-der">nach</td><td>dative</td><td>countries, cities, continents without an article; compass points; nach Hause</td><td class="de">Wir fliegen nach Deutschland / nach München.</td></tr>
+      <tr><td class="de g-der">zu</td><td>dative</td><td>people, authorities, institutions, events, and simply "towards"</td><td class="de">Ich gehe zum Arzt / zur Party / zum Bahnhof.</td></tr>
+      <tr><td class="de g-der">in</td><td>accusative</td><td>countries with an article; going inside</td><td class="de">Ich fahre in die Schweiz / in den Park.</td></tr>
+      <tr><td class="de g-der">an</td><td>accusative</td><td>water, borders; right up against something</td><td class="de">Wir fahren an die Nordsee. Er ging ans Fenster.</td></tr>
+      <tr><td class="de g-der">auf</td><td>accusative</td><td>islands, squares, some offices and events; up onto</td><td class="de">auf eine Insel · aufs Finanzamt · auf den Berg</td></tr>
+      <tr><td class="de g-der">bis</td><td>accusative</td><td>end point, normally without an article</td><td class="de">Der Zug fährt bis Nürnberg. / bis zum Bahnhof</td></tr>
+      <tr><td class="de g-der">durch</td><td>accusative</td><td>through</td><td class="de">Wir fahren durch die Türkei.</td></tr>
+      <tr><td class="de g-der">entlang</td><td>accusative</td><td>along — stands after the noun</td><td class="de">Wir liefen das Ufer entlang.</td></tr>
+      <tr><td class="de g-der">gegen</td><td>accusative</td><td>impact</td><td class="de">Er fuhr gegen ein Verkehrsschild.</td></tr>
+      <tr><td class="de g-der">um (… herum)</td><td>accusative</td><td>around</td><td class="de">Wir sind um die Kirche herumgegangen.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Position — wo?</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Preposition</th><th>Case</th><th>Used for</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td class="de g-das">in</td><td>dative</td><td>countries, cities, continents; inside a space</td><td class="de">Ich war in Portugal. / in der Kirche</td></tr>
+      <tr><td class="de g-das">an</td><td>dative</td><td>water, borders, at a surface or edge; universities</td><td class="de">an der Nordsee · an der Tür · an der Universität</td></tr>
+      <tr><td class="de g-das">auf</td><td>dative</td><td>islands, squares, offices, events; on a surface</td><td class="de">auf einer Insel · auf der Party · auf dem Tisch</td></tr>
+      <tr><td class="de g-das">bei</td><td>dative</td><td>people, companies, authorities, events</td><td class="de">beim Arzt · bei Siemens · beim Unterricht</td></tr>
+      <tr><td class="de g-das">gegenüber</td><td>dative</td><td>opposite — before or after the noun</td><td class="de">gegenüber der Universität / dem Theater gegenüber</td></tr>
+      <tr><td class="de g-das">um (… herum)</td><td>accusative</td><td>standing around something</td><td class="de">Die Menschen standen um das Denkmal herum.</td></tr>
+      <tr><td class="de g-das">innerhalb / außerhalb / oberhalb / unterhalb / diesseits / jenseits / abseits / unweit</td><td>genitive</td><td>boundaries</td><td class="de">innerhalb der Stadt · unweit der Autobahn</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Origin — woher?</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Preposition</th><th>Case</th><th>Used for</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td class="de g-die">aus</td><td>dative</td><td>cities, countries, continents; out of an enclosed space</td><td class="de">aus Berlin · aus der Türkei · aus dem Schrank</td></tr>
+      <tr><td class="de g-die">von</td><td>dative</td><td>people, authorities, events, directions, the starting point of a route</td><td class="de">vom Arzt · von der Polizei · von Berlin nach Hamburg</td></tr>
+      <tr><td class="de g-die">ab</td><td>dative</td><td>scheduled departure point</td><td class="de">Das Flugzeug fliegt ab Frankfurt.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Local adverbs — hin and her</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Position (wo?)</th><th>Direction away from the speaker (hin)</th><th>Direction towards the speaker (her)</th><th>Spoken short form</th></tr></thead>
+    <tbody>
+      <tr><td class="de">oben</td><td class="de">hinauf</td><td class="de">herauf</td><td class="de">rauf</td></tr>
+      <tr><td class="de">unten</td><td class="de">hinunter</td><td class="de">herunter</td><td class="de">runter</td></tr>
+      <tr><td class="de">drinnen</td><td class="de">hinein</td><td class="de">herein</td><td class="de">rein</td></tr>
+      <tr><td class="de">draußen</td><td class="de">hinaus</td><td class="de">heraus</td><td class="de">raus</td></tr>
+      <tr><td class="de">drüben</td><td class="de">hinüber</td><td class="de">herüber</td><td class="de">rüber</td></tr>
+      <tr><td colspan="4" style="color:#8a6a12">In questions the two halves split: <b>Wo</b> gehst du <b>hin</b>? = Wohin gehst du? · <b>Wo</b> kommst du <b>her</b>? = Woher kommst du?</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 class="sec">Fixed expressions worth memorising</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>German</th><th>English</th><th>Trap</th></tr></thead>
+    <tbody>
+      <tr><td class="de">im Fernsehen · im Radio · im Internet</td><td>on TV, on the radio, on the internet</td><td>English "on" → German "in"</td></tr>
+      <tr><td class="de">in der Zeitung</td><td>in the paper</td><td>—</td></tr>
+      <tr><td class="de">auf dem Land ↔ in der Stadt</td><td>in the countryside ↔ in town</td><td>auf, not in</td></tr>
+      <tr><td class="de">auf der Straße</td><td>in the street</td><td>in der Goethestraße only as an address</td></tr>
+      <tr><td class="de">an der Universität</td><td>at university</td><td>not "in der Universität"</td></tr>
+      <tr><td class="de">auf die Toilette gehen / auf der Toilette sein</td><td>to go to / be in the toilet</td><td>auf, not in</td></tr>
+      <tr><td class="de">im Bett liegen / ins Bett gehen</td><td>to be in bed / go to bed</td><td>dative vs accusative</td></tr>
+      <tr><td class="de">im Keller ↔ auf dem Dachboden</td><td>in the cellar ↔ in the attic</td><td>different prepositions for the two ends of the house</td></tr>
+      <tr><td class="de">nach Hause · zu Hause · von zu Hause</td><td>home / at home / from home</td><td>three fixed forms, no article</td></tr>
+      <tr><td class="de">zur Schule gehen ↔ in die Schule gehen</td><td>to attend school ↔ to walk into the school</td><td>zu = attend, in = enter</td></tr>
+    </tbody>
+  </table></div>
+
+</section>
+<footer>
+  <span>Keyboard: <b>1 · 2 · 3 · 4</b> answer · <b>Enter</b> next · <b>S</b> shuffle · progress is saved in this browser</span>
+  <span id="fcount">TELC B2/C1 · Lokalangaben</span>
+</footer>
+</div>
+<script>
+(function(){
+"use strict";
+var RL={"lk_nach": {"k": "wohin", "l": "nach + dative — countries, cities, compass points", "sig": "The destination is a country, city or continent used WITHOUT an article, or a compass direction.", "req": "nach takes the dative, but with a bare geographical name no article appears at all: nach Kanada, nach München. Also with directions (nach Norden, nach links, nach oben) and in the fixed phrase nach Hause.", "ex": ["Wir fliegen nach Deutschland / nach München / nach Europa.", "Wir müssen nach Norden / nach links fahren.", "Soll ich dich nach Hause bringen?"], "warn": "Only for names without an article. A country that carries an article takes in + accusative: in die Schweiz, in den Sudan, in die USA — never »nach der Schweiz«."}, "lk_zu": {"k": "wohin", "l": "zu + dative — people, institutions, events, »in the direction of«", "sig": "You are going to a PERSON, to an authority or institution, to an event — or simply in the direction of a building.", "req": "zu + dative: zu meinen Eltern, zum Arzt, zur Polizei, zur Schule, zur Party, zum Bahnhof. This is the most-used direction word of all.", "ex": ["Ich gehe zu meinen Eltern / zum Arzt / zum Friseur.", "Du solltest zur Polizei gehen.", "Gehst du auch zur Geburtstagsparty von Kathi?"], "warn": "zu is about the goal of the movement, not about going inside: zum Kino = towards the cinema building; ins Kino = in to watch a film."}, "lk_in_akk": {"k": "wohin", "l": "in + accusative — into, and countries with an article", "sig": "You move INTO an enclosed space, or the destination is a country that carries an article.", "req": "in + accusative (the sense of hinein): in die Kirche, in den Park, ins Restaurant — and in die Schweiz, in den Sudan, in die USA, in die Niederlande.", "ex": ["Leni geht mit dem Hund in den Park.", "Ich fahre in die Schweiz / in den Sudan / in die USA.", "Die Katze kriecht in ihr Körbchen."], "warn": "Countries with an article: die Schweiz, die Türkei, der Sudan, der Libanon, der Iran, die Niederlande (pl.), die USA (pl.), die Kanarischen Inseln."}, "lk_an_akk": {"k": "wohin", "l": "an + accusative — water, borders, right up to something", "sig": "The destination is a body of water or a border, or you move something right up against a vertical surface (the sense of heran).", "req": "an + accusative: an die Nordsee, an den Strand, an die Grenze, ans Fenster, an die Wand.", "ex": ["Wir fahren an die Nordsee / an die Grenze.", "Er ging ans Fenster.", "Ich hänge das Bild an die Wand."], "warn": "an = at the edge of / against. Contrast auf = on top of a horizontal surface, in = inside."}, "lk_auf_akk": {"k": "wohin", "l": "auf + accusative — islands, squares, offices, onto/up", "sig": "The destination is an island, a public square, certain offices and events — or you move onto / up onto something.", "req": "auf + accusative: auf eine Insel, auf den Potsdamer Platz, aufs Finanzamt, auf den Empfang, auf den Berg, auf das Sofa.", "ex": ["Wir fliegen auf eine einsame Insel.", "Ich gehe auf den Potsdamer Platz / auf die Baustelle.", "Kommst du mit auf den Aussichtsturm?"], "warn": "Offices and events split between auf and zu: aufs Finanzamt, auf den Empfang, but zur Polizei, zur Party. Learn these as chunks."}, "lk_bis": {"k": "wohin", "l": "bis (+ accusative) — the end point", "sig": "You name the end point of a movement.", "req": "bis governs the accusative but normally stands WITHOUT an article: bis München. If an article is needed, combine it: bis zum Bahnhof, bis zur Kreuzung.", "ex": ["Der Zug fährt nur bis Nürnberg.", "Fahren Sie bis zur Potsdamer Straße.", "Wir laufen bis zum Ende der Straße."], "warn": "Never »bis dem Bahnhof« or »bis den Bahnhof« — with an article always bis zu + dative."}, "lk_durch": {"k": "wohin", "l": "durch + accusative — through", "sig": "The movement passes through something, entering on one side and leaving on the other.", "req": "durch always takes the accusative — it is never a two-way preposition.", "ex": ["Herr Schmidt ging durch die Tür.", "Wir fahren durch die Türkei.", "Der Zug fuhr durch den Tunnel."], "warn": "durch, für, gegen, ohne, um are ALWAYS accusative, whatever the question."}, "lk_entlang": {"k": "wohin", "l": "entlang + accusative — along (after the noun)", "sig": "The movement runs parallel to something long: a river, a street, a shore.", "req": "entlang normally stands AFTER the noun and then takes the accusative: den Fluss entlang, die Straße entlang.", "ex": ["Der Radweg verläuft den Fluss entlang.", "Wir liefen lange das Ufer entlang.", "Gehen Sie diese Straße entlang."], "warn": "Before the noun entlang takes the genitive and sounds formal: entlang des Flusses. The everyday version is the one that follows the noun."}, "lk_gegen": {"k": "wohin", "l": "gegen + accusative — impact, against", "sig": "Something collides with or is pressed against something.", "req": "gegen always takes the accusative.", "ex": ["Er fuhr gegen ein Verkehrsschild.", "Das Auto fuhr gegen einen Baum.", "Der Regen schlug gegen das Fenster."], "warn": "For a destination you approach without hitting it, use an + accusative: an die Wand stellen vs. gegen die Wand fahren."}, "lk_um": {"k": "wohin", "l": "um (… herum) + accusative — around", "sig": "The movement or the position circles something.", "req": "um + accusative, often reinforced by herum at the end.", "ex": ["Wir sind um die Kirche (herum)gegangen.", "Die Menschen standen um das Denkmal herum.", "Wir liefen zweimal um den Häuserblock."], "warn": "um is accusative even when nothing moves: »um den Tisch herum sitzen«."}, "lk_in_dat": {"k": "wo", "l": "in + dative — inside, and countries / cities", "sig": "Something is INSIDE a space, or you name the country, city or continent where it is.", "req": "in + dative: in der Kirche, im Park, im Restaurant — and in Portugal, in Hamburg, in Europa, in der Schweiz, in den USA.", "ex": ["In der Kirche waren ca. 100 Menschen.", "Ich war in Portugal, in Hamburg, in Europa.", "In den Niederlanden / im Sudan."], "warn": "Note the plural dative: in den Niederlanden, in den USA — the -n of the dative plural is easy to forget."}, "lk_an_dat": {"k": "wo", "l": "an + dative — at the water, at the border, at a surface", "sig": "Something is at a body of water, at a border, or touching a vertical surface / an edge.", "req": "an + dative: an der Nordsee, am Strand, an der Grenze, an der Tür, an der Wand, am Fenster.", "ex": ["Wir waren an der Nordsee / an der Grenze.", "Er stand an der Tür.", "Das Bild hängt an der Wand."], "warn": "Cities on rivers use an too: Dresden liegt an der Elbe. And institutions: an der Universität studieren."}, "lk_auf_dat": {"k": "wo", "l": "auf + dative — islands, squares, offices, on top of", "sig": "Something is on a horizontal surface, or you are on an island, a square, at certain offices or events.", "req": "auf + dative: auf dem Tisch, auf einer Insel, auf dem Potsdamer Platz, auf dem Finanzamt, auf der Party, auf dem Berg.", "ex": ["Das Schreiben liegt auf dem Tisch.", "Wir trafen uns auf dem Potsdamer Platz.", "Warst du auch auf der Party / auf dem Empfang?"], "warn": "Also fixed: auf dem Land (in the countryside, opposite of in der Stadt), auf der Straße, auf dem Weg, auf der Bank."}, "lk_bei": {"k": "wo", "l": "bei + dative — at a person's, at a company, at an event", "sig": "You are AT someone's place, at a firm or authority, or present at an event or class.", "req": "bei + dative: beim Arzt, bei meinen Eltern, bei der Polizei, bei Siemens, beim Unterricht.", "ex": ["Otto war beim Arzt / bei seinen Eltern.", "Marie ist bei der Polizei / bei Siemens.", "Warst du gestern beim Deutschunterricht?"], "warn": "bei is the static partner of zu: zum Arzt gehen → beim Arzt sein. Never »bei« for movement."}, "lk_gegenueber": {"k": "wo", "l": "gegenüber + dative — opposite", "sig": "Something is on the other side, facing something.", "req": "gegenüber + dative. It may stand BEFORE or AFTER the noun; after a pronoun it must follow: mir gegenüber.", "ex": ["Das Haus liegt gegenüber der Universität.", "Unsere Wohnung lag einem spanischen Restaurant gegenüber.", "Die Polizei befindet sich gegenüber dem Theater."], "warn": "Both positions are correct with a noun, so do not »fix« a sentence that has gegenüber at the end."}, "lk_genitiv": {"k": "wo", "l": "innerhalb / außerhalb / unweit … + genitive", "sig": "You mark a boundary: inside, outside, above, below, this side, that side, not far from.", "req": "innerhalb, außerhalb, oberhalb, unterhalb, diesseits, jenseits, abseits, unweit all take the GENITIVE.", "ex": ["Innerhalb der Stadt gilt eine Geschwindigkeitsbegrenzung.", "Außerhalb der Stadt gibt es viel Wald.", "Man fand den Koffer unweit der Autobahn."], "warn": "Genitive endings: der Stadt (f.), des Flusses (m./n. + -s). With a bare plural noun, von + dative is used instead: innerhalb von drei Kilometern."}, "lk_aus": {"k": "woher", "l": "aus + dative — out of, from a country or city", "sig": "The starting point is a place you were INSIDE, or your origin as a person.", "req": "aus + dative: aus Berlin, aus der Türkei, aus dem Kühlschrank, aus dem Haus.", "ex": ["Wir kommen gerade aus Berlin / aus Spanien / aus Asien.", "Sie nahm eine Flasche aus dem Kühlschrank.", "Ich komme aus der Türkei."], "warn": "aus is the mirror image of in: in die Türkei → aus der Türkei; in den Schrank → aus dem Schrank."}, "lk_von": {"k": "woher", "l": "von + dative — from a person, an institution, a starting point", "sig": "The starting point is a person, an authority, an event, a direction — or the point a route starts from.", "req": "von + dative: vom Arzt, von der Polizei, vom Unterricht, von Süden, von Berlin nach Hamburg.", "ex": ["Paul kommt vom Arzt / vom Friseur.", "Susanne kommt vom Unterricht / von einer Ausstellung.", "Der Zug fuhr von Berlin nach Hamburg."], "warn": "von is the mirror image of zu/bei: zum Arzt → beim Arzt → vom Arzt. Use aus only when you were inside something."}, "lk_ab": {"k": "woher", "l": "ab + dative — departing from", "sig": "You name the point a scheduled journey starts from.", "req": "ab + dative, usually without an article with place names: ab Frankfurt, ab Hamburg-Hauptbahnhof.", "ex": ["Das Flugzeug fliegt ab Frankfurt.", "Die Maschine fliegt ab Amsterdam.", "Der Zug fährt um 12.56 Uhr ab Hamburg-Hauptbahnhof."], "warn": "ab is timetable language. In ordinary speech you would say von Frankfurt aus."}, "lk_wechsel_dat": {"k": "wechsel", "l": "Two-way preposition + WO? → dative", "sig": "One of the nine two-way prepositions (an, auf, hinter, in, neben, über, unter, vor, zwischen) and nothing moves — you can ask wo?", "req": "wo? → dative. The position is being described, not a change of place.", "ex": ["Das Bild hängt an der Wand.", "Die Katze liegt unter dem Sofa.", "Ich warte vor dem Eingang."], "warn": "The nine two-way prepositions are the ONLY ones that switch case. durch, für, gegen, ohne, um are always accusative; aus, bei, mit, nach, seit, von, zu are always dative."}, "lk_wechsel_akk": {"k": "wechsel", "l": "Two-way preposition + WOHIN? → accusative", "sig": "One of the nine two-way prepositions and there is movement to a new place — you can ask wohin?", "req": "wohin? → accusative. Something crosses a border into a new position.", "ex": ["Ich hänge das Bild an die Wand.", "Die Katze legt sich unter das Sofa.", "Ich habe die Dokumente in den Schrank gelegt."], "warn": "Movement inside one place is still wo?: »Ich laufe im Zimmer herum« (dative) — the room does not change."}, "lk_verben": {"k": "wechsel", "l": "The verb gives the case away", "sig": "The sentence uses one of the classic verb pairs.", "req": "Position verbs (no object) → dative: liegen, stehen, sitzen, hängen, stecken. Placement verbs (with an accusative object) → accusative: legen, stellen, setzen, hängen, stecken.", "ex": ["Das Buch liegt auf dem Tisch. ↔ Ich lege das Buch auf den Tisch.", "Er steht vor der Tür. ↔ Er stellt sich vor die Tür.", "Der Schlüssel steckt im Schloss. ↔ Er steckt den Schlüssel ins Schloss."], "warn": "hängen and stecken exist in both roles — decide by asking whether the sentence has an accusative object that is being moved."}, "lk_hause": {"k": "sonder", "l": "nach Hause / zu Hause / von zu Hause", "sig": "The word Hause in these three fixed expressions.", "req": "Direction: nach Hause. Position: zu Hause. Origin: von zu Hause. No article, and the -e never changes.", "ex": ["Ich gehe jetzt nach Hause.", "Ich bleibe heute zu Hause.", "Er arbeitet von zu Hause (aus)."], "warn": "»in Hause« and »zu Hause gehen« do not exist. Zuhause written as one word is a noun: mein Zuhause."}, "lk_kontrast": {"k": "sonder", "l": "zum … or ins …? goal vs. entering", "sig": "Both zu and in would be possible and the meaning decides.", "req": "zu = towards the place / to the building. in + accusative = into the building, usually to do what one does there.", "ex": ["Ich gehe zum Kino (to the cinema building) ↔ Ich gehe ins Kino (to watch a film).", "Ich gehe zur Post (to the post office) ↔ Ich gehe in die Post (inside the building).", "Er geht zur Schule (he is a pupil) ↔ Er geht in die Schule (he is walking in)."], "warn": "With people only zu is possible: zu meinen Eltern — never »in meine Eltern«."}, "lk_adverb": {"k": "sonder", "l": "Local adverbs — hin and her, oben / rauf", "sig": "No preposition, just an adverb of place or direction.", "req": "Position: oben, unten, drinnen, draußen, drüben, hier, dort. Direction: hinauf/herauf (rauf), hinunter/herunter (runter), hinein/herein (rein), hinaus/heraus (raus), hinüber/herüber (rüber). her = towards the speaker, hin = away from the speaker.", "ex": ["Otto war unten. Jetzt geht er rauf.", "Otto ist draußen — kannst du bitte hereinkommen?", "Der Blumentopf steht im Garten. Kannst du ihn hereinbringen?"], "warn": "In a question the two halves often split: »Wo gehst du hin?« = Wohin gehst du? and »Wo kommst du her?« = Woher kommst du?"}, "lk_fest": {"k": "sonder", "l": "Fixed expressions — learn the chunk", "sig": "The preposition follows no rule here; the phrase is simply fixed.", "req": "Store the whole phrase: im Fernsehen, im Radio, im Internet, in der Zeitung, auf dem Land, in der Stadt, an der Universität, auf der Straße, im Bett, auf die Toilette.", "ex": ["Das habe ich im Fernsehen gesehen.", "Claudia surft gern im Internet.", "Viele Menschen wollen auf dem Land wohnen."], "warn": "English interferes badly here: on TV → im Fernsehen, on the internet → im Internet, in the street → auf der Straße."}};
+var Q1=[{"s": "Wir fliegen ___ Kanada.", "o": ["nach", "in das", "in die", "zu"], "a": "nach", "r": "lk_nach", "b": "Wohin? — a country with no article", "c": "nach is used for bare geographical names; no article follows.", "f": "nach + bare name = nach Kanada", "en": "We're flying to Canada.", "t": 0}, {"s": "Fährst du dieses Jahr wieder ___ Italien?", "o": ["nach", "in das", "in die", "auf"], "a": "nach", "r": "lk_nach", "b": "Wohin? — a country with no article", "c": "Italien takes no article, so nach.", "f": "nach + bare name = nach Italien", "en": "Are you going to Italy again this year?", "t": 0}, {"s": "Der Zug fährt ___ München.", "o": ["nach", "in die", "zu der", "an"], "a": "nach", "r": "lk_nach", "b": "Wohin? — a city", "c": "Cities take nach, without an article.", "f": "nach + city = nach München", "en": "The train goes to Munich.", "t": 0}, {"s": "Wir müssen jetzt ___ Norden fahren.", "o": ["nach", "in den", "zum", "auf den"], "a": "nach", "r": "lk_nach", "b": "Wohin? — a compass direction", "c": "Compass points and directions take nach.", "f": "nach + direction = nach Norden", "en": "We have to drive north now.", "t": 0}, {"s": "An der Kreuzung müssen Sie ___ links abbiegen.", "o": ["nach", "zu", "in", "auf"], "a": "nach", "r": "lk_nach", "b": "Wohin? — a direction", "c": "links / rechts / oben / unten behave like compass points.", "f": "nach + links = nach links", "en": "At the crossing you have to turn left.", "t": 0}, {"s": "Soll ich dich ___ bringen?", "o": ["nach Hause", "zu Hause", "in Hause", "zum Haus"], "a": "nach Hause", "r": "lk_hause", "b": "Wohin? — the fixed expression", "c": "Direction always uses nach Hause; zu Hause is the static one.", "f": "fixed: nach Hause (no article)", "en": "Shall I take you home?", "t": 1}, {"s": "Meine Schwester zieht ___ Europa.", "o": ["nach", "in das", "auf", "zu"], "a": "nach", "r": "lk_nach", "b": "Wohin? — a continent", "c": "Continents take nach, without an article.", "f": "nach + continent = nach Europa", "en": "My sister is moving to Europe.", "t": 0}, {"s": "Wir wandern ___ oben zur Hütte.", "o": ["nach", "in", "auf", "zu"], "a": "nach", "r": "lk_nach", "b": "Wohin? — a direction", "c": "oben / unten behave like compass points after nach.", "f": "nach + oben = nach oben", "en": "We're hiking up to the hut.", "t": 0}, {"s": "Ich gehe heute ___ Arzt.", "o": ["zum", "in den", "an den", "auf den"], "a": "zum", "r": "lk_zu", "b": "Wohin? — a person (a doctor)", "c": "People always take zu + dative. zu dem contracts to zum.", "f": "zu + dative = zum Arzt", "en": "I'm going to the doctor today.", "t": 1}, {"s": "Am Wochenende fahre ich ___ meinen Eltern.", "o": ["zu", "nach", "bei", "in"], "a": "zu", "r": "lk_zu", "b": "Wohin? — people", "c": "People take zu, never in or nach.", "f": "zu + dative plural = zu meinen Eltern", "en": "At the weekend I'm going to my parents'.", "t": 0}, {"s": "Meine Haare sind zu lang — ich muss ___ Friseur.", "o": ["zum", "in den", "auf den", "nach"], "a": "zum", "r": "lk_zu", "b": "Wohin? — a person / their business", "c": "The hairdresser counts as a person: zu + dative.", "f": "zu + dative = zum Friseur", "en": "My hair is too long — I have to go to the hairdresser's.", "t": 0}, {"s": "Du solltest ___ Polizei gehen und Anzeige erstatten.", "o": ["zur", "in die", "auf die", "an die"], "a": "zur", "r": "lk_zu", "b": "Wohin? — an authority", "c": "Some authorities take zu: zur Polizei, zur Post, zur Bank.", "f": "zu + dative feminine = zur Polizei", "en": "You should go to the police and report it.", "t": 1}, {"s": "Der Junge geht noch ___ Schule.", "o": ["zur", "in die", "auf die", "an die"], "a": "zur", "r": "lk_zu", "b": "Wohin? — an institution (attending it)", "c": "zur Schule gehen = to be a pupil. in die Schule gehen = to walk into the building.", "f": "zu + dative feminine = zur Schule", "en": "The boy still goes to school.", "t": 1}, {"s": "Gehst du auch ___ Geburtstagsparty von Kathi?", "o": ["zur", "in die", "auf die", "an die"], "a": "zur", "r": "lk_zu", "b": "Wohin? — an event", "c": "Many events take zu: zur Party, zur Hochzeit, zum Konzert.", "f": "zu + dative feminine = zur Party", "en": "Are you going to Kathi's birthday party too?", "t": 0}, {"s": "Ich gehe kurz ___ Bahnhof.", "o": ["zum", "in den", "an den", "auf den"], "a": "zum", "r": "lk_zu", "b": "Wohin? — a building, in the sense of towards it", "c": "zu marks the goal of the movement without saying you go inside.", "f": "zu + dative = zum Bahnhof", "en": "I'm just going to the station.", "t": 0}, {"s": "Bring das Paket bitte ___ Post.", "o": ["zur", "in die", "auf die", "an die"], "a": "zur", "r": "lk_zu", "b": "Wohin? — an institution", "c": "zur Post = to the post office to do your business there.", "f": "zu + dative feminine = zur Post", "en": "Please take the parcel to the post office.", "t": 0}, {"s": "Sie ist ___ Unterricht gegangen.", "o": ["zum", "in den", "auf den", "an den"], "a": "zum", "r": "lk_zu", "b": "Wohin? — a class / event", "c": "Lessons and courses take zu: zum Unterricht, zum Seminar.", "f": "zu + dative = zum Unterricht", "en": "She has gone to class.", "t": 0}, {"s": "Mein Bruder arbeitet jetzt bei Mercedes — morgen fährt er ___ Mercedes.", "o": ["zu", "nach", "in", "auf"], "a": "zu", "r": "lk_zu", "b": "Wohin? — a company", "c": "Companies behave like people: zu Mercedes, zu Siemens.", "f": "zu + name = zu Mercedes", "en": "My brother works at Mercedes now — tomorrow he's driving to Mercedes.", "t": 1}, {"s": "Wir gehen ___ Bibliothek, um zu lernen.", "o": ["zur", "in die", "auf die", "an die"], "a": "zur", "r": "lk_zu", "b": "Wohin? — an institution", "c": "zur Bibliothek gehen is the standard phrase (in die Bibliothek is also possible for entering).", "f": "zu + dative feminine = zur Bibliothek", "en": "We're going to the library to study.", "t": 0}, {"s": "Musst du dich ___ Agentur für Arbeit melden?", "o": ["bei der", "in der", "zu der", "an der"], "a": "bei der", "r": "lk_bei", "b": "Wo? — an authority", "c": "sich melden bei = to report to an authority: bei + dative.", "f": "bei + dative feminine = bei der Agentur", "en": "Do you have to report to the employment agency?", "t": 1}, {"s": "Ich fahre nächste Woche ___ Schweiz.", "o": ["in die", "nach der", "nach", "zu der"], "a": "in die", "r": "lk_in_akk", "b": "Wohin? — a country WITH an article", "c": "die Schweiz has an article, so in + accusative, never nach.", "f": "in + accusative feminine = in die Schweiz", "en": "I'm going to Switzerland next week.", "t": 1}, {"s": "Er ist beruflich ___ Sudan geflogen.", "o": ["in den", "nach dem", "nach", "zu dem"], "a": "in den", "r": "lk_in_akk", "b": "Wohin? — a country with an article (der Sudan)", "c": "Countries with an article take in + accusative.", "f": "in + accusative masculine = in den Sudan", "en": "He flew to Sudan on business.", "t": 1}, {"s": "Nächstes Jahr wollen wir ___ USA reisen.", "o": ["in die", "nach den", "nach", "zu den"], "a": "in die", "r": "lk_in_akk", "b": "Wohin? — a plural country name", "c": "die USA is plural with an article → in + accusative plural = in die USA.", "f": "in + accusative plural = in die USA", "en": "Next year we want to travel to the USA.", "t": 1}, {"s": "Wir fahren im Sommer ___ Niederlande.", "o": ["in die", "nach den", "nach", "in den"], "a": "in die", "r": "lk_in_akk", "b": "Wohin? — a plural country name", "c": "die Niederlande is plural: in die Niederlande.", "f": "in + accusative plural = in die Niederlande", "en": "We're going to the Netherlands in the summer.", "t": 1}, {"s": "Meine Familie reist jedes Jahr ___ Türkei.", "o": ["in die", "nach der", "nach", "an die"], "a": "in die", "r": "lk_in_akk", "b": "Wohin? — a country with an article (die Türkei)", "c": "Article present → in + accusative.", "f": "in + accusative feminine = in die Türkei", "en": "My family travels to Turkey every year.", "t": 0}, {"s": "Leni geht mit dem Hund ___ Park.", "o": ["in den", "im", "auf den", "an den"], "a": "in den", "r": "lk_in_akk", "b": "Wohin? — into an enclosed area", "c": "Movement into the park → in + accusative.", "f": "in + accusative masculine = in den Park", "en": "Leni is going to the park with the dog.", "t": 0}, {"s": "Nach dem Konzert gingen alle ___ Restaurant.", "o": ["ins", "im", "zum", "ans"], "a": "ins", "r": "lk_in_akk", "b": "Wohin? — into a building", "c": "in + accusative neuter contracts: in das → ins.", "f": "in + accusative neuter = ins Restaurant", "en": "After the concert everyone went to the restaurant.", "t": 0}, {"s": "Die Katze kriecht ___ Körbchen.", "o": ["in ihr", "in ihrem", "auf ihrem", "an ihr"], "a": "in ihr", "r": "lk_in_akk", "b": "Wohin? — into something", "c": "kriechen is movement into a new place → accusative.", "f": "in + accusative neuter = in ihr Körbchen", "en": "The cat crawls into its basket.", "t": 0}, {"s": "Am Sonntag gehen wir ___ Kirche.", "o": ["in die", "in der", "zu der", "an die"], "a": "in die", "r": "lk_in_akk", "b": "Wohin? — into a building", "c": "Entering → in + accusative.", "f": "in + accusative feminine = in die Kirche", "en": "On Sunday we go to church.", "t": 0}, {"s": "Ich fahre kurz ___ Stadt.", "o": ["in die", "in der", "zu der", "an die"], "a": "in die", "r": "lk_in_akk", "b": "Wohin? — into the town centre", "c": "Movement into the town → accusative.", "f": "in + accusative feminine = in die Stadt", "en": "I'm just driving into town.", "t": 0}, {"s": "Gehst du heute Abend ___ Kino?", "o": ["ins", "im", "zum", "ans"], "a": "ins", "r": "lk_in_akk", "b": "Wohin? — into the cinema to watch a film", "c": "ins Kino = to see a film. zum Kino would only mean towards the building.", "f": "in + accusative neuter = ins Kino", "en": "Are you going to the cinema tonight?", "t": 1}, {"s": "Im Juli fahren wir ___ Nordsee.", "o": ["an die", "in die", "auf die", "zu der"], "a": "an die", "r": "lk_an_akk", "b": "Wohin? — a body of water", "c": "Seas, lakes and rivers take an: an die Nordsee, an den See.", "f": "an + accusative feminine = an die Nordsee", "en": "In July we're going to the North Sea.", "t": 1}, {"s": "Die Kinder laufen ___ Strand.", "o": ["an den", "am", "in den", "auf den"], "a": "an den", "r": "lk_an_akk", "b": "Wohin? — to the shore", "c": "an + accusative for movement to the water's edge.", "f": "an + accusative masculine = an den Strand", "en": "The children are running to the beach.", "t": 0}, {"s": "Wir fahren ___ Grenze.", "o": ["an die", "in die", "auf die", "zu der"], "a": "an die", "r": "lk_an_akk", "b": "Wohin? — a border", "c": "Borders take an, like bodies of water.", "f": "an + accusative feminine = an die Grenze", "en": "We're driving to the border.", "t": 0}, {"s": "Er ging ___ Fenster und schaute hinaus.", "o": ["ans", "am", "ins", "aufs"], "a": "ans", "r": "lk_an_akk", "b": "Wohin? — right up to something", "c": "an in the sense of heran; an das contracts to ans.", "f": "an + accusative neuter = ans Fenster", "en": "He went to the window and looked out.", "t": 0}, {"s": "Ich hänge das Bild ___ Wand.", "o": ["an die", "an der", "auf die", "in die"], "a": "an die", "r": "lk_wechsel_akk", "b": "Wohin? — the picture changes place", "c": "hängen with an accusative object = placement → accusative.", "f": "an + accusative feminine = an die Wand", "en": "I'm hanging the picture on the wall.", "t": 1}, {"s": "Stell das Fahrrad bitte ___ Mauer.", "o": ["an die", "an der", "auf die", "in die"], "a": "an die", "r": "lk_wechsel_akk", "b": "Wohin? — you are putting it somewhere", "c": "stellen = placement verb → accusative.", "f": "an + accusative feminine = an die Mauer", "en": "Please put the bike against the wall.", "t": 0}, {"s": "Setz dich ___ Tisch, das Essen ist fertig.", "o": ["an den", "am", "auf den", "in den"], "a": "an den", "r": "lk_wechsel_akk", "b": "Wohin? — sitting down is a change of place", "c": "sich setzen = placement → accusative. (sitzen would take the dative.)", "f": "an + accusative masculine = an den Tisch", "en": "Sit down at the table, dinner is ready.", "t": 1}, {"s": "Wir fahren am Wochenende ___ See.", "o": ["an den", "am", "in den", "auf den"], "a": "an den", "r": "lk_an_akk", "b": "Wohin? — a lake", "c": "Water takes an; der See → an den See.", "f": "an + accusative masculine = an den See", "en": "We're going to the lake at the weekend.", "t": 0}, {"s": "Wir fliegen ___ einsame Insel.", "o": ["auf eine", "in eine", "an eine", "zu einer"], "a": "auf eine", "r": "lk_auf_akk", "b": "Wohin? — an island", "c": "Islands always take auf.", "f": "auf + accusative feminine = auf eine Insel", "en": "We're flying to a deserted island.", "t": 1}, {"s": "Die Demonstration zieht ___ Potsdamer Platz.", "o": ["auf den", "in den", "an den", "zum"], "a": "auf den", "r": "lk_auf_akk", "b": "Wohin? — a public square", "c": "Squares take auf: auf den Marktplatz, auf den Potsdamer Platz.", "f": "auf + accusative masculine = auf den Platz", "en": "The demonstration is moving to Potsdamer Platz.", "t": 0}, {"s": "Gehst du morgen ___ Finanzamt?", "o": ["aufs", "ins", "zum", "ans"], "a": "aufs", "r": "lk_auf_akk", "b": "Wohin? — certain offices", "c": "A few offices take auf: aufs Finanzamt, aufs Rathaus, aufs Amt.", "f": "auf + accusative neuter = aufs Finanzamt", "en": "Are you going to the tax office tomorrow?", "t": 1}, {"s": "Wir gehen ___ Empfang der Bürgermeisterin.", "o": ["auf den", "in den", "zum", "an den"], "a": "auf den", "r": "lk_auf_akk", "b": "Wohin? — a formal event", "c": "Some events take auf: auf den Empfang, auf die Hochzeit, auf eine Party.", "f": "auf + accusative masculine = auf den Empfang", "en": "We're going to the mayor's reception.", "t": 0}, {"s": "Kommst du mit ___ Aussichtsturm?", "o": ["auf den", "in den", "an den", "zum"], "a": "auf den", "r": "lk_auf_akk", "b": "Wohin? — up onto something", "c": "auf in the sense of hinauf.", "f": "auf + accusative masculine = auf den Turm", "en": "Are you coming up the observation tower?", "t": 0}, {"s": "Man kann ___ Berg klettern, aber man braucht viel Mut.", "o": ["auf den", "auf dem", "an den", "in den"], "a": "auf den", "r": "lk_auf_akk", "b": "Wohin? — climbing up", "c": "klettern auf + accusative = up onto the mountain.", "f": "auf + accusative masculine = auf den Berg", "en": "You can climb the mountain, but you need a lot of courage.", "t": 1}, {"s": "Die Katze legt sich ___ Sofa.", "o": ["auf das", "auf dem", "in das", "an das"], "a": "auf das", "r": "lk_verben", "b": "Wohin? — sich legen is a placement verb", "c": "legen → accusative. liegen would take the dative.", "f": "auf + accusative neuter = auf das Sofa", "en": "The cat lies down on the sofa.", "t": 1}, {"s": "Ich muss kurz ___ Toilette.", "o": ["auf die", "in die", "zu der", "an die"], "a": "auf die", "r": "lk_fest", "b": "Wohin? — a fixed expression", "c": "auf die Toilette gehen / auf der Toilette sein is simply fixed.", "f": "fixed: auf die Toilette", "en": "I need to go to the toilet.", "t": 1}, {"s": "Die Arbeiter gehen ___ Baustelle.", "o": ["auf die", "in die", "an die", "zu der"], "a": "auf die", "r": "lk_auf_akk", "b": "Wohin? — a site", "c": "Building sites and squares take auf.", "f": "auf + accusative feminine = auf die Baustelle", "en": "The workers are going to the building site.", "t": 0}, {"s": "Der Zug fährt nur ___ Nürnberg.", "o": ["bis", "bis zu", "bis zum", "bis dem"], "a": "bis", "r": "lk_bis", "b": "Wohin? — the end point", "c": "bis + a bare place name, with no article at all.", "f": "bis + name = bis Nürnberg", "en": "The train only goes as far as Nuremberg.", "t": 0}, {"s": "Fahren Sie geradeaus ___ Kreuzung.", "o": ["bis zur", "bis die", "bis der", "bis"], "a": "bis zur", "r": "lk_bis", "b": "Wohin? — end point with an article", "c": "As soon as an article is needed, bis combines with zu + dative.", "f": "bis zu + dative feminine = bis zur Kreuzung", "en": "Drive straight on to the crossing.", "t": 1}, {"s": "Herr Schmidt ging ___ Tür.", "o": ["durch die", "durch der", "in die", "an die"], "a": "durch die", "r": "lk_durch", "b": "Wohin? — through an opening", "c": "durch is always accusative.", "f": "durch + accusative feminine = durch die Tür", "en": "Mr Schmidt went through the door.", "t": 0}, {"s": "Wir fahren mit dem Auto ___ Türkei.", "o": ["durch die", "durch der", "in die", "nach der"], "a": "durch die", "r": "lk_durch", "b": "Wohin? — passing through a country", "c": "durch + accusative, whatever the country.", "f": "durch + accusative feminine = durch die Türkei", "en": "We're driving through Turkey.", "t": 0}, {"s": "Der Radweg verläuft ___ .", "o": ["den Fluss entlang", "dem Fluss entlang", "entlang dem Fluss", "an dem Fluss entlang"], "a": "den Fluss entlang", "r": "lk_entlang", "b": "Wo/Wohin? — parallel to something long", "c": "entlang follows the noun and then takes the accusative.", "f": "accusative + entlang = den Fluss entlang", "en": "The cycle path runs along the river.", "t": 1}, {"s": "Wir liefen lange ___ .", "o": ["das Ufer entlang", "dem Ufer entlang", "entlang das Ufer", "an das Ufer entlang"], "a": "das Ufer entlang", "r": "lk_entlang", "b": "Wohin? — along the shore", "c": "Noun in the accusative, then entlang.", "f": "accusative + entlang = das Ufer entlang", "en": "We walked along the shore for a long time.", "t": 0}, {"s": "Jan ist beim Einparken ___ Verkehrsschild gefahren.", "o": ["gegen ein", "gegen einem", "an ein", "auf ein"], "a": "gegen ein", "r": "lk_gegen", "b": "Wohin? — an impact", "c": "gegen is always accusative.", "f": "gegen + accusative neuter = gegen ein Schild", "en": "Jan drove into a road sign while parking.", "t": 0}, {"s": "Wir sind zweimal ___ Häuserblock gelaufen.", "o": ["um den", "um dem", "durch den", "an den"], "a": "um den", "r": "lk_um", "b": "Wohin? — circling something", "c": "um (…herum) is always accusative.", "f": "um + accusative masculine = um den Block", "en": "We walked around the block twice.", "t": 0}, {"s": "Die Menschen standen ___ Denkmal herum.", "o": ["um das", "um dem", "an das", "auf dem"], "a": "um das", "r": "lk_um", "b": "Wo? — standing around something", "c": "um stays accusative even when nothing moves.", "f": "um + accusative neuter = um das Denkmal", "en": "People were standing around the monument.", "t": 1}, {"s": "Ich war letztes Jahr ___ Portugal.", "o": ["in", "nach", "auf", "an"], "a": "in", "r": "lk_in_dat", "b": "Wo? — a country without an article", "c": "Position in a country / city / continent → in + dative (no article here).", "f": "in + bare name = in Portugal", "en": "I was in Portugal last year.", "t": 0}, {"s": "___ Kirche waren ungefähr 100 Menschen.", "o": ["In der", "In die", "An der", "Auf der"], "a": "In der", "r": "lk_in_dat", "b": "Wo? — inside a building", "c": "No movement → dative.", "f": "in + dative feminine = in der Kirche", "en": "There were about 100 people in the church.", "t": 0}, {"s": "Wir haben zwei Jahre ___ Schweiz gelebt.", "o": ["in der", "in die", "nach der", "an der"], "a": "in der", "r": "lk_in_dat", "b": "Wo? — a country with an article", "c": "Position → in + dative: in der Schweiz.", "f": "in + dative feminine = in der Schweiz", "en": "We lived in Switzerland for two years.", "t": 0}, {"s": "Meine Cousine studiert ___ Niederlanden.", "o": ["in den", "in die", "in der", "nach den"], "a": "in den", "r": "lk_in_dat", "b": "Wo? — a plural country name", "c": "Dative plural: in den Niederlanden — note the -n on the noun.", "f": "in + dative plural = in den Niederlanden", "en": "My cousin studies in the Netherlands.", "t": 1}, {"s": "Er hat lange ___ USA gearbeitet.", "o": ["in den", "in die", "in der", "nach den"], "a": "in den", "r": "lk_in_dat", "b": "Wo? — a plural country name", "c": "die USA is plural → dative plural in den USA.", "f": "in + dative plural = in den USA", "en": "He worked in the USA for a long time.", "t": 1}, {"s": "Die Kinder spielen ___ Park.", "o": ["im", "in den", "am", "auf dem"], "a": "im", "r": "lk_in_dat", "b": "Wo? — inside an area", "c": "No change of place → dative; in dem contracts to im.", "f": "in + dative masculine = im Park", "en": "The children are playing in the park.", "t": 0}, {"s": "Claudia surft gern ___ Internet.", "o": ["im", "in dem Internet", "auf dem", "an dem"], "a": "im", "r": "lk_fest", "b": "Wo? — a fixed expression", "c": "German says im Internet, never »auf dem Internet«.", "f": "fixed: im Internet", "en": "Claudia likes surfing the internet.", "t": 1}, {"s": "Das habe ich gestern ___ Fernsehen gesehen.", "o": ["im", "auf dem", "an dem", "in das"], "a": "im", "r": "lk_fest", "b": "Wo? — a fixed expression", "c": "on TV → im Fernsehen. Same with im Radio.", "f": "fixed: im Fernsehen", "en": "I saw that on TV yesterday.", "t": 1}, {"s": "Diese Nachricht stand ___ Zeitung.", "o": ["in der", "auf der", "an der", "in die"], "a": "in der", "r": "lk_fest", "b": "Wo? — a fixed expression", "c": "in the paper → in der Zeitung.", "f": "fixed: in der Zeitung", "en": "That news was in the paper.", "t": 1}, {"s": "Die Bürogebäude befinden sich ___ Industriegebiet.", "o": ["im", "ins", "am", "auf dem"], "a": "im", "r": "lk_in_dat", "b": "Wo? — inside an area", "c": "sich befinden describes a position → dative.", "f": "in + dative neuter = im Industriegebiet", "en": "The office buildings are in the industrial estate.", "t": 0}, {"s": "Die Wohnung liegt ___ sogenannten Künstlerviertel.", "o": ["im", "ins", "am", "auf dem"], "a": "im", "r": "lk_in_dat", "b": "Wo? — inside a district", "c": "liegen is a position verb → dative.", "f": "in + dative neuter = im Viertel", "en": "The flat is in the so-called artists' quarter.", "t": 0}, {"s": "Wir waren zwei Wochen ___ Nordsee.", "o": ["an der", "in die", "an die", "auf der"], "a": "an der", "r": "lk_an_dat", "b": "Wo? — at the water", "c": "Position at a body of water → an + dative.", "f": "an + dative feminine = an der Nordsee", "en": "We spent two weeks at the North Sea.", "t": 1}, {"s": "Er stand ___ Tür und wartete.", "o": ["an der", "an die", "in der", "auf der"], "a": "an der", "r": "lk_an_dat", "b": "Wo? — at a vertical surface", "c": "Standing at the door, nothing moves → dative.", "f": "an + dative feminine = an der Tür", "en": "He stood at the door and waited.", "t": 0}, {"s": "Dresden liegt ___ Elbe.", "o": ["an der", "in der", "auf der", "an die"], "a": "an der", "r": "lk_an_dat", "b": "Wo? — a city on a river", "c": "Cities on rivers take an + dative.", "f": "an + dative feminine = an der Elbe", "en": "Dresden is on the Elbe.", "t": 1}, {"s": "Sie belegt einen Deutschkurs ___ Universität Heidelberg.", "o": ["an der", "in der", "auf der", "zu der"], "a": "an der", "r": "lk_an_dat", "b": "Wo? — an institution", "c": "Universities take an: an der Universität studieren.", "f": "an + dative feminine = an der Universität", "en": "She is taking a German course at Heidelberg University.", "t": 1}, {"s": "Das Bild hängt ___ Wand.", "o": ["an der", "an die", "auf der", "in der"], "a": "an der", "r": "lk_wechsel_dat", "b": "Wo? — the picture is not moving", "c": "hängen without an object = position verb → dative.", "f": "an + dative feminine = an der Wand", "en": "The picture is hanging on the wall.", "t": 1}, {"s": "Der Informationsschalter befindet sich ___ Eingang.", "o": ["am", "an den", "im", "auf dem"], "a": "am", "r": "lk_an_dat", "b": "Wo? — at the entrance", "c": "Position → an + dative; an dem contracts to am.", "f": "an + dative masculine = am Eingang", "en": "The information desk is at the entrance.", "t": 0}, {"s": "Im Urlaub saß er ___ Balkon und sah aufs Meer.", "o": ["auf dem", "auf den", "am", "in den"], "a": "auf dem", "r": "lk_wechsel_dat", "b": "Wo? — sitzen is a position verb", "c": "sitzen → dative. auf dem Balkon is the usual collocation.", "f": "auf + dative masculine = auf dem Balkon", "en": "On holiday he sat on the balcony and looked at the sea.", "t": 0}, {"s": "Wir treffen uns ___ Strand.", "o": ["am", "an den", "im", "auf den"], "a": "am", "r": "lk_an_dat", "b": "Wo? — at the beach", "c": "Position at the water → an + dative.", "f": "an + dative masculine = am Strand", "en": "We're meeting at the beach.", "t": 0}, {"s": "Das Schreiben vom Bauamt liegt ___ Tisch.", "o": ["auf dem", "auf den", "an dem", "in dem"], "a": "auf dem", "r": "lk_verben", "b": "Wo? — liegen is a position verb", "c": "liegen → dative, always.", "f": "auf + dative masculine = auf dem Tisch", "en": "The letter from the building authority is on the table.", "t": 1}, {"s": "Wir waren eine Woche ___ einsamen Insel.", "o": ["auf einer", "auf eine", "in einer", "an einer"], "a": "auf einer", "r": "lk_auf_dat", "b": "Wo? — an island", "c": "Islands take auf; position → dative.", "f": "auf + dative feminine = auf einer Insel", "en": "We spent a week on a deserted island.", "t": 0}, {"s": "Wir trafen uns ___ Potsdamer Platz.", "o": ["auf dem", "auf den", "an dem", "in dem"], "a": "auf dem", "r": "lk_auf_dat", "b": "Wo? — a square", "c": "Squares take auf; no movement → dative.", "f": "auf + dative masculine = auf dem Platz", "en": "We met on Potsdamer Platz.", "t": 0}, {"s": "Warst du gestern auch ___ Party?", "o": ["auf der", "auf die", "in der", "zu der"], "a": "auf der", "r": "lk_auf_dat", "b": "Wo? — an event", "c": "Being at a party → auf + dative.", "f": "auf + dative feminine = auf der Party", "en": "Were you at the party yesterday too?", "t": 1}, {"s": "Seine Jungs sind gern ___ Fußballplatz.", "o": ["auf dem", "auf den", "im", "am"], "a": "auf dem", "r": "lk_auf_dat", "b": "Wo? — a pitch / open space", "c": "Open spaces and pitches take auf + dative.", "f": "auf + dative masculine = auf dem Fußballplatz", "en": "His boys like being on the football pitch.", "t": 0}, {"s": "Viele Menschen wollen ___ Land wohnen.", "o": ["auf dem", "im", "auf das", "an dem"], "a": "auf dem", "r": "lk_fest", "b": "Wo? — a fixed expression", "c": "In the countryside = auf dem Land; the opposite is in der Stadt.", "f": "fixed: auf dem Land", "en": "Many people want to live in the countryside.", "t": 1}, {"s": "Die Kinder spielen ___ Straße.", "o": ["auf der", "in der", "an der", "auf die"], "a": "auf der", "r": "lk_fest", "b": "Wo? — a fixed expression", "c": "in the street → auf der Straße. (in der Goethestraße is only used for an address.)", "f": "fixed: auf der Straße", "en": "The children are playing in the street.", "t": 1}, {"s": "Warst du schon ___ Finanzamt?", "o": ["auf dem", "im", "zum", "an dem"], "a": "auf dem", "r": "lk_auf_dat", "b": "Wo? — an office", "c": "The offices that take auf keep auf in the static form too.", "f": "auf + dative neuter = auf dem Finanzamt", "en": "Have you been to the tax office yet?", "t": 0}, {"s": "Die alten Fotos sind in Kartons oben ___ Dachboden.", "o": ["auf dem", "im", "an dem", "auf den"], "a": "auf dem", "r": "lk_auf_dat", "b": "Wo? — in the attic", "c": "German says auf dem Dachboden (but im Keller).", "f": "auf + dative masculine = auf dem Dachboden", "en": "The old photos are in boxes up in the attic.", "t": 1}, {"s": "Der Wein lagert ___ Keller.", "o": ["im", "auf dem", "am", "in den"], "a": "im", "r": "lk_in_dat", "b": "Wo? — in the cellar", "c": "im Keller — the cellar is enclosed, the attic is not: auf dem Dachboden.", "f": "in + dative masculine = im Keller", "en": "The wine is stored in the cellar.", "t": 1}, {"s": "Otto war gestern ___ Arzt.", "o": ["beim", "zum", "im", "am"], "a": "beim", "r": "lk_bei", "b": "Wo? — at a person's", "c": "bei is the static partner of zu: zum Arzt gehen → beim Arzt sein.", "f": "bei + dative masculine = beim Arzt", "en": "Otto was at the doctor's yesterday.", "t": 1}, {"s": "Über Weihnachten bin ich ___ Eltern.", "o": ["bei meinen", "zu meinen", "in meinen", "an meinen"], "a": "bei meinen", "r": "lk_bei", "b": "Wo? — at people's homes", "c": "People → bei + dative.", "f": "bei + dative plural = bei meinen Eltern", "en": "I'll be at my parents' over Christmas.", "t": 0}, {"s": "Marie arbeitet ___ Polizei.", "o": ["bei der", "in der", "zu der", "an der"], "a": "bei der", "r": "lk_bei", "b": "Wo? — an authority as an employer", "c": "Working for an institution → bei + dative.", "f": "bei + dative feminine = bei der Polizei", "en": "Marie works for the police.", "t": 0}, {"s": "Mein Vater war 30 Jahre ___ Siemens.", "o": ["bei", "in", "zu", "an"], "a": "bei", "r": "lk_bei", "b": "Wo? — a company", "c": "Companies take bei, with no article.", "f": "bei + name = bei Siemens", "en": "My father was at Siemens for 30 years.", "t": 0}, {"s": "Warst du gestern ___ Vortrag von Professor Schulz?", "o": ["beim", "zum", "im", "auf dem"], "a": "beim", "r": "lk_bei", "b": "Wo? — attending an event", "c": "Being present at a talk or class → bei + dative.", "f": "bei + dative masculine = beim Vortrag", "en": "Were you at Professor Schulz's talk yesterday?", "t": 0}, {"s": "Bleibst du noch ein bisschen ___ ?", "o": ["bei mir", "zu mir", "an mir", "in mir"], "a": "bei mir", "r": "lk_bei", "b": "Wo? — at my place", "c": "bei + a personal pronoun = at someone's home.", "f": "bei + dative = bei mir", "en": "Are you staying at my place a bit longer?", "t": 0}, {"s": "Ich bleibe heute Abend ___ .", "o": ["zu Hause", "nach Hause", "in Hause", "am Haus"], "a": "zu Hause", "r": "lk_hause", "b": "Wo? — the fixed expression", "c": "Position = zu Hause; direction = nach Hause.", "f": "fixed: zu Hause", "en": "I'm staying at home tonight.", "t": 1}, {"s": "Sie arbeitet seit Corona ___ aus.", "o": ["von zu Hause", "von Hause", "aus zu Hause", "zu Hause"], "a": "von zu Hause", "r": "lk_hause", "b": "Woher? — the fixed expression", "c": "The origin form is von zu Hause (aus).", "f": "fixed: von zu Hause (aus)", "en": "She has been working from home since Covid.", "t": 1}, {"s": "Das Haus liegt ___ Universität.", "o": ["gegenüber der", "gegenüber die", "gegenüber den", "gegen die"], "a": "gegenüber der", "r": "lk_gegenueber", "b": "Wo? — on the other side", "c": "gegenüber always takes the dative.", "f": "gegenüber + dative feminine = gegenüber der Universität", "en": "The house is opposite the university.", "t": 0}, {"s": "Die Polizei befindet sich ___ .", "o": ["gegenüber dem Theater", "gegenüber das Theater", "gegen dem Theater", "gegenüber des Theaters"], "a": "gegenüber dem Theater", "r": "lk_gegenueber", "b": "Wo? — opposite a building", "c": "gegenüber + dative; it may also follow the noun: dem Theater gegenüber.", "f": "gegenüber + dative neuter = gegenüber dem Theater", "en": "The police station is opposite the theatre.", "t": 1}, {"s": "___ der Stadt gilt eine Geschwindigkeitsbegrenzung.", "o": ["Innerhalb", "Innerhalb die", "In", "Innen"], "a": "Innerhalb", "r": "lk_genitiv", "b": "Wo? — inside a boundary", "c": "innerhalb takes the genitive: der Stadt is genitive feminine.", "f": "innerhalb + genitive = innerhalb der Stadt", "en": "Inside the town there is a speed limit.", "t": 1}, {"s": "___ der Stadt gibt es viel Wald.", "o": ["Außerhalb", "Außerhalb die", "Außer", "Aus"], "a": "Außerhalb", "r": "lk_genitiv", "b": "Wo? — outside a boundary", "c": "außerhalb + genitive.", "f": "außerhalb + genitive = außerhalb der Stadt", "en": "Outside the town there is a lot of forest.", "t": 0}, {"s": "Man fand den Koffer ___ Autobahn.", "o": ["unweit der", "unweit die", "unweit dem", "nicht weit die"], "a": "unweit der", "r": "lk_genitiv", "b": "Wo? — not far from", "c": "unweit + genitive.", "f": "unweit + genitive feminine = unweit der Autobahn", "en": "The suitcase was found not far from the motorway.", "t": 1}, {"s": "Das Kraftwerk wird ___ Flusses gebaut.", "o": ["unweit des", "unweit dem", "unweit der", "unweit den"], "a": "unweit des", "r": "lk_genitiv", "b": "Wo? — not far from (masculine)", "c": "Genitive masculine: des Flusses, with -es on the noun.", "f": "unweit + genitive masculine = unweit des Flusses", "en": "The power station is being built not far from the river.", "t": 1}, {"s": "Das neue Einkaufszentrum liegt drei Kilometer ___ Stadt.", "o": ["außerhalb der", "außerhalb die", "außer der", "aus der"], "a": "außerhalb der", "r": "lk_genitiv", "b": "Wo? — outside", "c": "außerhalb + genitive.", "f": "außerhalb + genitive feminine = außerhalb der Stadt", "en": "The new shopping centre is three kilometres outside town.", "t": 0}, {"s": "___ des Dorfes liegt eine alte Burg.", "o": ["Oberhalb", "Oberhalb dem", "Über", "Oben"], "a": "Oberhalb", "r": "lk_genitiv", "b": "Wo? — above / higher up than", "c": "oberhalb + genitive; the everyday alternative is über + dative.", "f": "oberhalb + genitive neuter = oberhalb des Dorfes", "en": "Above the village there is an old castle.", "t": 0}, {"s": "___ der Grenze spricht man eine andere Sprache.", "o": ["Jenseits", "Jenseits die", "Jenseits dem", "Jenseit"], "a": "Jenseits", "r": "lk_genitiv", "b": "Wo? — on the far side", "c": "jenseits / diesseits + genitive.", "f": "jenseits + genitive feminine = jenseits der Grenze", "en": "On the other side of the border they speak another language.", "t": 0}, {"s": "Wir kommen gerade ___ Berlin.", "o": ["aus", "von", "ab", "nach"], "a": "aus", "r": "lk_aus", "b": "Woher? — a city", "c": "Cities, countries and continents take aus.", "f": "aus + name = aus Berlin", "en": "We've just come from Berlin.", "t": 0}, {"s": "Ich komme ___ Türkei.", "o": ["aus der", "von der", "aus die", "aus"], "a": "aus der", "r": "lk_aus", "b": "Woher? — a country with an article", "c": "aus + dative; die Türkei → aus der Türkei.", "f": "aus + dative feminine = aus der Türkei", "en": "I'm from Turkey.", "t": 1}, {"s": "Nimm bitte das Glas ___ Schrank.", "o": ["aus dem", "von dem", "aus den", "in dem"], "a": "aus dem", "r": "lk_aus", "b": "Woher? — out of something", "c": "You were inside the cupboard's space → aus.", "f": "aus + dative masculine = aus dem Schrank", "en": "Please take the glass out of the cupboard.", "t": 0}, {"s": "Hast du das Geschirr schon ___ Spülmaschine genommen?", "o": ["aus der", "von der", "aus die", "in der"], "a": "aus der", "r": "lk_aus", "b": "Woher? — out of a machine", "c": "aus + dative.", "f": "aus + dative feminine = aus der Spülmaschine", "en": "Have you already taken the dishes out of the dishwasher?", "t": 0}, {"s": "Paul kommt gerade ___ Friseur.", "o": ["vom", "aus dem", "von den", "ab dem"], "a": "vom", "r": "lk_von", "b": "Woher? — from a person", "c": "People take von, not aus: zum Friseur → beim Friseur → vom Friseur.", "f": "von + dative masculine = vom Friseur", "en": "Paul has just come from the hairdresser's.", "t": 1}, {"s": "Kerstin kommt ___ Arzt.", "o": ["vom", "aus dem", "ab dem", "von den"], "a": "vom", "r": "lk_von", "b": "Woher? — from a person", "c": "The mirror image of zum Arzt.", "f": "von + dative masculine = vom Arzt", "en": "Kerstin is coming back from the doctor's.", "t": 0}, {"s": "Susanne kommt ___ Unterricht.", "o": ["vom", "aus dem", "ab dem", "zu dem"], "a": "vom", "r": "lk_von", "b": "Woher? — from an event", "c": "Classes and events take von.", "f": "von + dative masculine = vom Unterricht", "en": "Susanne is coming from class.", "t": 0}, {"s": "Das Auto kam ___ links.", "o": ["von", "aus", "ab", "nach"], "a": "von", "r": "lk_von", "b": "Woher? — a direction", "c": "Directions and compass points take von: von links, von Süden.", "f": "von + direction = von links", "en": "The car came from the left.", "t": 1}, {"s": "Der Zug fuhr ___ Berlin nach Hamburg.", "o": ["von", "aus", "ab", "nach"], "a": "von", "r": "lk_von", "b": "Woher? — the starting point of a route", "c": "von … nach … is the standard route pattern.", "f": "von + name = von Berlin", "en": "The train went from Berlin to Hamburg.", "t": 0}, {"s": "Das Flugzeug fliegt ___ Frankfurt.", "o": ["ab", "aus", "von der", "nach"], "a": "ab", "r": "lk_ab", "b": "Woher? — timetable departure point", "c": "ab + dative, no article with place names.", "f": "ab + name = ab Frankfurt", "en": "The plane departs from Frankfurt.", "t": 1}, {"s": "Der Zug fährt um 12.56 Uhr ___ Hamburg-Hauptbahnhof.", "o": ["ab", "aus", "von dem", "nach"], "a": "ab", "r": "lk_ab", "b": "Woher? — scheduled departure", "c": "ab is the timetable word for the point of departure.", "f": "ab + name = ab Hamburg-Hauptbahnhof", "en": "The train leaves Hamburg central station at 12:56.", "t": 0}, {"s": "Nimm die Milch bitte ___ Kühlschrank.", "o": ["aus dem", "von dem", "aus den", "in dem"], "a": "aus dem", "r": "lk_aus", "b": "Woher? — out of an appliance", "c": "aus + dative.", "f": "aus + dative masculine = aus dem Kühlschrank", "en": "Please take the milk out of the fridge.", "t": 0}, {"s": "Wo ist mein Handy? — Hast du es ___ Auto gelassen?", "o": ["im", "ins", "am", "auf dem"], "a": "im", "r": "lk_wechsel_dat", "b": "Wo? — where it was left", "c": "lassen here describes where it stayed → dative.", "f": "in + dative neuter = im Auto", "en": "Where's my phone? Did you leave it in the car?", "t": 0}, {"s": "Ich habe die Dokumente ___ Schrank gelegt.", "o": ["in den", "im", "an den", "auf dem"], "a": "in den", "r": "lk_verben", "b": "Wohin? — legen is a placement verb", "c": "legen + accusative object → accusative.", "f": "in + accusative masculine = in den Schrank", "en": "I put the documents in the cupboard.", "t": 1}, {"s": "Die Dokumente liegen ___ Schrank.", "o": ["im", "in den", "an dem", "auf den"], "a": "im", "r": "lk_verben", "b": "Wo? — liegen is a position verb", "c": "liegen → dative.", "f": "in + dative masculine = im Schrank", "en": "The documents are in the cupboard.", "t": 1}, {"s": "Hast du den Topf ___ Kochplatte gestellt?", "o": ["auf die", "auf der", "an die", "in die"], "a": "auf die", "r": "lk_verben", "b": "Wohin? — stellen is a placement verb", "c": "stellen → accusative.", "f": "auf + accusative feminine = auf die Kochplatte", "en": "Did you put the pot on the hotplate?", "t": 1}, {"s": "Dein Führerschein liegt immer noch ___ Schreibtisch.", "o": ["auf dem", "auf den", "am", "in den"], "a": "auf dem", "r": "lk_verben", "b": "Wo? — liegen", "c": "Position verb → dative.", "f": "auf + dative masculine = auf dem Schreibtisch", "en": "Your driving licence is still on the desk.", "t": 0}, {"s": "In der 30. Spielminute schoss er den Ball ___ Tor.", "o": ["ins", "im", "ans", "am"], "a": "ins", "r": "lk_wechsel_akk", "b": "Wohin? — the ball crosses into the goal", "c": "schießen = movement to a new place → accusative.", "f": "in + accusative neuter = ins Tor", "en": "In the 30th minute he shot the ball into the goal.", "t": 0}, {"s": "Wollen wir diese Lampe ___ Esstisch hängen?", "o": ["über den", "über dem", "auf den", "an dem"], "a": "über den", "r": "lk_verben", "b": "Wohin? — hängen with an object", "c": "hängen + accusative object = placement → accusative.", "f": "über + accusative masculine = über den Esstisch", "en": "Shall we hang this lamp over the dining table?", "t": 1}, {"s": "Die Lampe hängt ___ Esstisch.", "o": ["über dem", "über den", "auf dem", "an den"], "a": "über dem", "r": "lk_verben", "b": "Wo? — hängen without an object", "c": "Same verb, no object → position → dative.", "f": "über + dative masculine = über dem Tisch", "en": "The lamp is hanging over the dining table.", "t": 1}, {"s": "Ich warte ___ Eingang auf dich.", "o": ["vor dem", "vor den", "am", "an den"], "a": "vor dem", "r": "lk_wechsel_dat", "b": "Wo? — waiting is a position", "c": "warten does not move anything → dative.", "f": "vor + dative masculine = vor dem Eingang", "en": "I'll wait for you in front of the entrance.", "t": 0}, {"s": "Du kannst dein Auto direkt ___ Haustür parken.", "o": ["vor der", "vor die", "an der", "auf die"], "a": "vor der", "r": "lk_wechsel_dat", "b": "Wo? — where the car ends up standing", "c": "parken describes the resulting position → dative (a rare but real trap).", "f": "vor + dative feminine = vor der Haustür", "en": "You can park your car right in front of the door.", "t": 1}, {"s": "Stellst du bitte die Stehlampe ___ Sessel?", "o": ["neben den", "neben dem", "an den", "bei dem"], "a": "neben den", "r": "lk_verben", "b": "Wohin? — stellen", "c": "Placement verb → accusative.", "f": "neben + accusative masculine = neben den Sessel", "en": "Could you put the standard lamp next to the armchair?", "t": 0}, {"s": "Unter ___ Stadt gab es früher Katakomben.", "o": ["der", "die", "dem", "den"], "a": "der", "r": "lk_wechsel_dat", "b": "Wo? — a static description", "c": "No movement → dative; die Stadt → der Stadt.", "f": "unter + dative feminine = unter der Stadt", "en": "There used to be catacombs under the town.", "t": 0}, {"s": "Der Schlüssel steckt ___ Schloss.", "o": ["im", "ins", "am", "ans"], "a": "im", "r": "lk_verben", "b": "Wo? — stecken as a position verb", "c": "stecken without an object → dative.", "f": "in + dative neuter = im Schloss", "en": "The key is in the lock.", "t": 1}, {"s": "Er steckte den Brief ___ Tasche.", "o": ["in die", "in der", "an die", "auf die"], "a": "in die", "r": "lk_verben", "b": "Wohin? — stecken with an object", "c": "Same verb, now with an accusative object → accusative.", "f": "in + accusative feminine = in die Tasche", "en": "He put the letter in his pocket.", "t": 1}, {"s": "Ich lege mich kurz ___ Bett.", "o": ["ins", "im", "aufs", "auf dem"], "a": "ins", "r": "lk_verben", "b": "Wohin? — sich legen", "c": "Placement → accusative. (Ich liege im Bett would be the position.)", "f": "in + accusative neuter = ins Bett", "en": "I'm going to lie down on the bed for a bit.", "t": 1}, {"s": "Der Ball liegt ___ Autos.", "o": ["zwischen den", "zwischen die", "unter die", "an den"], "a": "zwischen den", "r": "lk_wechsel_dat", "b": "Wo? — liegen", "c": "Position verb → dative plural: den Autos.", "f": "zwischen + dative plural = zwischen den Autos", "en": "The ball is lying between the cars.", "t": 0}, {"s": "Er stellt das Fahrrad immer ___ Haus.", "o": ["vor das", "vor dem", "an dem", "bei dem"], "a": "vor das", "r": "lk_verben", "b": "Wohin? — stellen", "c": "Placement verb → accusative.", "f": "vor + accusative neuter = vor das Haus", "en": "He always puts his bike in front of the house.", "t": 0}, {"s": "Aber heute steht das Fahrrad ___ Garten.", "o": ["im", "in den", "am", "an den"], "a": "im", "r": "lk_verben", "b": "Wo? — stehen", "c": "Position verb → dative.", "f": "in + dative masculine = im Garten", "en": "But today the bike is standing in the garden.", "t": 0}, {"s": "Wenn wir in einer anderen Stadt sind, gehen wir immer ___ Museum.", "o": ["ins", "im", "zum", "ans"], "a": "ins", "r": "lk_in_akk", "b": "Wohin? — into a building to visit it", "c": "ins Museum gehen — you go inside to look around.", "f": "in + accusative neuter = ins Museum", "en": "When we're in another town we always go to the museum.", "t": 0}, {"s": "___ Warenhaus fühle ich mich nicht wohl.", "o": ["Im", "Ins", "Am", "Auf dem"], "a": "Im", "r": "lk_in_dat", "b": "Wo? — inside a building", "c": "sich wohlfühlen describes a state → dative.", "f": "in + dative neuter = im Warenhaus", "en": "I don't feel comfortable in a department store.", "t": 0}, {"s": "Die Familie will dieses Jahr wieder Urlaub ___ Ostsee machen.", "o": ["an der", "an die", "in der", "auf der"], "a": "an der", "r": "lk_an_dat", "b": "Wo? — holiday at the sea", "c": "Urlaub machen an + dative (the holiday takes place there).", "f": "an + dative feminine = an der Ostsee", "en": "The family wants to holiday on the Baltic again this year.", "t": 1}, {"s": "___ Hotel Leipziger Hof hängt ein originales Kunstwerk.", "o": ["Im", "Ins", "Am", "Auf dem"], "a": "Im", "r": "lk_in_dat", "b": "Wo? — inside the hotel", "c": "hängen without an object → dative.", "f": "in + dative neuter = im Hotel", "en": "In the Hotel Leipziger Hof there is an original work of art.", "t": 0}, {"s": "Vorlesungen finden montags ___ Volkshochschule statt.", "o": ["in der", "in die", "an der", "auf der"], "a": "in der", "r": "lk_in_dat", "b": "Wo? — inside an institution", "c": "stattfinden describes where something happens → dative.", "f": "in + dative feminine = in der Volkshochschule", "en": "Lectures take place at the adult education centre on Mondays.", "t": 0}, {"s": "Viele Menschen wollen ___ Stadtrand wohnen.", "o": ["am", "an den", "im", "in den"], "a": "am", "r": "lk_an_dat", "b": "Wo? — at the edge of town", "c": "der Stadtrand takes an + dative.", "f": "an + dative masculine = am Stadtrand", "en": "Many people want to live on the edge of town.", "t": 1}, {"s": "Eine Wanderung ___ Bergen ist sehr schön.", "o": ["in den", "in die", "auf den", "an den"], "a": "in den", "r": "lk_in_dat", "b": "Wo? — in the mountains", "c": "Being in the mountains → in den Bergen (dative plural).", "f": "in + dative plural = in den Bergen", "en": "A hike in the mountains is lovely.", "t": 1}, {"s": "Sie haben die Möglichkeit, jeden Abend ___ Schwimmbad zu gehen.", "o": ["ins", "im", "zum", "ans"], "a": "ins", "r": "lk_in_akk", "b": "Wohin? — into the pool complex", "c": "Going there to swim → in + accusative.", "f": "in + accusative neuter = ins Schwimmbad", "en": "You have the chance to go to the pool every evening.", "t": 0}, {"s": "___ Deutschen Nationalbibliothek werden alle Bücher gesammelt.", "o": ["In der", "In die", "An der", "Auf der"], "a": "In der", "r": "lk_in_dat", "b": "Wo? — inside an institution", "c": "Position → dative.", "f": "in + dative feminine = in der Nationalbibliothek", "en": "All books are collected at the German National Library.", "t": 0}, {"s": "Wo hast du studiert? — ___ Schweiz.", "o": ["In der", "In die", "Nach der", "An der"], "a": "In der", "r": "lk_in_dat", "b": "Wo? — a country with an article", "c": "Position in a country with an article → in + dative.", "f": "in + dative feminine = in der Schweiz", "en": "Where did you study? — In Switzerland.", "t": 0}, {"s": "Wo haben Sie Ihren Urlaub verbracht? — ___ Niederlanden.", "o": ["In den", "In die", "Nach den", "An den"], "a": "In den", "r": "lk_in_dat", "b": "Wo? — a plural country name", "c": "Dative plural, and the noun adds -n: in den Niederlanden.", "f": "in + dative plural = in den Niederlanden", "en": "Where did you spend your holiday? — In the Netherlands.", "t": 1}, {"s": "Wo ist er operiert worden? — ___ Universitätsklinik.", "o": ["In der", "In die", "An der", "Auf der"], "a": "In der", "r": "lk_in_dat", "b": "Wo? — inside an institution", "c": "Position → dative.", "f": "in + dative feminine = in der Universitätsklinik", "en": "Where was he operated on? — At the university hospital.", "t": 0}, {"s": "Das Haus des Försters liegt ___ Wald.", "o": ["im", "in den", "am", "an den"], "a": "im", "r": "lk_in_dat", "b": "Wo? — inside the forest", "c": "liegen → dative.", "f": "in + dative masculine = im Wald", "en": "The forester's house is in the forest.", "t": 0}];
+var Q2=[{"s": "Das Buch ___ .", "o": ["liegt auf dem Tisch", "legt auf den Tisch", "liegt auf den Tisch"], "a": "liegt auf dem Tisch", "r": "lk_verben", "b": "position verb, no object", "c": "liegen has no accusative object, so it can only describe a position → dative.", "f": "Das Buch <b>liegt auf dem Tisch</b>.", "en": "The book is lying on the table.", "t": 0}, {"s": "Ich ___ .", "o": ["lege das Buch auf den Tisch", "liege das Buch auf dem Tisch", "lege das Buch auf dem Tisch"], "a": "lege das Buch auf den Tisch", "r": "lk_verben", "b": "placement verb with an object", "c": "legen moves an accusative object to a new place → accusative after the preposition.", "f": "Ich <b>lege das Buch auf den Tisch</b>.", "en": "I'm putting the book on the table.", "t": 1}, {"s": "Hast du meine Schuhe gesehen? — Ja, sie ___ .", "o": ["stehen auf der Terrasse", "stellen auf die Terrasse", "stehen auf die Terrasse"], "a": "stehen auf der Terrasse", "r": "lk_verben", "b": "position verb", "c": "stehen = they are there → dative.", "f": "Ja, sie <b>stehen auf der Terrasse</b>.", "en": "Have you seen my shoes? — Yes, they're on the terrace.", "t": 0}, {"s": "Hast du meine Schuhe gesehen? — Ja, ich ___ .", "o": ["habe sie auf die Terrasse gestellt", "habe sie auf der Terrasse gestellt", "bin sie auf die Terrasse gestanden"], "a": "habe sie auf die Terrasse gestellt", "r": "lk_verben", "b": "placement verb in the perfect", "c": "stellen + accusative object → accusative; the perfect takes haben.", "f": "Ja, ich <b>habe sie auf die Terrasse gestellt</b>.", "en": "Have you seen my shoes? — Yes, I put them on the terrace.", "t": 1}, {"s": "Der Schlüssel ___ .", "o": ["steckt im Schloss", "steckt ins Schloss", "steckt in das Schloss"], "a": "steckt im Schloss", "r": "lk_verben", "b": "stecken as a position verb", "c": "No object is being moved → dative.", "f": "Der Schlüssel <b>steckt im Schloss</b>.", "en": "The key is in the lock.", "t": 1}, {"s": "Sie ___ .", "o": ["setzt sich an den Tisch", "sitzt sich an dem Tisch", "setzt sich an dem Tisch"], "a": "setzt sich an den Tisch", "r": "lk_verben", "b": "sich setzen = placement", "c": "setzen moves someone → accusative. sitzen would be dative.", "f": "Sie <b>setzt sich an den Tisch</b>.", "en": "She sits down at the table.", "t": 1}, {"s": "Wo ist der Hund? — Er ___ .", "o": ["sitzt unter dem Tisch", "setzt unter den Tisch", "sitzt unter den Tisch"], "a": "sitzt unter dem Tisch", "r": "lk_verben", "b": "sitzen = position", "c": "No movement → dative.", "f": "Er <b>sitzt unter dem Tisch</b>.", "en": "Where's the dog? — He's sitting under the table.", "t": 0}, {"s": "Ich ___ , weil ich müde bin.", "o": ["lege mich ins Bett", "liege mich im Bett", "lege mich im Bett"], "a": "lege mich ins Bett", "r": "lk_verben", "b": "sich legen = placement", "c": "A change of position → accusative: ins Bett.", "f": "Ich <b>lege mich ins Bett</b>, weil ich müde bin.", "en": "I'm lying down on the bed because I'm tired.", "t": 0}, {"s": "Erklären Sie den Unterschied: Ich gehe ___ , um einen Film zu sehen.", "o": ["ins Kino", "zum Kino", "in dem Kino"], "a": "ins Kino", "r": "lk_kontrast", "b": "purpose: going inside", "c": "in + accusative = you go in and do what you do there. zum Kino would only be the walk to the building.", "f": "Ich gehe <b>ins Kino</b>, um einen Film zu sehen.", "en": "I'm going to the cinema to see a film.", "t": 1}, {"s": "Wir treffen uns ___ und gehen dann zusammen hinein.", "o": ["zum Kino", "ins Kino", "im Kino"], "a": "zum Kino", "r": "lk_kontrast", "b": "goal of the movement", "c": "zu marks the destination of the walk, without entering.", "f": "Wir treffen uns <b>zum Kino</b> und gehen dann zusammen hinein.", "en": "We'll meet at the cinema and then go in together.", "t": 1}, {"s": "Ich muss ein Paket abgeben — ich gehe kurz ___ .", "o": ["zur Post", "in die Post", "auf die Post"], "a": "zur Post", "r": "lk_kontrast", "b": "institution, doing your business", "c": "zur Post gehen is the normal phrase for going to do post-office business.", "f": "Ich gehe kurz <b>zur Post</b>.", "en": "I have to hand in a parcel — I'm just going to the post office.", "t": 0}, {"s": "Mein Sohn ist sechs — er geht seit August ___ .", "o": ["zur Schule", "in die Schule", "auf die Schule"], "a": "zur Schule", "r": "lk_kontrast", "b": "attending an institution", "c": "zur Schule gehen = to be a pupil. in die Schule gehen = walking into the building.", "f": "Er geht seit August <b>zur Schule</b>.", "en": "My son is six — he's been at school since August.", "t": 1}, {"s": "Am Wochenende fahre ich ___ .", "o": ["zu meinen Eltern", "in meine Eltern", "bei meinen Eltern"], "a": "zu meinen Eltern", "r": "lk_zu", "b": "people as a destination", "c": "People only ever take zu for direction; bei is the static form.", "f": "Am Wochenende fahre ich <b>zu meinen Eltern</b>.", "en": "I'm going to my parents' at the weekend.", "t": 0}, {"s": "Wir fliegen ___ .", "o": ["in die Türkei", "nach der Türkei", "nach die Türkei"], "a": "in die Türkei", "r": "lk_in_akk", "b": "country with an article", "c": "die Türkei has an article, so nach is impossible → in + accusative.", "f": "Wir fliegen <b>in die Türkei</b>.", "en": "We're flying to Turkey.", "t": 1}, {"s": "Wir fliegen ___ .", "o": ["nach Australien", "in das Australien", "in Australien"], "a": "nach Australien", "r": "lk_nach", "b": "country without an article", "c": "No article → nach, and no article appears at all.", "f": "Wir fliegen <b>nach Australien</b>.", "en": "We're flying to Australia.", "t": 0}, {"s": "Nächsten Winter wollen wir ___ .", "o": ["auf die Kanarischen Inseln", "in die Kanarischen Inseln", "nach den Kanarischen Inseln"], "a": "auf die Kanarischen Inseln", "r": "lk_auf_akk", "b": "islands", "c": "Islands take auf, even when the name has an article.", "f": "Wir wollen <b>auf die Kanarischen Inseln</b>.", "en": "Next winter we want to go to the Canary Islands.", "t": 1}, {"s": "Sie ist gerade ___ unterwegs.", "o": ["in den USA", "in die USA", "nach den USA"], "a": "in den USA", "r": "lk_in_dat", "b": "position, plural country name", "c": "Where? → dative plural: in den USA.", "f": "Sie ist gerade <b>in den USA</b> unterwegs.", "en": "She's travelling in the USA at the moment.", "t": 1}, {"s": "Otto ist draußen. Otto, kannst du bitte ___ ?", "o": ["hereinkommen", "hineinkommen", "herauskommen"], "a": "hereinkommen", "r": "lk_adverb", "b": "her = towards the speaker", "c": "The speaker is inside, so Otto comes IN towards them: herein (colloquially rein).", "f": "Otto, kannst du bitte <b>hereinkommen</b>?", "en": "Otto is outside. Otto, could you please come in?", "t": 1}, {"s": "Otto war unten. Jetzt geht er ___ .", "o": ["hinauf", "herauf", "hinunter"], "a": "hinauf", "r": "lk_adverb", "b": "hin = away from the speaker", "c": "He moves upward away from where the speaker is: hinauf (colloquially rauf).", "f": "Jetzt geht er <b>hinauf</b>.", "en": "Otto was downstairs. Now he's going up.", "t": 1}, {"s": "Der Blumentopf steht noch draußen im Garten. Kannst du ihn bitte ___ ?", "o": ["hereinbringen", "hinausbringen", "herausbringen"], "a": "hereinbringen", "r": "lk_adverb", "b": "her = towards the speaker", "c": "Bringing it in to where the speaker is → herein-.", "f": "Kannst du ihn bitte <b>hereinbringen</b>?", "en": "The flowerpot is still out in the garden. Could you bring it in?", "t": 0}, {"s": "Die Weinflaschen stehen unten im Keller. Kannst du sie bitte ___ ?", "o": ["heraufholen", "hinaufholen", "herunterholen"], "a": "heraufholen", "r": "lk_adverb", "b": "her = towards the speaker", "c": "The speaker is upstairs, the bottles come up to them → herauf- (rauf).", "f": "Kannst du sie bitte <b>heraufholen</b>?", "en": "The wine bottles are down in the cellar. Could you bring them up?", "t": 1}, {"s": "Mein Wintermantel hängt oben auf dem Dachboden. Kannst du ihn ___ ?", "o": ["herunterbringen", "hinunterbringen", "heraufbringen"], "a": "herunterbringen", "r": "lk_adverb", "b": "her = towards the speaker", "c": "The speaker is downstairs → herunter- (runter).", "f": "Kannst du ihn <b>herunterbringen</b>?", "en": "My winter coat is up in the attic. Could you bring it down?", "t": 0}, {"s": "Otto war drüben. Jetzt geht er ___ .", "o": ["hinüber", "herüber", "hinaus"], "a": "hinüber", "r": "lk_adverb", "b": "hin = away from the speaker", "c": "Moving across, away from the speaker → hinüber (rüber).", "f": "Jetzt geht er <b>hinüber</b>.", "en": "Otto was over there. Now he's going across.", "t": 0}, {"s": "Welche Frage bedeutet dasselbe wie »Wohin gehst du?«", "o": ["Wo gehst du hin?", "Wo gehst du her?", "Woher gehst du?"], "a": "Wo gehst du hin?", "r": "lk_adverb", "b": "the split question form", "c": "In speech wohin splits: wo … hin. Likewise woher → wo … her.", "f": "<b>Wo gehst du hin?</b> = Wohin gehst du?", "en": "Which question means the same as 'Where are you going?'", "t": 1}, {"s": "Welche Frage bedeutet dasselbe wie »Woher kommst du?«", "o": ["Wo kommst du her?", "Wo kommst du hin?", "Wohin kommst du?"], "a": "Wo kommst du her?", "r": "lk_adverb", "b": "the split question form", "c": "woher splits into wo … her.", "f": "<b>Wo kommst du her?</b> = Woher kommst du?", "en": "Which question means the same as 'Where do you come from?'", "t": 0}, {"s": "Welcher Satz ist die normale, alltägliche Variante?", "o": ["Wir liefen das Ufer entlang.", "Wir liefen entlang das Ufer.", "Wir liefen entlang dem Ufer."], "a": "Wir liefen das Ufer entlang.", "r": "lk_entlang", "b": "entlang follows the noun", "c": "After the noun entlang takes the accusative. Before the noun it needs the genitive (entlang des Ufers) and sounds formal.", "f": "Wir liefen <b>das Ufer entlang</b>.", "en": "Which sentence is the normal everyday version?", "t": 1}, {"s": "Welcher Satz ist FALSCH?", "o": ["Unsere Wohnung lag gegenüber ein spanisches Restaurant.", "Unsere Wohnung lag gegenüber einem spanischen Restaurant.", "Unsere Wohnung lag einem spanischen Restaurant gegenüber."], "a": "Unsere Wohnung lag gegenüber ein spanisches Restaurant.", "r": "lk_gegenueber", "b": "gegenüber + dative", "c": "gegenüber always takes the dative; it may stand before or after the noun, but never with an accusative.", "f": "Correct: <b>gegenüber einem spanischen Restaurant</b> or <b>einem spanischen Restaurant gegenüber</b>.", "en": "Which sentence is wrong?", "t": 1}, {"s": "Die Polizei ___ .", "o": ["befindet sich gegenüber dem Theater", "befindet sich gegenüber das Theater", "befindet sich gegenüber des Theaters"], "a": "befindet sich gegenüber dem Theater", "r": "lk_gegenueber", "b": "gegenüber + dative", "c": "das Theater → dem Theater.", "f": "Die Polizei <b>befindet sich gegenüber dem Theater</b>.", "en": "The police station is opposite the theatre.", "t": 0}, {"s": "Bei Geschwindigkeitsübertretungen drohen ___ hohe Bußgelder.", "o": ["innerhalb einer Tempo-30-Zone", "innerhalb eine Tempo-30-Zone", "innerhalb einer Tempo-30-Zone herum"], "a": "innerhalb einer Tempo-30-Zone", "r": "lk_genitiv", "b": "innerhalb + genitive", "c": "Genitive feminine: einer Tempo-30-Zone.", "f": "<b>Innerhalb einer Tempo-30-Zone</b> drohen hohe Bußgelder.", "en": "Speeding inside a 30 km/h zone brings heavy fines.", "t": 1}, {"s": "Das Kraftwerk wird ___ gebaut.", "o": ["unweit des Flusses", "unweit dem Fluss", "unweit der Fluss"], "a": "unweit des Flusses", "r": "lk_genitiv", "b": "unweit + genitive", "c": "Genitive masculine: des Flusses, with -es on the noun.", "f": "Das Kraftwerk wird <b>unweit des Flusses</b> gebaut.", "en": "The power station is being built not far from the river.", "t": 1}, {"s": "Das neue Einkaufszentrum liegt ___ .", "o": ["drei Kilometer außerhalb der Stadt", "drei Kilometer außerhalb die Stadt", "drei Kilometer außer der Stadt"], "a": "drei Kilometer außerhalb der Stadt", "r": "lk_genitiv", "b": "außerhalb + genitive", "c": "außerhalb der Stadt; the measurement goes in front of it.", "f": "Das Zentrum liegt <b>drei Kilometer außerhalb der Stadt</b>.", "en": "The new shopping centre is three kilometres outside town.", "t": 0}, {"s": "Das Tier kann sich ___ befinden.", "o": ["innerhalb der Wohnung", "innerhalb die Wohnung", "innerhalb in der Wohnung"], "a": "innerhalb der Wohnung", "r": "lk_genitiv", "b": "innerhalb + genitive", "c": "No second preposition is added.", "f": "Das Tier kann sich <b>innerhalb der Wohnung</b> befinden.", "en": "The animal may be inside the flat.", "t": 0}, {"s": "Kerstin ___ .", "o": ["kommt vom Friseur", "kommt aus dem Friseur", "kommt von dem Friseur weg"], "a": "kommt vom Friseur", "r": "lk_von", "b": "people take von", "c": "zum Friseur → beim Friseur → vom Friseur. aus would mean physically out of a person.", "f": "Kerstin <b>kommt vom Friseur</b>.", "en": "Kerstin is coming from the hairdresser's.", "t": 1}, {"s": "___ hast du das Geschirr schon genommen?", "o": ["Aus der Spülmaschine", "Von der Spülmaschine", "Ab der Spülmaschine"], "a": "Aus der Spülmaschine", "r": "lk_aus", "b": "out of an enclosed space", "c": "You were inside it → aus + dative.", "f": "<b>Aus der Spülmaschine</b> hast du das Geschirr schon genommen?", "en": "Have you already taken the dishes out of the dishwasher?", "t": 0}, {"s": "Der Zug ___ .", "o": ["fährt um 12.56 Uhr ab Hamburg-Hauptbahnhof", "fährt um 12.56 Uhr aus Hamburg-Hauptbahnhof", "fährt um 12.56 Uhr von Hamburg-Hauptbahnhof ab dem Gleis"], "a": "fährt um 12.56 Uhr ab Hamburg-Hauptbahnhof", "r": "lk_ab", "b": "timetable language", "c": "ab + place name marks the scheduled departure point.", "f": "Der Zug <b>fährt um 12.56 Uhr ab Hamburg-Hauptbahnhof</b>.", "en": "The train leaves Hamburg central station at 12:56.", "t": 0}, {"s": "Wir fahren ___ .", "o": ["von Berlin nach Hamburg", "aus Berlin nach Hamburg", "von Berlin in Hamburg"], "a": "von Berlin nach Hamburg", "r": "lk_von", "b": "the route pattern", "c": "von … nach … is fixed for a route between two places.", "f": "Wir fahren <b>von Berlin nach Hamburg</b>.", "en": "We're travelling from Berlin to Hamburg.", "t": 1}, {"s": "Ich bin müde. Ich ___ .", "o": ["lege mich aufs Sofa", "liege mich auf dem Sofa", "lege mich auf dem Sofa"], "a": "lege mich aufs Sofa", "r": "lk_verben", "b": "sich legen = placement", "c": "A change of place → accusative: aufs Sofa.", "f": "Ich <b>lege mich aufs Sofa</b>.", "en": "I'm tired. I'm going to lie down on the sofa.", "t": 0}, {"s": "Es ist wunderschönes Wetter. Lass uns ___ gehen!", "o": ["in den Park", "im Park", "an den Park"], "a": "in den Park", "r": "lk_in_akk", "b": "Wohin? — into an area", "c": "Movement into the park → accusative.", "f": "Lass uns <b>in den Park</b> gehen!", "en": "The weather is beautiful. Let's go to the park!", "t": 0}, {"s": "Carlo hat seinen Laptop ___ vergessen.", "o": ["im Büro", "ins Büro", "aufs Büro"], "a": "im Büro", "r": "lk_in_dat", "b": "Wo? — where it stayed", "c": "vergessen here says where the laptop is → dative.", "f": "Carlo hat seinen Laptop <b>im Büro</b> vergessen.", "en": "Carlo left his laptop at the office.", "t": 1}, {"s": "Judith arbeitet jetzt ___ .", "o": ["bei einer großen Firma", "zu einer großen Firma", "in eine große Firma"], "a": "bei einer großen Firma", "r": "lk_bei", "b": "Wo? — an employer", "c": "Working for a company → bei + dative.", "f": "Judith arbeitet jetzt <b>bei einer großen Firma</b>.", "en": "Judith now works for a big company.", "t": 0}, {"s": "Sie ist ___ verabredet.", "o": ["mit Franz im Café", "mit Franz ins Café", "mit Franz zum Café"], "a": "mit Franz im Café", "r": "lk_in_dat", "b": "Wo? — where the meeting happens", "c": "verabredet sein describes a place → dative.", "f": "Sie ist <b>mit Franz im Café</b> verabredet.", "en": "She's meeting Franz at the café.", "t": 0}, {"s": "Ich würde das Bild ___ hängen.", "o": ["über das Sofa", "über dem Sofa", "auf dem Sofa"], "a": "über das Sofa", "r": "lk_verben", "b": "hängen with an object = placement", "c": "You are moving the picture → accusative.", "f": "Ich würde das Bild <b>über das Sofa</b> hängen.", "en": "I'd hang the picture above the sofa.", "t": 1}, {"s": "Als wir ___ ankamen, regnete es in Strömen.", "o": ["am Bahnhof", "an den Bahnhof", "zum Bahnhof"], "a": "am Bahnhof", "r": "lk_an_dat", "b": "ankommen + an/in + dative", "c": "ankommen names the place reached, and takes the dative: am Bahnhof, in Berlin.", "f": "Als wir <b>am Bahnhof</b> ankamen, regnete es in Strömen.", "en": "When we arrived at the station it was pouring.", "t": 1}, {"s": "Ich lege Bücher niemals ___ .", "o": ["auf den Boden", "auf dem Boden", "an den Boden"], "a": "auf den Boden", "r": "lk_verben", "b": "legen = placement", "c": "→ accusative.", "f": "Ich lege Bücher niemals <b>auf den Boden</b>.", "en": "I never put books on the floor.", "t": 0}, {"s": "Wir waren letztes Jahr ___ .", "o": ["auf einer Insel in Griechenland", "auf eine Insel in Griechenland", "in einer Insel in Griechenland"], "a": "auf einer Insel in Griechenland", "r": "lk_auf_dat", "b": "Wo? — an island", "c": "Islands take auf; position → dative.", "f": "Wir waren <b>auf einer Insel in Griechenland</b>.", "en": "Last year we were on an island in Greece.", "t": 0}, {"s": "Kommst du mit ___ ?", "o": ["auf den Berg", "auf dem Berg", "in den Berg"], "a": "auf den Berg", "r": "lk_auf_akk", "b": "Wohin? — up a mountain", "c": "auf in the sense of hinauf → accusative.", "f": "Kommst du mit <b>auf den Berg</b>?", "en": "Are you coming up the mountain?", "t": 0}, {"s": "Der Ehrengast sitzt ___ .", "o": ["neben der Bürgermeisterin", "neben die Bürgermeisterin", "bei die Bürgermeisterin"], "a": "neben der Bürgermeisterin", "r": "lk_wechsel_dat", "b": "Wo? — sitzen", "c": "Position verb → dative.", "f": "Der Ehrengast sitzt <b>neben der Bürgermeisterin</b>.", "en": "The guest of honour is sitting next to the mayor.", "t": 0}, {"s": "Hast du meine Sonnencreme gesehen? — Ja, sie ist ___ .", "o": ["in der Tasche", "in die Tasche", "an der Tasche"], "a": "in der Tasche", "r": "lk_in_dat", "b": "Wo? — inside a bag", "c": "sein = position → dative.", "f": "Ja, sie ist <b>in der Tasche</b>.", "en": "Have you seen my sun cream? — Yes, it's in the bag.", "t": 0}, {"s": "Wie komme ich ___ ?", "o": ["zur Steinstraße", "in die Steinstraße", "an die Steinstraße"], "a": "zur Steinstraße", "r": "lk_zu", "b": "asking the way", "c": "Asking for a route always uses zu: Wie komme ich zum/zur …?", "f": "Wie komme ich <b>zur Steinstraße</b>?", "en": "How do I get to Steinstraße?", "t": 1}, {"s": "Fahren Sie ___ und biegen Sie dann links ab.", "o": ["bis zur Kreuzung", "bis die Kreuzung", "bis der Kreuzung"], "a": "bis zur Kreuzung", "r": "lk_bis", "b": "bis with an article", "c": "With an article bis becomes bis zu + dative.", "f": "Fahren Sie <b>bis zur Kreuzung</b>.", "en": "Drive to the crossing and then turn left.", "t": 1}, {"s": "Steglitz liegt ___ von Berlin, ca. 15 km von hier.", "o": ["im Süden", "in den Süden", "nach Süden"], "a": "im Süden", "r": "lk_in_dat", "b": "Wo? — a compass point", "c": "Position → im Süden. Direction would be nach Süden.", "f": "Steglitz liegt <b>im Süden</b> von Berlin.", "en": "Steglitz is in the south of Berlin, about 15 km from here.", "t": 1}, {"s": "Zuerst müssen Sie ca. einen Kilometer ___ fahren.", "o": ["nach Osten", "im Osten", "in den Osten"], "a": "nach Osten", "r": "lk_nach", "b": "Wohin? — a compass point", "c": "Direction → nach Osten.", "f": "Zuerst müssen Sie einen Kilometer <b>nach Osten</b> fahren.", "en": "First you have to drive about a kilometre east.", "t": 1}, {"s": "Das Wasser stürzt hier ___ in die Tiefe.", "o": ["aus 163 Metern", "von 163 Metern", "ab 163 Metern"], "a": "aus 163 Metern", "r": "lk_aus", "b": "Woher? — from a height", "c": "aus + dative for the height something falls from.", "f": "Das Wasser stürzt <b>aus 163 Metern</b> in die Tiefe.", "en": "The water plunges 163 metres down.", "t": 0}, {"s": "Die Externsteine ragen 40 Meter ___ .", "o": ["aus dem Boden", "von dem Boden", "ab dem Boden"], "a": "aus dem Boden", "r": "lk_aus", "b": "Woher? — out of the ground", "c": "Emerging out of something → aus + dative.", "f": "Die Externsteine ragen 40 Meter <b>aus dem Boden</b>.", "en": "The Externsteine rise 40 metres out of the ground.", "t": 0}, {"s": "Man kann die Kreidefelsen ___ erreichen.", "o": ["über einen Hochuferweg", "über einem Hochuferweg", "auf einem Hochuferweg entlang"], "a": "über einen Hochuferweg", "r": "lk_wechsel_akk", "b": "Wohin? — via a route", "c": "über with a route = movement across → accusative.", "f": "Man kann sie <b>über einen Hochuferweg</b> erreichen.", "en": "You can reach the chalk cliffs via a clifftop path.", "t": 0}, {"s": "Der Königsstuhl liegt ___ .", "o": ["auf der Insel Rügen", "in der Insel Rügen", "an der Insel Rügen"], "a": "auf der Insel Rügen", "r": "lk_auf_dat", "b": "Wo? — an island", "c": "Islands take auf.", "f": "Der Königsstuhl liegt <b>auf der Insel Rügen</b>.", "en": "The Königsstuhl is on the island of Rügen.", "t": 1}, {"s": "Wir fahren jedes Jahr ___ .", "o": ["an die Ostsee", "in die Ostsee", "auf die Ostsee"], "a": "an die Ostsee", "r": "lk_an_akk", "b": "Wohin? — to the sea", "c": "Water takes an; in die Ostsee would mean into the water itself.", "f": "Wir fahren jedes Jahr <b>an die Ostsee</b>.", "en": "We go to the Baltic every year.", "t": 1}, {"s": "Marie ist nicht zu Hause. Sie ist ___ .", "o": ["beim Arzt", "zum Arzt", "im Arzt"], "a": "beim Arzt", "r": "lk_bei", "b": "Wo? — at a person's", "c": "Static → bei; zum Arzt would be the movement.", "f": "Sie ist <b>beim Arzt</b>.", "en": "Marie isn't at home. She's at the doctor's.", "t": 1}, {"s": "Und jetzt gehe ich ___ .", "o": ["nach Hause", "zu Hause", "in Hause"], "a": "nach Hause", "r": "lk_hause", "b": "Wohin? — the fixed expression", "c": "Direction = nach Hause.", "f": "Und jetzt gehe ich <b>nach Hause</b>.", "en": "And now I'm going home.", "t": 1}];
+
+/* ============ PROGRESS STORE ============ */
+/* One localStorage key. NEVER rename it — that would wipe the learner's history. */
+var LS_KEY="de_lokal_trainer_v1";
+var DB={v:1,stats:{},ses1:null,ses2:null,round:25,ruleStep:1};
+(function(){
+  try{var raw=localStorage.getItem(LS_KEY);
+    if(raw){var o=JSON.parse(raw);
+      if(o&&typeof o==="object"&&o.stats){
+        DB.stats=o.stats||{};DB.ses1=o.ses1||null;DB.ses2=o.ses2||null;
+        if(typeof o.round==="number")DB.round=o.round;
+        if(typeof o.ruleStep==="number")DB.ruleStep=o.ruleStep;
+      }}
+  }catch(e){}
+})();
+function dbSave(){try{localStorage.setItem(LS_KEY,JSON.stringify(DB));}catch(e){}}
+function box(key){var st=DB.stats[key];return st&&typeof st.b==="number"?st.b:-1;}
+function mark(key,ok){
+  var st=DB.stats[key]||(DB.stats[key]={s:0,c:0,f:0,b:-1});
+  st.s++;if(ok){st.c++;st.b=Math.min(5,(st.b<0?0:st.b)+1);}else{st.f++;st.b=0;}
+  dbSave();
+}
+var PRIO=[0,1.6,2.6,4.0,5.5,7.0];
+function prio(b){return b<0?1.0:(PRIO[b]!==undefined?PRIO[b]:7.0);}
+function draw(items,keyOf,n){
+  var scored=items.map(function(it){return {it:it,k:prio(box(keyOf(it)))+Math.random()*1.2};});
+  scored.sort(function(a,b){return a.k-b.k;});
+  var take=(n>0?scored.slice(0,Math.min(n,scored.length)):scored).map(function(o){return o.it;});
+  return shuffle(take);
+}
+function $(s){return document.querySelector(s);}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function k1(it){return "q1_"+Q1.indexOf(it);}
+function k2(it){return "q2_"+Q2.indexOf(it);}
+function gap(s,fill){return s.replace("___",'<span class="blank">'+fill+'</span>');}
+
+/* ============ TABS ============ */
+var tabs=[].slice.call(document.querySelectorAll(".tab"));
+tabs.forEach(function(t){t.addEventListener("click",function(){
+  tabs.forEach(function(x){x.setAttribute("aria-selected",String(x===t));});
+  ["method","l1","l2","ref"].forEach(function(v){$("#view-"+v).hidden=(v!==t.dataset.view);});
+  window.scrollTo({top:0,behavior:"auto"});
+});});
+
+/* ============ LEVEL 1 — the pronoun ============ */
+var filter="alle", ruleStep=DB.ruleStep!==0;
+var deck=[],pos=0,picked=null,rulePicked=null,curOpts=null,requeued={};
+var st={a:0,af:0,r:0,rf:0,streak:0,best:0};
+function pool(){
+  return Q1.filter(function(x){
+    if(filter==="alle")return true;
+    if(filter==="fallen")return x.t===1;
+    return RL[x.r].k===filter;
+  });
+}
+function ses1Save(){DB.ses1={f:filter,l:deck.map(function(d){return Q1.indexOf(d);}),p:pos,st:st};dbSave();}
+function ses1Load(){
+  var sv=DB.ses1;if(!sv||sv.f!==filter||!sv.l||!sv.l.length)return false;
+  var list=sv.l.map(function(i){return Q1[i];}).filter(Boolean);var p=sv.p|0;
+  if(!list.length||p>=list.length)return false;
+  deck=list;pos=p;st=sv.st||st;return true;
+}
+function build(fresh){
+  picked=null;rulePicked=null;curOpts=null;requeued={};
+  if(fresh||!ses1Load()){deck=draw(pool(),k1,DB.round);pos=0;st={a:0,af:0,r:0,rf:0,streak:0,best:0};}
+  ses1Save();render1();
+}
+function ruleOpts(item){
+  var cid=item.r,all=Object.keys(RL).filter(function(k){return k!==cid;});
+  var same=shuffle(all.filter(function(k){return RL[k].k===RL[cid].k;}));
+  var other=shuffle(all.filter(function(k){return same.indexOf(k)<0;}));
+  var picks=same.slice(0,2);
+  for(var i=0;i<other.length&&picks.length<3;i++)picks.push(other[i]);
+  return shuffle(picks.concat([cid]));
+}
+function fbBlock(it,ok,rule,rows){
+  var h='<div class="fb '+(ok?"right":"wrong")+'">'+
+    '<div class="verdict"><span>'+(ok?"✓ Correct":"✗ Wrong")+' — '+it.a+'</span><span class="rulename">'+rule.l+'</span></div><dl>';
+  for(var i=0;i<rows.length;i++)h+='<dt>'+rows[i][0]+'</dt><dd>'+rows[i][1]+'</dd>';
+  h+='</dl><div class="sib">Same rule: '+rule.ex.map(function(e){return "<b>"+e+"</b>";}).join(" · ")+'</div>'+
+     (rule.warn?'<div class="warn">'+rule.warn+'</div>':'')+'</div>';
+  return h;
+}
+function render1(){
+  var host=$("#l1stage");
+  if(pos>=deck.length){
+    host.innerHTML='<div class="stage"><div class="done"><div class="big">'+st.a+' / '+(st.a+st.af)+'</div>'+
+      '<p style="color:var(--muted);margin:6px 0 0">Round complete. Longest streak: <b style="color:var(--head)">'+st.best+'</b>.<br>'+
+      'Your progress is saved — "Neue Runde" draws a fresh set, the ones you missed first.</p></div></div>';
+    $("#m1").style.width="100%";up1();return;
+  }
+  var it=deck[pos],rule=RL[it.r],bx=box(k1(it));
+  var badge=bx<0?"new":(bx>=3?"safe · box "+bx+"/5":"box "+bx+"/5");
+  var h='<div class="stage"><span class="tag">Lokalangabe · place &amp; direction</span>'+
+        '<span class="idx">'+(pos+1)+' / '+deck.length+'<span class="badge">'+badge+'</span></span>'+
+        '<div class="sentence de">'+gap(it.s,picked?it.a:"&nbsp;&nbsp;&nbsp;")+
+        '<span class="cue">'+it.en+'</span></div></div>'+
+        '<div class="choices'+(it.o.length===4?" quad":"")+'">'+it.o.map(function(o){
+          var cls="opt";
+          if(picked){if(o===it.a)cls+=" hit";else if(o===picked)cls+=" miss";else cls+=" dim";}
+          return '<button class="opt-a '+cls+'" data-o="'+o+'"'+(picked?" disabled":"")+'>'+o+'</button>';
+        }).join("")+'</div>';
+  if(picked){
+    h+=fbBlock(it,picked===it.a,rule,[
+      ["Rule",rule.sig+" "+rule.req],
+      ["Question",it.b],
+      ["Case",it.c],
+      ["Form",it.f],
+      ["Sentence",'<span class="full">'+gap(it.s,"<b>"+it.a+"</b>")+'</span>']
+    ]);
+    if(ruleStep){
+      if(!curOpts)curOpts=ruleOpts(it);
+      h+='<div class="ask"><b>Which rule decides this one?</b></div>'+
+         '<div class="choices one">'+curOpts.map(function(id){
+           var cls="opt small";
+           if(rulePicked){if(id===it.r)cls+=" hit";else if(id===rulePicked)cls+=" miss";else cls+=" dim";}
+           return '<button class="opt-r '+cls+'" data-r="'+id+'"'+(rulePicked?" disabled":"")+'>'+RL[id].l+'</button>';
+         }).join("")+'</div>';
+    }
+  }
+  host.innerHTML=h;
+  $("#m1").style.width=(pos/deck.length*100)+"%";
+  [].slice.call(host.querySelectorAll(".opt-a")).forEach(function(b){
+    b.addEventListener("click",function(){answer1(b.dataset.o);});});
+  [].slice.call(host.querySelectorAll(".opt-r")).forEach(function(b){
+    b.addEventListener("click",function(){
+      if(rulePicked)return;rulePicked=b.dataset.r;
+      if(rulePicked===deck[pos].r)st.r++;else st.rf++;
+      ses1Save();render1();});});
+  up1();
+}
+function answer1(o){
+  if(picked)return;
+  var it=deck[pos];picked=o;curOpts=null;
+  var ok=(o===it.a);
+  if(o!=="__skip__")mark(k1(it),ok);
+  if(ok){st.a++;st.streak++;if(st.streak>st.best)st.best=st.streak;}
+  else{st.af++;st.streak=0;var key=k1(it);if(!requeued[key]){requeued[key]=1;deck.push(it);}}
+  ses1Save();render1();
+}
+function next1(){
+  if(pos>=deck.length)return;
+  if(!picked){answer1("__skip__");return;}
+  pos++;picked=null;rulePicked=null;curOpts=null;ses1Save();render1();
+}
+function up1(){
+  $("#s1").innerHTML='Pronoun <b class="r">'+st.a+'</b>/<b class="f">'+st.af+'</b>'+
+    (ruleStep?' · rule <b class="r">'+st.r+'</b>/<b class="f">'+st.rf+'</b>':'')+' · streak <b>'+st.streak+'</b>';
+  var seen=0,mast=0;
+  for(var i=0;i<Q1.length;i++){var b=box("q1_"+i);if(b>=0)seen++;if(b>=3)mast++;}
+  $("#p1text").innerHTML='Progress: <b>'+seen+'</b> / '+Q1.length+' sentences practised · <b>'+mast+'</b> safe';
+  $("#fcount").textContent="TELC B2/C1 · Lokalangaben · "+Q1.length+" sentences · "+Q2.length+" tasks";
+}
+[].slice.call(document.querySelectorAll(".chip[data-f]")).forEach(function(ch){
+  ch.addEventListener("click",function(){
+    document.querySelectorAll(".chip[data-f]").forEach(function(x){x.setAttribute("aria-pressed",String(x===ch));});
+    filter=ch.dataset.f;build(true);});});
+$("#ruleToggle").addEventListener("click",function(){
+  ruleStep=!ruleStep;DB.ruleStep=ruleStep?1:0;dbSave();
+  this.setAttribute("aria-pressed",String(ruleStep));render1();});
+$("#roundSize").value=String(DB.round);
+$("#roundSize").addEventListener("change",function(){DB.round=parseInt(this.value,10)||0;dbSave();build(true);});
+$("#next1").addEventListener("click",next1);
+$("#shuf1").addEventListener("click",function(){
+  deck=deck.slice(0,pos).concat(shuffle(deck.slice(pos)));
+  picked=null;rulePicked=null;curOpts=null;ses1Save();render1();});
+$("#res1").addEventListener("click",function(){build(true);});
+(function(){
+  var btn=$("#wipe1"),armed=false,t=null,label=btn.textContent;
+  btn.addEventListener("click",function(){
+    if(!armed){armed=true;btn.textContent="Really delete?";btn.setAttribute("aria-pressed","true");
+      t=setTimeout(function(){armed=false;btn.textContent=label;btn.setAttribute("aria-pressed","false");},4000);return;}
+    clearTimeout(t);armed=false;btn.textContent=label;btn.setAttribute("aria-pressed","false");
+    DB.stats={};DB.ses1=null;DB.ses2=null;dbSave();build(true);build2(true);});
+})();
+
+/* ============ LEVEL 2 — building the clause ============ */
+var d2=[],p2=0,pick2=null,opts2=null,s2={a:0,f:0,streak:0,best:0};
+function ses2Save(){DB.ses2={l:d2.map(function(x){return Q2.indexOf(x);}),p:p2,st:s2};dbSave();}
+function ses2Load(){
+  var sv=DB.ses2;if(!sv||!sv.l||!sv.l.length)return false;
+  var list=sv.l.map(function(i){return Q2[i];}).filter(Boolean);var p=sv.p|0;
+  if(!list.length||p>=list.length)return false;
+  d2=list;p2=p;s2=sv.st||s2;return true;
+}
+function build2(fresh){
+  pick2=null;opts2=null;
+  if(fresh||!ses2Load()){d2=draw(Q2.slice(),k2,DB.round);p2=0;s2={a:0,f:0,streak:0,best:0};}
+  ses2Save();render2();
+}
+function render2(){
+  var host=$("#l2stage");
+  if(p2>=d2.length){
+    host.innerHTML='<div class="stage"><div class="done"><div class="big">'+s2.a+' / '+(s2.a+s2.f)+'</div>'+
+      '<p style="color:var(--muted);margin:6px 0 0">Round complete. Longest streak: <b style="color:var(--head)">'+s2.best+'</b>.</p></div></div>';
+    $("#m2").style.width="100%";up2();return;
+  }
+  var it=d2[p2],rule=RL[it.r],bx=box(k2(it));
+  var badge=bx<0?"new":(bx>=3?"safe · box "+bx+"/5":"box "+bx+"/5");
+  if(!opts2)opts2=shuffle(it.o.slice());
+  var body=it.s.indexOf("___")>=0?gap(it.s,pick2?it.a:"&nbsp;&nbsp;&nbsp;"):it.s;
+  var h='<div class="stage"><span class="tag">Satzbau · sentence building</span>'+
+        '<span class="idx">'+(p2+1)+' / '+d2.length+'<span class="badge">'+badge+'</span></span>'+
+        '<div class="sentence de">'+body+'<span class="cue">'+it.en+'</span></div></div>'+
+        '<div class="choices one">'+opts2.map(function(o){
+          var cls="opt clause";
+          if(pick2){if(o===it.a)cls+=" hit";else if(o===pick2)cls+=" miss";else cls+=" dim";}
+          return '<button class="opt-2 '+cls+'" data-o="'+o.replace(/"/g,"&quot;")+'"'+(pick2?" disabled":"")+'>'+o+'</button>';
+        }).join("")+'</div>';
+  if(pick2){
+    h+=fbBlock(it,pick2===it.a,rule,[
+      ["Rule",rule.sig+" "+rule.req],
+      ["Structure",it.b],
+      ["Watch out",it.c],
+      ["Correct",'<span class="full">'+it.f+'</span><div class="trans">'+it.en+'</div>']
+    ]);
+  }
+  host.innerHTML=h;
+  $("#m2").style.width=(p2/d2.length*100)+"%";
+  [].slice.call(host.querySelectorAll(".opt-2")).forEach(function(b){
+    b.addEventListener("click",function(){
+      if(pick2)return;pick2=b.dataset.o;
+      var good=(pick2===it.a);
+      mark(k2(it),good);
+      if(good){s2.a++;s2.streak++;if(s2.streak>s2.best)s2.best=s2.streak;}
+      else{s2.f++;s2.streak=0;if(d2.indexOf(it)===p2&&d2.lastIndexOf(it)===p2)d2.push(it);}
+      ses2Save();render2();});});
+  up2();
+}
+function up2(){
+  $("#s2").innerHTML='Correct <b class="r">'+s2.a+'</b> · wrong <b class="f">'+s2.f+'</b> · streak <b>'+s2.streak+'</b>';
+  var seen=0,mast=0;
+  for(var i=0;i<Q2.length;i++){var b=box("q2_"+i);if(b>=0)seen++;if(b>=3)mast++;}
+  $("#p2text").innerHTML='Progress: <b>'+seen+'</b> / '+Q2.length+' tasks practised · <b>'+mast+'</b> safe';
+}
+$("#next2").addEventListener("click",function(){
+  if(p2>=d2.length)return;p2++;pick2=null;opts2=null;ses2Save();render2();});
+$("#shuf2").addEventListener("click",function(){
+  d2=d2.slice(0,p2).concat(shuffle(d2.slice(p2)));pick2=null;opts2=null;ses2Save();render2();});
+$("#res2").addEventListener("click",function(){build2(true);});
+
+/* ============ REFERENCE TABLE ============ */
+(function(){
+  var order={kasus:0,genitiv:1,praep:2,waswer:3,wo:4,bau:5,partizip:6};
+  var ids=Object.keys(RL).sort(function(a,b){
+    var d=order[RL[a].k]-order[RL[b].k];if(d)return d;
+    return RL[a].l.localeCompare(RL[b].l,"en");});
+  $("#reftable").querySelector("tbody").innerHTML=ids.map(function(id){
+    var r=RL[id];
+    return '<tr><td><b>'+r.l+'</b></td>'+
+      '<td>'+r.sig+' '+r.req+(r.warn?'<div style="color:#8a6a12;margin-top:5px">'+r.warn+'</div>':'')+'</td>'+
+      '<td class="de">'+r.ex.join('<br>')+'</td></tr>';}).join("");
+})();
+
+/* ============ KEYBOARD ============ */
+document.addEventListener("keydown",function(e){
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;
+  var v=tabs.filter(function(t){return t.getAttribute("aria-selected")==="true";})[0].dataset.view;
+  if(v==="l1"){
+    if(/^[1-4]$/.test(e.key)){var bs=document.querySelectorAll("#l1stage .opt-a");
+      if(bs[+e.key-1]){e.preventDefault();bs[+e.key-1].click();}}
+    else if(e.key==="Enter"){e.preventDefault();next1();}
+    else if(e.key==="s"||e.key==="S"){$("#shuf1").click();}
+  }else if(v==="l2"){
+    if(/^[1-3]$/.test(e.key)){var b2=document.querySelectorAll("#l2stage .opt-2");
+      if(b2[+e.key-1]){e.preventDefault();b2[+e.key-1].click();}}
+    else if(e.key==="Enter"){e.preventDefault();$("#next2").click();}
+    else if(e.key==="s"||e.key==="S"){$("#shuf2").click();}
+  }
+});
+build(false);build2(false);
+
+})();
+</script>
+</body>
+</html>

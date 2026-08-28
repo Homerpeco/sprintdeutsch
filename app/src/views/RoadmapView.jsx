@@ -29,10 +29,12 @@ export function RoadmapView({ state, setState, view, setView, verbs }) {
         <Pill variant="light" active={tab === "roadmap"} onClick={() => setView({ section: "roadmap", tab: "roadmap" })}>Roadmap</Pill>
         <Pill variant="light" active={tab === "nomen"}   onClick={() => setView({ section: "roadmap", tab: "nomen" })}>Nomen und Artikel</Pill>
         <Pill variant="light" active={tab === "relativ"} onClick={() => setView({ section: "roadmap", tab: "relativ" })}>Relativsätze</Pill>
+        <Pill variant="light" active={tab === "lokal"}   onClick={() => setView({ section: "roadmap", tab: "lokal" })}>Lokalangaben</Pill>
       </div>
 
       {tab === "nomen"   ? <TrainerFrame src="/genus-trainer.html"   title="Nomen und Artikel — Genus-Trainer" /> :
        tab === "relativ" ? <TrainerFrame src="/relativ-trainer.html" title="Relativsätze — Trainer" /> :
+       tab === "lokal"   ? <TrainerFrame src="/lokal-trainer.html"   title="Lokalangaben — Trainer" /> :
        <RoadmapBody state={state} setState={setState} setView={setView} verbs={verbs} />}
     </div>
   );
