@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Connect RecallDeutsch</title>
+<style>
+  :root { --blue:#1F4FD8; --blue-soft:#E8EEFC; --ink:#14181F; --muted:#5B6475; --line:#DDE2EA; --amber:#B45309; --amber-soft:#FDF1E3; --green:#1E8A4C; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#fff; color:var(--ink); font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; font-style:normal; }
+  main { max-width:560px; margin:0 auto; padding:28px 16px 40px; }
+  h1 { font-size:26px; margin:0 0 6px; }
+  p { margin:0 0 12px; }
+  .muted { color:var(--muted); }
+  .card { border:1px solid var(--line); border-radius:16px; padding:18px; margin:16px 0; }
+  .btn { display:block; text-align:center; background:var(--blue); color:#fff; text-decoration:none; font-weight:600; font-size:18px; padding:15px 20px; border-radius:30px; }
+  #qr { display:flex; justify-content:center; margin:8px 0 4px; }
+  #qr svg, #qr img { width:260px; height:260px; background:#fff; }
+  .warn { background:var(--amber-soft); color:var(--amber); border-radius:12px; padding:12px 14px; }
+  .small { font-size:14px; }
+  [hidden] { display:none !important; }
+  em, i { font-style:normal; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Connect RecallDeutsch</h1>
+  <p class="muted">Gives the RecallDeutsch phone app the Verb Meister sync key saved in this browser, so you never have to type or copy it.</p>
+
+  <div id="none" class="card" hidden>
+    <p class="warn">No Verb Meister sync key is saved in this browser yet.</p>
+    <p>Open <a href="/verb-tracker.html">Verb Meister</a> here, let it sync once (it asks for the key the first time), then reload this page.</p>
+  </div>
+
+  <div id="phone" class="card" hidden>
+    <p><b>On the phone:</b> RecallDeutsch must be installed.</p>
+    <a id="open" class="btn" href="#">Open RecallDeutsch</a>
+    <p class="small muted" style="margin-top:10px">The app opens and connects by itself.</p>
+  </div>
+
+  <div id="desk" class="card" hidden>
+    <p><b>From this computer:</b> scan the code with the phone camera, then tap <b>Open RecallDeutsch</b> on the page that opens.</p>
+    <div id="qr"></div>
+    <p class="small muted">The code contains your sync key. Only scan it with your own phone.</p>
+  </div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(() => {
+  const APP_PACKAGE = 'de.recalldeutsch.app';
+  // A key passed in the fragment (#k=...) comes from the QR code; the fragment is never sent to a server.
+  let key = '';
+  const m = /[#&]k=([^&]+)/.exec(location.hash);
+  if (m) {
+    try { key = decodeURIComponent(m[1]); } catch (e) {}
+    history.replaceState(null, '', location.pathname);   // don't keep the key in the address bar
+  }
+  if (!key) { try { key = localStorage.getItem('de_verb_sync_key') || ''; } catch (e) {} }
+
+  if (!key) { document.getElementById('none').hidden = false; return; }
+
+  const enc = encodeURIComponent(key);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  document.getElementById('open').href =
+    `intent://connect?key=${enc}#Intent;scheme=recalldeutsch;package=${APP_PACKAGE};end`;
+  document.getElementById('phone').hidden = !isAndroid && !m;
+
+  if (!isAndroid && typeof qrcode === 'function') {
+    const qr = qrcode(0, 'M');
+    qr.addData(`${location.origin}/recall-connect.html#k=${enc}`);
+    qr.make();
+    document.getElementById('qr').innerHTML = qr.createSvgTag({ cellSize: 6, margin: 4, scalable: true });
+    document.getElementById('desk').hidden = false;
+  } else if (!isAndroid) {
+    document.getElementById('phone').hidden = false;
+  }
+})();
+</script>
+</body>
+</html>
