@@ -1,6 +1,6 @@
 // POST /api/recall-tts — Gemini voice recordings for the RecallDeutsch phone app.
 // Lives in SprintDeutsch so it can use the Gemini key this project already has
-// (VITE_GEMINI_API_KEY). Protected by the same key as /api/verbs (VERB_SYNC_SECRET).
+// (GEMINI_API_KEY, server-side only). Protected by the same key as /api/verbs (VERB_SYNC_SECRET).
 // Body: {"text": "...", "voice": "Kore"} → 200 audio/mpeg, or JSON error (429 + retryAfter on quota).
 // Independent of the SprintDeutsch app itself: nothing in the React app imports this.
 import { timingSafeEqual } from 'node:crypto';

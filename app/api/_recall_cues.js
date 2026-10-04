@@ -1,7 +1,7 @@
 // Recall cues: turn a card's meaning (often a long dictionary list mixing English, Spanish and
 // German, sometimes with typos) into 1–3 short Spanish and 1–3 short English equivalents, so the
 // phone can read each language with its own native voice.
-// Copy of recalldeutsch/api/_cues.js for SprintDeutsch (uses VITE_GEMINI_API_KEY when GEMINI_API_KEY is absent).
+// Copy of recalldeutsch/api/_cues.js for SprintDeutsch (key: GEMINI_API_KEY, server-side only — never a VITE_* variable, those are public).
 
 const API = 'https://generativelanguage.googleapis.com/v1beta';
 export const MAX_ITEMS = 30;
@@ -60,7 +60,7 @@ function retryDelay(json, headers) {
   return 60;
 }
 
-export async function makeCues(items, { fetchImpl = fetch, key = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY } = {}) {
+export async function makeCues(items, { fetchImpl = fetch, key = process.env.GEMINI_API_KEY } = {}) {
   if (!key) throw new CueError('No Gemini key in the Vercel project.', { status: 500 });
   const clean = items.slice(0, MAX_ITEMS).filter(i => i && i.id && i.de);
   if (!clean.length) return { cues: [], model: '' };

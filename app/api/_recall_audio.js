@@ -114,8 +114,8 @@ async function tryModel(fetchImpl, model, text, voice, key) {
   throw last || new TtsError('Gemini failed', { model });
 }
 
-export async function synthesize(text, { voice = 'Kore', fetchImpl = fetch, key = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY } = {}) {
-  if (!key) throw new TtsError('No Gemini key (GEMINI_API_KEY or VITE_GEMINI_API_KEY) in the Vercel project.', { status: 500 });
+export async function synthesize(text, { voice = 'Kore', fetchImpl = fetch, key = process.env.GEMINI_API_KEY } = {}) {
+  if (!key) throw new TtsError('No Gemini key (GEMINI_API_KEY) in the Vercel project.', { status: 500 });
   const prefix = (process.env.TTS_STYLE || '').trim();
   const input = prefix ? `${prefix} ${text}` : text;
   let lastErr = null, quotaErr = null;

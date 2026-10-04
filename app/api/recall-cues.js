@@ -1,5 +1,5 @@
 // POST /api/recall-cues — short Spanish + English recall cues for the RecallDeutsch phone app.
-// Uses the Gemini key this project already has (VITE_GEMINI_API_KEY) and the same key as /api/verbs
+// Uses the Gemini key this project already has (GEMINI_API_KEY, server-side only) and the same key as /api/verbs
 // (VERB_SYNC_SECRET). Nothing in the SprintDeutsch app itself uses this file.
 // Body: {"items": [{"id", "de", "meaning"}]} (max 30) → {"cues": [{"id", "es": [...], "en": [...]}], "model"}
 import { timingSafeEqual } from 'node:crypto';
