@@ -73,7 +73,9 @@ export async function aiPost(path, body, timeoutMs = 45000) {
 export function aiSetupMessage(err) {
   if (!err) return null;
   if (err.code === 'sync-key') return 'This feature needs your sync key (the one the Verb Meister tracker uses). Try again and enter it when asked.';
-  if (err.code === 'not-configured') return 'The AI is not set up on the server yet: ' + (err.message || '') + ' Add it in Vercel → Settings → Environment Variables and redeploy.';
+  if (err.code === 'not-configured') return 'The AI is not set up on the server yet: ' + (err.message || '') + ' Set it in Vercel → Settings → Environment Variables and redeploy.';
+  if (err.code === 'locked') return 'Too many different wrong sync keys were sent from this network, so the AI features are paused for up to 15 minutes. Then try again with the correct key.';
+  if (err.code === 'daily-limit') return err.message || 'The daily limit for this feature is reached. It starts again at midnight UTC.';
   if (err.code === 'key-rejected') return 'Gemini rejected the server\'s API key (' + (err.message || 'no detail') + '). Check GEMINI_API_KEY in Vercel and redeploy.';
   if (err.code === 'no-endpoint') return err.message;
   if (err.code === 'too-large') return 'The recording is too large to send. Please record a shorter take.';
