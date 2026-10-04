@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { aiPost, aiSetupMessage } from '../lib/ai.js';
 
 // --- DATABASE & CONFIGURATION ---
 const COLORS = {
@@ -669,121 +670,25 @@ function ScannerModus({ onNavigate }) {
     // with this verified data below.
     const verified = getVerified(input);
 
-    // Key comes from the environment: set VITE_GEMINI_API_KEY in app/.env.local (dev)
-    // and in Vercel > Project Settings > Environment Variables (production).
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      // No key: still show the verified conjugation/pattern if we know the verb.
-      if (verified) setResult(verified);
-      else setErrorMsg("No API key configured. Add VITE_GEMINI_API_KEY in Vercel's Environment Variables (or app/.env.local for local dev) and redeploy.");
-      setLoading(false);
-      return;
-    }
-
-    const prompt = `You are a precise German morphology expert. Analyze the verb: "${input}".
-
-Step 1 — Give the 3rd person singular (er/sie/es) for Präsens, Präteritum and Perfekt, with the correct auxiliary (haben/sein).
-Step 2 — Determine the Ablautreihe STRICTLY from the three STEM VOWELS, in this exact order: [infinitive stem vowel] - [Präteritum stem vowel] - [Partizip II stem vowel]. Read each stem vowel directly off the principal parts you just produced (ignore prefixes such as ge-, be-, ver-, ent-, and any separable prefix).
-Step 3 — Match those three vowels to EXACTLY one of these 10 patterns:
-1: ei-ie-ie, 2: ei-i-i, 3: ie-o-o, 4: i-a-u, 5: e-a-o, 6: e-a-e, 7: a-u-a, 8: a-ie-a, 9: e-a-a, 10: i-a-o.
-
-CRITICAL RULE: the "pattern" you output MUST equal the three stem vowels you actually extracted — never approximate or guess by analogy to another verb.
-
-CRITICAL RULE (i-a-u vs i-a-o): both exist and they are DIFFERENT Reihen. Look at the Partizip II vowel and nothing else.
-- Partizip II vowel = u → "i-a-u" → Reihe 4 (binden/band/gebunden, singen/sang/gesungen, trinken/trank/getrunken, finden, springen, zwingen, klingen, sinken, gelingen).
-- Partizip II vowel = o → "i-a-o" → Reihe 10 (beginnen/begann/begonnen, gewinnen/gewann/gewonnen, schwimmen/schwamm/geschwommen, spinnen/spann/gesponnen, sinnen/sann/gesonnen, rinnen/rann/geronnen, and their prefixed forms gerinnen, zerrinnen, entrinnen, besinnen, ersinnen).
-Rule of thumb: stems ending in a DOUBLE nasal (-nn-, -mm-) take o (Reihe 10); stems ending in -nd, -ng, -nk take u (Reihe 4).
-
-Worked examples:
-- stehen → stem vowels of stehen / stand / gestanden = e, a, a → pattern "e-a-a" → Reihe 9. (It is NOT a-u-a.)
-- fahren → fahren / fuhr / gefahren = a, u, a → "a-u-a" → Reihe 7.
-- nehmen → nehmen / nahm / genommen = e, a, o → "e-a-o" → Reihe 5.
-- beginnen → beginnen / begann / begonnen = i, a, o → "i-a-o" → Reihe 10. (It is NOT i-a-u — the participle is begONNen, not "begunnen".)
-- gewinnen → gewinnen / gewann / gewonnen = i, a, o → "i-a-o" → Reihe 10.
-- singen → singen / sang / gesungen = i, a, u → "i-a-u" → Reihe 4.
-
-If the verb does NOT fit any of the 10 patterns (e.g. gehen, sein, tun, or a regular/weak verb), output success:false, reihe:0, pattern:"Unknown".
-In "msg" (short, English), state the three stem vowels you used and confirm they match the pattern.
-
-ALWAYS also provide (regardless of the pattern), to help the learner build a semantic web:
-- "meaning": the primary English meaning of the verb, concise.
-- "synonyms": exactly 3 common German synonyms, each as an object {de, en} where en is a short English gloss.
-- "antonyms": exactly 3 German antonyms (opposites), each as {de, en}. If fewer true opposites exist, give the closest contrasting verbs.`;
-
-    // Build the request once; only the model in the URL changes on fallback.
-    const requestBody = {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.2,
-        // No thinkingConfig: Gemini 3.x models reject thinkingBudget:0 (400). We let
-        // the model think and just skip the "thought" part when parsing the JSON.
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "OBJECT",
-          properties: {
-            success: {type: "BOOLEAN"},
-            infinitive: {type: "STRING"},
-            praesens: {type: "STRING"},
-            praeteritum: {type: "STRING"},
-            perfekt: {type: "STRING"},
-            pattern: {type: "STRING"},
-            reihe: {type: "INTEGER"},
-            meaning: {type: "STRING"},
-            synonyms: {type: "ARRAY", items: {type: "OBJECT", properties: {de: {type: "STRING"}, en: {type: "STRING"}}, propertyOrdering: ["de","en"]}},
-            antonyms: {type: "ARRAY", items: {type: "OBJECT", properties: {de: {type: "STRING"}, en: {type: "STRING"}}, propertyOrdering: ["de","en"]}},
-            msg: {type: "STRING"}
-          },
-          propertyOrdering: ["success","infinitive","praesens","praeteritum","perfekt","pattern","reihe","meaning","synonyms","antonyms","msg"]
-        }
-      }
-    };
-    // Current -latest aliases (Gemini 3.x): always available to new keys. Pinned 2.5
-    // models return 404 "no longer available to new users" for newer projects.
-    const MODELS = ['gemini-flash-lite-latest', 'gemini-flash-latest'];
+    // The Gemini call runs on the server (/api/verb-scan): no API key exists in the
+    // browser, because everything compiled into this bundle is public. The server owns
+    // the prompt and the model list; `m` only says which of its two models to try.
+    const MODEL_COUNT = 2;
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     let lastErr = null;
 
     try {
       let data = null;
-      for (let m = 0; m < MODELS.length && !data; m++) {
+      for (let m = 0; m < MODEL_COUNT && !data; m++) {
         for (let attempt = 0; attempt < 2 && !data; attempt++) {
-          const controller = new AbortController();
-          const to = setTimeout(() => controller.abort(), 30000);
-          try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELS[m]}:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              signal: controller.signal,
-              body: JSON.stringify(requestBody),
-            });
-            clearTimeout(to);
-            if (response.ok) {
-              const jsonResponse = await response.json();
-              const cands = jsonResponse.candidates || [];
-              if (!cands.length) throw Object.assign(new Error('empty'), { retryable: true });
-              const parts = (cands[0].content && cands[0].content.parts) || [];
-              const textResult = (parts.find(p => p.text && !p.thought) || {}).text;
-              if (!textResult) throw Object.assign(new Error('empty'), { retryable: true });
-              data = JSON.parse(textResult);
-              break;
-            }
-            let detail = `HTTP ${response.status}`;
-            try { const e = await response.json(); detail = e?.error?.message || detail; } catch (_) {}
-            const err = new Error(detail);
-            err.status = response.status;
-            if (response.status === 400 || response.status === 403) throw err; // bad key/request → don't retry
-            err.retryable = true; // 429 / 500 / 503 → retry & fall back
-            lastErr = err;
-          } catch (err) {
-            clearTimeout(to);
-            if (err.status === 400 || err.status === 403) throw err;
-            lastErr = err.name === 'AbortError'
-              ? Object.assign(new Error('timeout'), { timeout: true })
-              : err;
-          }
-          if (!data && attempt === 0) await sleep(1000 + Math.random() * 600);
+          const r = await aiPost('/api/verb-scan', { verb: input, m }, 35000);
+          if (r.ok) { data = r.data; break; }
+          lastErr = Object.assign(new Error(r.message), { status: r.status, code: r.code, timeout: r.timeout || r.code === 'timeout' });
+          if (r.fatal) throw lastErr; // not set up / sync key / bad request → don't retry
+          // 429 / 5xx / timeout → retry, then fall back to the other model
+          if (attempt === 0) await sleep(1000 + Math.random() * 600);
         }
-        if (!data && m < MODELS.length - 1) await sleep(500);
+        if (!data && m < MODEL_COUNT - 1) await sleep(500);
       }
 
       if (!data) throw (lastErr || new Error('unavailable'));
@@ -801,13 +706,14 @@ ALWAYS also provide (regardless of the pattern), to help the learner build a sem
     } catch (error) {
       // If the AI failed but we know the verb, still show its verified conjugation.
       if (verified) {
-        setResult({ ...verified, msg: verified.msg + " (Meaning & synonyms are unavailable right now — the AI was busy.)" });
+        const why = aiSetupMessage(error);
+        setResult({ ...verified, msg: verified.msg + (why ? ` (Meaning & synonyms are unavailable: ${why})` : " (Meaning & synonyms are unavailable right now — the AI was busy.)") });
         setLoading(false);
         return;
       }
       let msg;
       if (error.timeout) msg = "The AI engine took too long to respond. Please tap Search again.";
-      else if (error.status === 400 && /api[_ ]?key/i.test(error.message || '')) msg = "Invalid API key. Check VITE_GEMINI_API_KEY in Vercel and redeploy.";
+      else if (aiSetupMessage(error)) msg = aiSetupMessage(error);
       else if (error.status === 429) msg = "Usage limit reached on your Gemini key — please wait a bit and try again.";
       else if (error.status === 503 || /overload|high demand|unavailable/i.test(error.message || '')) msg = "The AI servers were briefly busy. Please tap Search once more.";
       else msg = "Could not analyze this verb: " + (error.message || "unknown error") + (error.status ? ` (status ${error.status})` : '');

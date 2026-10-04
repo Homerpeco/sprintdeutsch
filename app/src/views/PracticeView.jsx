@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { PASSAGES, WRITING_PROMPTS, SPEAKING_PROMPTS } from '../data/passages.js';
 import { bumpStreak } from '../lib/streak.js';
+import { aiPost, aiSetupMessage } from '../lib/ai.js';
 import { Card } from '../components/Card.jsx';
 import { Pill } from '../components/Pill.jsx';
 import { Icon } from '../components/Icon.jsx';
@@ -46,8 +47,13 @@ const PRESENTATION_TOPICS = {
 // ---- Encode a decoded AudioBuffer to a compact 16 kHz mono 16-bit WAV Blob ----
 // (WAV is universally accepted by Gemini; browsers' native MediaRecorder output —
 //  webm/ogg/mp4 — is not consistently supported, so we always re-encode to WAV.)
+// Size limit: the recording goes through our own server function, and Vercel rejects
+// request bodies over 4.5 MB (base64 adds a third), so the WAV must stay under ~3.2 MB.
+// That is 100 s at 16 kHz — every normal take. Only a longer take is encoded at a
+// proportionally lower rate (about 10.7 kHz at the 150 s maximum).
+const MAX_WAV_BYTES = 3200000;
 function audioBufferToWav(buffer) {
-  const targetRate = 16000;
+  const targetRate = Math.max(8000, Math.min(16000, Math.floor(MAX_WAV_BYTES / 2 / Math.max(1, buffer.duration))));
   const numCh = buffer.numberOfChannels;
   // mix down to mono
   let mono;
@@ -60,7 +66,7 @@ function audioBufferToWav(buffer) {
   } else {
     mono = buffer.getChannelData(0);
   }
-  // linear resample to 16 kHz
+  // linear resample to the target rate (16 kHz unless the take is very long)
   const ratio = buffer.sampleRate / targetRate;
   const outLen = Math.max(1, Math.floor(mono.length / ratio));
   const out = new Float32Array(outLen);
@@ -208,12 +214,6 @@ function SpeakingPractice({ state, setState }) {
   async function assess() {
     if (!wavBlob) return;
     setAnalyzing(true); setErrorMsg(null); setResult(null);
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      setAnalyzing(false);
-      setErrorMsg("No API key configured. Add VITE_GEMINI_API_KEY in Vercel's Environment Variables and redeploy.");
-      return;
-    }
     let b64;
     try {
       b64 = await blobToBase64(wavBlob);
@@ -222,92 +222,28 @@ function SpeakingPractice({ state, setState }) {
       setErrorMsg('Could not read the recording. Please record again.');
       return;
     }
-    const task = mode === 'read'
-      ? `The learner was asked to READ this sentence aloud:\n\n"${sentence}"\n\nCompare what they said to this exact target.`
-      : `The learner is practicing a spoken PRESENTATION (about 5–10 sentences of free, spontaneous German)${topic.trim() ? ` on the topic: "${topic.trim()}"` : ' on an open topic of their choice'}. There is no target text — assess the connected speech as delivered.`;
-    const prompt = `You are a strict but encouraging German pronunciation coach for a CEFR ${state.level} learner. ${task}
-
-Listen to the attached audio and assess ONLY pronunciation and delivery — NOT grammar, vocabulary or content. Judge three things:
-- "pronunciation": accuracy of individual sounds/phonemes across the whole recording (Umlaute ö/ü/ä, the ich- vs ach-Laut, r, z/tz, sch, sp/st, long vs short vowels, word endings).
-- "intonation": sentence melody, word/sentence stress and rhythm (Satzmelodie und Betonung), and — for a presentation — natural phrasing and pacing.
-- "accent": how close to a native German speaker overall (naturalness and fluency; note excessive hesitation or filler sounds like "ähm").
-
-Score each 0–100 and give an "overall" 0–100. In "transcript", write out what you actually heard (the full speech, not a fixed sentence). In "issues", list up to 5 specific words or sounds that need work, each with a short, concrete English tip on how to produce it. Keep "strengths" and "summary" short and in English. Be honest but motivating, and tailor advice to someone preparing to give presentations.`;
-    const requestBody = {
-      contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: 'audio/wav', data: b64 } }] }],
-      generationConfig: {
-        temperature: 0.3,
-        // No thinkingConfig: Gemini 3.x models reject thinkingBudget:0 (400). We let
-        // the model think and skip the "thought" part when parsing the JSON.
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: 'OBJECT',
-          properties: {
-            transcript: { type: 'STRING' },
-            overall: { type: 'INTEGER' },
-            pronunciation: { type: 'INTEGER' },
-            intonation: { type: 'INTEGER' },
-            accent: { type: 'INTEGER' },
-            strengths: { type: 'STRING' },
-            issues: { type: 'ARRAY', items: { type: 'OBJECT', properties: { sound: { type: 'STRING' }, tip: { type: 'STRING' } }, propertyOrdering: ['sound', 'tip'] } },
-            summary: { type: 'STRING' },
-          },
-          propertyOrdering: ['transcript', 'overall', 'pronunciation', 'intonation', 'accent', 'strengths', 'issues', 'summary'],
-        },
-      },
-    };
-
-    // Robust delivery: try several models, each with a couple of retries and
-    // backoff, so a transient "model overloaded" (503) or rate spike (429) is
-    // retried automatically — and falls back to another model — instead of
-    // failing the whole assessment.
-    // Current -latest aliases (Gemini 3.x): available to new keys and audio-capable.
-    // Pinned 2.5 models 404 ("no longer available to new users") on newer projects.
-    const MODELS = ['gemini-flash-latest', 'gemini-flash-lite-latest'];
+    // The Gemini call runs on the server (/api/speech-assess): no API key exists in the
+    // browser, because everything compiled into this bundle is public. The server builds
+    // the prompt and owns the model list; `m` only says which of its two models to try.
+    // Robust delivery is unchanged: each model gets a couple of tries with backoff, so a
+    // transient "model overloaded" (503) or rate spike (429) is retried automatically —
+    // and falls back to the other model — instead of failing the whole assessment.
+    const payload = { audio: b64, mode, sentence, topic: topic.trim(), level: state.level };
+    const MODEL_COUNT = 2;
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     let lastErr = null;
 
     try {
       let data = null;
-      for (let m = 0; m < MODELS.length && !data; m++) {
+      for (let m = 0; m < MODEL_COUNT && !data; m++) {
         for (let attempt = 0; attempt < 2 && !data; attempt++) {
-          const controller = new AbortController();
-          const to = setTimeout(() => controller.abort(), 45000);
-          try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELS[m]}:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              signal: controller.signal,
-              body: JSON.stringify(requestBody),
-            });
-            clearTimeout(to);
-            if (res.ok) {
-              const j = await res.json();
-              const cands = j.candidates || [];
-              if (!cands.length) throw Object.assign(new Error('empty'), { retryable: true });
-              const parts = (cands[0].content && cands[0].content.parts) || [];
-              const text = (parts.find(p => p.text && !p.thought) || {}).text;
-              if (!text) throw Object.assign(new Error('empty'), { retryable: true });
-              data = JSON.parse(text);
-              break;
-            }
-            let detail = `HTTP ${res.status}`;
-            try { const e = await res.json(); detail = e?.error?.message || detail; } catch (_) {}
-            const err = new Error(detail);
-            err.status = res.status;
-            if (res.status === 400 || res.status === 403) throw err; // bad key/request → don't retry
-            err.retryable = true; // 429 / 500 / 503 → retry & fall back
-            lastErr = err;
-          } catch (err) {
-            clearTimeout(to);
-            if (err.status === 400 || err.status === 403) throw err;
-            lastErr = err.name === 'AbortError'
-              ? Object.assign(new Error('timeout'), { timeout: true })
-              : err;
-          }
-          if (!data && attempt === 0) await sleep(1200 + Math.random() * 800); // backoff before retrying same model
+          const r = await aiPost('/api/speech-assess', { ...payload, m }, 58000);
+          if (r.ok) { data = r.data; break; }
+          lastErr = Object.assign(new Error(r.message), { status: r.status, code: r.code, timeout: r.timeout || r.code === 'timeout' });
+          if (r.fatal) throw lastErr; // not set up / sync key / bad request → don't retry
+          if (attempt === 0) await sleep(1200 + Math.random() * 800); // backoff before retrying same model
         }
-        if (!data && m < MODELS.length - 1) await sleep(600); // brief pause before next model
+        if (!data && m < MODEL_COUNT - 1) await sleep(600); // brief pause before next model
       }
 
       if (!data) throw (lastErr || new Error('unavailable'));
@@ -317,7 +253,7 @@ Score each 0–100 and give an "overall" 0–100. In "transcript", write out wha
     } catch (err) {
       let msg;
       if (err.timeout) msg = 'The assessment kept timing out — please try again.';
-      else if (err.status === 400 && /api[_ ]?key/i.test(err.message || '')) msg = 'Invalid API key. Check VITE_GEMINI_API_KEY in Vercel and redeploy.';
+      else if (aiSetupMessage(err)) msg = aiSetupMessage(err);
       else if (err.status === 429) msg = 'Usage limit reached on your Gemini key — please wait a bit and try again.';
       else if (err.status === 503 || /overload|high demand|unavailable/i.test(err.message || '')) msg = 'The AI servers were briefly busy. Please tap "Assess" once more.';
       // Anything unexpected: show the real reason so it can be diagnosed, not hidden.
