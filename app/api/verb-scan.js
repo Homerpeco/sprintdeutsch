@@ -3,9 +3,10 @@
 // Headers: x-sync-key (same key as /api/verbs). Body: {"verb": "trinken", "m": 0}
 //   m = which model to try (0 = first choice, 1 = fallback); the browser retries.
 // 200 {"data": {...}} or {"error": {code, message, fatal}} with 400/401/429/502/503/504.
+// Limits (key length, guess lock, daily ceiling): see _guard.js.
 // The prompt is built here, from a cleaned verb only, so the endpoint cannot be used
 // as a general-purpose Gemini relay.
-import { guard, readBody, generateJson } from './_gemini.js';
+import { guard, readBody, generateJson, withinDailyLimit } from './_gemini.js';
 
 export const maxDuration = 60;
 
@@ -84,6 +85,7 @@ export default async function handler(req, res) {
   if (!verb) {
     return res.status(400).json({ error: { code: 'bad-request', message: 'Enter a German verb.', fatal: true } });
   }
+  if (!withinDailyLimit(res, 'verb-scan')) return;
   const model = MODELS[Number(body.m) === 1 ? 1 : 0];
   const out = await generateJson({
     model, parts: [{ text: buildPrompt(verb) }], generationConfig: GENERATION_CONFIG, timeoutMs: 28000,

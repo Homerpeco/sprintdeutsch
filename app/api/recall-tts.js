@@ -3,17 +3,12 @@
 // (GEMINI_API_KEY, server-side only). Protected by the same key as /api/verbs (VERB_SYNC_SECRET).
 // Body: {"text": "...", "voice": "Kore"} → 200 audio/mpeg, or JSON error (429 + retryAfter on quota).
 // Independent of the SprintDeutsch app itself: nothing in the React app imports this.
-import { timingSafeEqual } from 'node:crypto';
+import { checkSyncKey, takeDailyBudget } from './_guard.js';
 import { speakToMp3 } from './_recall_audio.js';
 
 export const maxDuration = 60;
 
 const VOICES = new Set(['Kore', 'Puck', 'Charon', 'Aoede', 'Fenrir', 'Leda', 'Orus', 'Zephyr']);
-
-function same(a, b) {
-  const x = Buffer.from(String(a)), y = Buffer.from(String(b));
-  return x.length === y.length && timingSafeEqual(x, y);
-}
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -21,9 +16,11 @@ export default async function handler(req, res) {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'method not allowed' });
   }
-  const secret = process.env.VERB_SYNC_SECRET || '';
-  if (!secret || !same(req.headers['x-sync-key'] || '', secret)) {
-    return res.status(401).json({ error: 'unauthorized' });
+  // Sync key: must be long, and repeated wrong guesses lock the address (see _guard.js).
+  const auth = checkSyncKey(req);
+  if (!auth.ok) {
+    if (auth.retryAfter) res.setHeader('Retry-After', String(auth.retryAfter));
+    return res.status(auth.status).json({ error: auth.status === 401 ? 'unauthorized' : auth.code, detail: auth.message, retryAfter: auth.retryAfter });
   }
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
@@ -31,6 +28,12 @@ export default async function handler(req, res) {
   const voice = VOICES.has(body && body.voice) ? body.voice : 'Kore';
   if (!text) return res.status(400).json({ error: 'text required' });
   if (text.length > 1200) return res.status(400).json({ error: 'text too long (max 1200 characters)' });
+  // Daily ceiling (see _guard.js). Answered like a Gemini quota limit, so the phone pauses its queue.
+  const allowance = takeDailyBudget('recall-tts');
+  if (!allowance.ok) {
+    res.setHeader('Retry-After', String(allowance.retryAfter));
+    return res.status(429).json({ error: 'quota', detail: allowance.message, retryAfter: allowance.retryAfter });
+  }
   try {
     const { mp3, model, seconds } = await speakToMp3(text, { voice });
     res.setHeader('Content-Type', 'audio/mpeg');

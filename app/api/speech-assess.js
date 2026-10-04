@@ -4,10 +4,11 @@
 // Body: {"audio": "<base64 WAV>", "mode": "free"|"read", "sentence": "...", "topic": "...",
 //        "level": "B2", "m": 0}   m = which model to try (0 = first choice, 1 = fallback).
 // 200 {"data": {...}} or {"error": {code, message, fatal}} with 400/401/429/502/503/504.
+// Limits (key length, guess lock, daily ceiling): see _guard.js.
 // The recording is passed straight to Gemini and is not stored anywhere.
 // Vercel rejects request bodies over 4.5 MB (413) before this code runs; the browser
 // keeps the WAV under that limit (see audioBufferToWav in PracticeView.jsx).
-import { guard, readBody, cleanText, generateJson } from './_gemini.js';
+import { guard, readBody, cleanText, generateJson, withinDailyLimit } from './_gemini.js';
 
 export const maxDuration = 60;
 
@@ -71,6 +72,7 @@ export default async function handler(req, res) {
   if (mode === 'read' && !sentence) {
     return res.status(400).json({ error: { code: 'bad-request', message: 'The target sentence is missing.', fatal: true } });
   }
+  if (!withinDailyLimit(res, 'speech-assess')) return;
   const model = MODELS[Number(body.m) === 1 ? 1 : 0];
   const out = await generateJson({
     model,

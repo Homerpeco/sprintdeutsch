@@ -2,15 +2,10 @@
 // Uses the Gemini key this project already has (GEMINI_API_KEY, server-side only) and the same key as /api/verbs
 // (VERB_SYNC_SECRET). Nothing in the SprintDeutsch app itself uses this file.
 // Body: {"items": [{"id", "de", "meaning"}]} (max 30) → {"cues": [{"id", "es": [...], "en": [...]}], "model"}
-import { timingSafeEqual } from 'node:crypto';
+import { checkSyncKey, takeDailyBudget } from './_guard.js';
 import { makeCues, MAX_ITEMS } from './_recall_cues.js';
 
 export const maxDuration = 60;
-
-function same(a, b) {
-  const x = Buffer.from(String(a)), y = Buffer.from(String(b));
-  return x.length === y.length && timingSafeEqual(x, y);
-}
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -18,8 +13,12 @@ export default async function handler(req, res) {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'method not allowed' });
   }
-  const secret = process.env.VERB_SYNC_SECRET || '';
-  if (!secret || !same(req.headers['x-sync-key'] || '', secret)) return res.status(401).json({ error: 'unauthorized' });
+  // Sync key: must be long, and repeated wrong guesses lock the address (see _guard.js).
+  const auth = checkSyncKey(req);
+  if (!auth.ok) {
+    if (auth.retryAfter) res.setHeader('Retry-After', String(auth.retryAfter));
+    return res.status(auth.status).json({ error: auth.status === 401 ? 'unauthorized' : auth.code, detail: auth.message, retryAfter: auth.retryAfter });
+  }
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
   const items = (Array.isArray(body && body.items) ? body.items : [])
@@ -27,6 +26,12 @@ export default async function handler(req, res) {
     .map(i => ({ id: String(i && i.id || ''), de: String(i && i.de || '').slice(0, 120), meaning: String(i && i.meaning || '').slice(0, 600) }))
     .filter(i => i.id && i.de);
   if (!items.length) return res.status(400).json({ error: 'items required' });
+  // Daily ceiling (see _guard.js). Answered like a Gemini quota limit, so the phone pauses its queue.
+  const allowance = takeDailyBudget('recall-cues');
+  if (!allowance.ok) {
+    res.setHeader('Retry-After', String(allowance.retryAfter));
+    return res.status(429).json({ error: 'quota', detail: allowance.message, retryAfter: allowance.retryAfter });
+  }
   try {
     return res.status(200).json(await makeCues(items));
   } catch (err) {

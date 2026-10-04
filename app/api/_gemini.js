@@ -11,14 +11,11 @@
 //
 //   The endpoints are also locked with the sync key the app already uses for /api/verbs
 //   (VERB_SYNC_SECRET), so strangers cannot spend the quota through this site either.
-import { timingSafeEqual } from 'node:crypto';
+//   _guard.js adds: a minimum key length, a lock after repeated wrong keys, and a daily
+//   ceiling per function.
+import { checkSyncKey, takeDailyBudget } from './_guard.js';
 
 const API = 'https://generativelanguage.googleapis.com/v1beta';
-
-function same(a, b) {
-  const x = Buffer.from(String(a)), y = Buffer.from(String(b));
-  return x.length === y.length && timingSafeEqual(x, y);
-}
 
 function fail(status, code, message, fatal = false) {
   return { status, body: { error: { code, message, fatal } } };
@@ -33,14 +30,11 @@ export function guard(req, res) {
     res.status(405).json({ error: { code: 'method', message: 'method not allowed', fatal: true } });
     return false;
   }
-  const secret = process.env.VERB_SYNC_SECRET || '';
-  if (!secret) {
-    res.status(503).json({ error: { code: 'not-configured', fatal: true,
-      message: 'VERB_SYNC_SECRET is not set in the Vercel project.' } });
-    return false;
-  }
-  if (!same(req.headers['x-sync-key'] || '', secret)) {
-    res.status(401).json({ error: { code: 'sync-key', message: 'sync key required', fatal: true } });
+  // Sync key: must be long, and repeated wrong guesses lock the address (see _guard.js).
+  const auth = checkSyncKey(req);
+  if (!auth.ok) {
+    if (auth.retryAfter) res.setHeader('Retry-After', String(auth.retryAfter));
+    res.status(auth.status).json({ error: { code: auth.code, message: auth.message, fatal: true, retryAfter: auth.retryAfter } });
     return false;
   }
   if (!process.env.GEMINI_API_KEY) {
@@ -49,6 +43,17 @@ export function guard(req, res) {
     return false;
   }
   return true;
+}
+
+// Daily ceiling for one function (see _guard.js). True when the request may go on to
+// Gemini; otherwise the response has already been sent. Call it after the input checks,
+// so that rejected requests do not use up the day's allowance.
+export function withinDailyLimit(res, route) {
+  const b = takeDailyBudget(route);
+  if (b.ok) return true;
+  res.setHeader('Retry-After', String(b.retryAfter));
+  res.status(b.status).json({ error: { code: b.code, message: b.message, fatal: true, retryAfter: b.retryAfter } });
+  return false;
 }
 
 export function readBody(req) {
