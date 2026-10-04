@@ -12,19 +12,41 @@
 
 const SYNC_KEY_KEY = 'de_verb_sync_key';
 
-function getSyncKey() {
-  try { return localStorage.getItem(SYNC_KEY_KEY) || ''; } catch (e) { return ''; }
+// The key travels in an HTTP header, and a browser refuses to send a header that holds
+// characters outside plain text: fetch() throws before anything leaves the machine. The
+// usual culprit is a curly apostrophe that a phone or Mac keyboard types instead of a
+// straight one. A key like that can never work, so it must not be kept: a saved one is
+// removed and asked for again, a typed one is not saved. (October 2026: a saved key of
+// this kind left the Verb Scanner stuck on "non ISO-8859-1 code point" with no way out.)
+export function sendableKey(k) {
+  return typeof k === 'string' && /^[\x20-\x7E]+$/.test(k);
 }
 
-function askSyncKey(hadOne) {
+const BAD_KEY_NOTE = 'It contains a character that cannot be sent, often a curly apostrophe typed by the keyboard instead of a straight one. A sync key should use only letters and digits.';
+
+// Returns { key, dropped }: `dropped` means a saved key was unusable and has been removed.
+function readSyncKey() {
+  let k = '';
+  try { k = localStorage.getItem(SYNC_KEY_KEY) || ''; } catch (e) { return { key: '', dropped: false }; }
+  if (!k || sendableKey(k)) return { key: k, dropped: false };
+  try { localStorage.removeItem(SYNC_KEY_KEY); } catch (e) { /* private mode */ }
+  return { key: '', dropped: true };
+}
+
+// why: 'none' (no key saved) | 'refused' (the server said no) | 'unsendable' (removed above).
+// Returns { key, bad }: `bad` means the typed key was unusable and was not saved.
+function askSyncKey(why) {
+  const intro = why === 'refused' ? 'The saved sync key was not accepted.\n'
+    : why === 'unsendable' ? 'The saved sync key could not be used and was removed. ' + BAD_KEY_NOTE + '\n'
+    : 'The AI features are protected by your sync key.\n';
   let k = null;
   try {
-    k = window.prompt((hadOne ? 'The saved sync key was not accepted.\n' : 'The AI features are protected by your sync key.\n')
-      + 'Enter your sync key (the VERB_SYNC_SECRET you set in Vercel):');
+    k = window.prompt(intro + 'Enter your sync key (the VERB_SYNC_SECRET you set in Vercel):');
   } catch (e) { /* dialogs blocked */ }
   k = (k || '').trim();
+  if (k && !sendableKey(k)) return { key: '', bad: true };
   if (k) { try { localStorage.setItem(SYNC_KEY_KEY, k); } catch (e) { /* private mode */ } }
-  return k;
+  return { key: k, bad: false };
 }
 
 async function postOnce(path, body, timeoutMs, key) {
@@ -46,10 +68,13 @@ async function postOnce(path, body, timeoutMs, key) {
 // {ok:false, status, code, message, fatal, timeout}; `fatal` means "do not retry".
 export async function aiPost(path, body, timeoutMs = 45000) {
   try {
-    let key = getSyncKey();
+    const saved = readSyncKey();
+    let key = saved.key;
     let { res, json } = await postOnce(path, body, timeoutMs, key);
     if (res.status === 401) {
-      key = askSyncKey(!!key);
+      const asked = askSyncKey(saved.dropped ? 'unsendable' : key ? 'refused' : 'none');
+      if (asked.bad) return { ok: false, status: 401, code: 'sync-key-chars', fatal: true, message: 'sync key not saved' };
+      key = asked.key;
       if (!key) return { ok: false, status: 401, code: 'sync-key', fatal: true, message: 'sync key required' };
       ({ res, json } = await postOnce(path, body, timeoutMs, key));
       if (res.status === 401) return { ok: false, status: 401, code: 'sync-key', fatal: true, message: 'sync key not accepted' };
@@ -73,6 +98,7 @@ export async function aiPost(path, body, timeoutMs = 45000) {
 export function aiSetupMessage(err) {
   if (!err) return null;
   if (err.code === 'sync-key') return 'This feature needs your sync key (the one the Verb Meister tracker uses). Try again and enter it when asked.';
+  if (err.code === 'sync-key-chars') return 'That sync key was not saved. ' + BAD_KEY_NOTE + ' Try again and enter the key exactly as it is set in Vercel.';
   if (err.code === 'not-configured') return 'The AI is not set up on the server yet: ' + (err.message || '') + ' Set it in Vercel → Settings → Environment Variables and redeploy.';
   if (err.code === 'locked') return 'Too many different wrong sync keys were sent from this network, so the AI features are paused for up to 15 minutes. Then try again with the correct key.';
   if (err.code === 'daily-limit') return err.message || 'The daily limit for this feature is reached. It starts again at midnight UTC.';
