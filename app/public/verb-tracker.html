@@ -921,9 +921,17 @@ const SYNC_META_KEY = 'de_verb_tracker_meta_v1';
 const SYNC_KEY_KEY  = 'de_verb_sync_key';
 let syncTimer = null;
 let syncState = 'off'; // off | ok | saving | error | auth | local
+// A browser refuses to send a header holding characters outside plain text (fetch throws),
+// e.g. the curly apostrophe a phone or Mac keyboard types. A key like that can never work
+// and would leave the badge stuck on "sync error", so it is removed and asked for again.
+function sendableKey(k){ return typeof k === 'string' && /^[\x20-\x7E]+$/.test(k); }
 function syncHeaders(){
   const h = {'content-type':'application/json'};
-  try{ const k = localStorage.getItem(SYNC_KEY_KEY); if(k) h['x-sync-key'] = k; }catch(e){}
+  try{
+    const k = localStorage.getItem(SYNC_KEY_KEY);
+    if(k && sendableKey(k)) h['x-sync-key'] = k;
+    else if(k) localStorage.removeItem(SYNC_KEY_KEY);
+  }catch(e){}
   return h;
 }
 function setSyncBadge(state, title){
@@ -997,7 +1005,9 @@ async function cloudLoad(){
 document.getElementById('syncBadge').addEventListener('click', ()=>{
   if(syncState === 'auth'){
     const k = prompt('This tracker is protected by a sync key.\nEnter your sync key (the VERB_SYNC_SECRET you set in Vercel):');
-    if(k){ try{ localStorage.setItem(SYNC_KEY_KEY, k.trim()); }catch(e){} cloudLoad(); }
+    const key = (k || '').trim();
+    if(key && !sendableKey(key)){ toast('That key has a character that cannot be sent (often a curly apostrophe). Use only letters and digits.'); return; }
+    if(key){ try{ localStorage.setItem(SYNC_KEY_KEY, key); }catch(e){} cloudLoad(); }
   } else {
     cloudSave();
   }
