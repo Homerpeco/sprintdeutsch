@@ -1637,6 +1637,12 @@ function prepLine(v){
 /* ---- conjugation shown for EVERY verb ----
    Irregular verbs use their stored forms; regular verbs are conjugated
    automatically (weak pattern), respecting separable prefix + sich. */
+// Regular verbs whose Perfekt uses "sein" (same list as RecallDeutsch): ist abgestürzt, ist gelangt, ist erfolgt …
+const SEIN_REGULAR = new Set(['reisen','verreisen','wandern','auswandern','einwandern','landen','klettern','joggen',
+  'segeln','stolpern','stürzen','abstürzen','eilen','flüchten','marschieren','spazieren','begegnen','folgen','passieren',
+  'aufwachen','erwachen','zurückkehren','heimkehren','scheitern','explodieren','platzen','erröten','verblühen','verwelken',
+  'verhungern','verdursten','auftauchen','erkranken','verarmen','erstarren','krabbeln','rutschen','ausrutschen',
+  'emigrieren','immigrieren','desertieren','verunglücken','erfolgen','gelangen','aufrücken']);
 function regularConj(v){
   let inf = v.infinitive.trim().toLowerCase().replace(/^sich\s+/,'');
   const pfx = (v.separable && v.prefix && inf.startsWith(v.prefix.toLowerCase())) ? v.prefix.toLowerCase() : '';
@@ -1646,14 +1652,17 @@ function regularConj(v){
   else if(/en$/.test(core)) stem = core.slice(0,-2);
   else if(/n$/.test(core)) stem = core.slice(0,-1);
   else stem = core;
-  const eEp = /(?:[td]|chn|ffn|gn|dm|tm)$/.test(stem) ? 'e' : ''; // arbeitet, öffnet, atmet
+  // e after d/t and after a consonant + m/n other than l, r, h: arbeitet, öffnet, atmet, ordnet, rechnet (but lernt, wohnt)
+  const eEp = /(?:[td]|chn|[bdfgkpt]n|[bdfgkpt]m)$/.test(stem) ? 'e' : '';
   const sEnd = /(?:s|ß|x|z)$/.test(stem);                        // reist → reist (not reisst)
   const present3 = stem + (sEnd ? 't' : eEp + 't');
   const pret3 = stem + eEp + 'te';
-  // no ge- for inseparable prefixes and -ieren verbs
-  const noGe = /^(be|ge|emp|ent|er|miss|ver|zer|hinter)/.test(core) || /ieren$/.test(core);
+  // no ge- for inseparable prefixes and -ieren verbs; a durch-/über-/unter-/um- verb not marked separable is
+  // inseparable (überzeugt, unterstützt — not "geüberzeugt")
+  const dualInsep = !pfx && /^(durch|über|unter|um|wider|wieder|voll)/.test(core) && core.length > 6;
+  const noGe = /^(be|ge|emp|ent|er|miss|ver|zer|hinter)/.test(core) || /ieren$/.test(core) || dualInsep;
   const part = pfx + (noGe ? '' : 'ge') + stem + eEp + 't';
-  return {present: present3 + (pfx ? ' ' + pfx : ''), preterite: pret3 + (pfx ? ' ' + pfx : ''), partizip: part, auxiliary:'haben'};
+  return {present: present3 + (pfx ? ' ' + pfx : ''), preterite: pret3 + (pfx ? ' ' + pfx : ''), partizip: part, auxiliary: SEIN_REGULAR.has(inf) ? 'sein' : 'haben'};
 }
 function withSich(form, v, pos){
   if(!v.reflexive || !form || /\bsich\b/.test(form)) return escapeHtml(form);
