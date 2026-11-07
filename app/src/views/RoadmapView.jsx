@@ -30,6 +30,8 @@ const TRAINERS = [
     sub: "stolz auf · interessiert an · mir egal — 229 exercises", level: "B2" },
   { id: "verbpraep", src: "/verbpraep-trainer.html", title: "Verbs with the Prepositional Case",
     sub: "warten auf · denken an · teilnehmen an — 378 exercises", level: "B2" },
+  { id: "passiv", src: "/passiv-trainer.html", title: "Passive Voice",
+    sub: "wird gemacht · wurde gemacht · ist gemacht worden — 250 sentences", level: "B2" },
 ];
 
 export function RoadmapView({ state, setState, view, setView, verbs }) {
