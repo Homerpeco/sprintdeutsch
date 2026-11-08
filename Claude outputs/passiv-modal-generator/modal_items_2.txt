@@ -1,0 +1,56 @@
+A:S. 75 (Passiv, Ü 2)|P|k|Man kann in den ersten zehn Jahren mit der Firma Gewinne machen.|In den ersten zehn Jahren|3p|mit der Firma Gewinne|gemacht|machen|
+A:S. 75 (Ü 2d)|P|k|Man kann die Gewinne maximieren.|Die Gewinne|3p||maximiert|maximieren|
+A:S. 75 (Ü 2d)|P|k|Man kann die Unternehmensziele erreichen.|Die Unternehmensziele|3p||erreicht|erreichen|
+A:S. 75 (Ü 2d)|P|k|Man kann nicht alle neuen Projekte finanzieren.|Nicht alle neuen Projekte|3p||finanziert|finanzieren|
+A:S. 75 (Ü 2d)|P|m|Man muss neue Produkte regelmäßig weiterentwickeln.|Neue Produkte|3p|regelmäßig|weiterentwickelt|weiterentwickeln|
+A:S. 85 (Grammatik: Passiv)|P|s|Man soll die Produkte herstellen.|Die Produkte|3p||hergestellt|herstellen|
+A:S. 85 (Grammatik: Passiv)|P|m|Man muss die Umsätze steigern.|Die Umsätze|3p||gesteigert|steigern|
+A:S. 85 (Grammatik: Passiv)|P|k|Man kann das Produkt realisieren.|Das Produkt|3s||realisiert|realisieren|
+A:S. 85 (Grammatik: Passiv)|P|k|Man kann das Produkt nicht verkaufen.|Das Produkt|3s|nicht|verkauft|verkaufen|
+A:S. 13 (Reisekosten)|W|k|Man kann unter bestimmten Voraussetzungen Reisekosten erstatten.|Unter bestimmten Voraussetzungen|3p|Reisekosten|erstattet|erstatten|
+A:S. 39 (Verpackungsmüll)|W|s|Man soll alle Snackautomaten auf dem Gelände entfernen.|Alle Snackautomaten auf dem Gelände|3p||entfernt|entfernen|
+A:S. 44 (Hygieneregeln)|W|m|Man muss die Plastikhandschuhe mindestens dreimal täglich austauschen.|Die Plastikhandschuhe|3p|mindestens dreimal täglich|ausgetauscht|austauschen|
+A:S. 56 (Meeting)|W|k|Man kann dadurch Missverständnisse vermeiden.|Missverständnisse|3p|dadurch|vermieden|vermeiden|
+A:S. 62 (Standortmail)|W|k|Man kann bereits jetzt mit der Einstellung und Schulung neuer Mitarbeitender beginnen.|Mit der Einstellung und Schulung neuer Mitarbeitender|3s|bereits jetzt|begonnen|beginnen|There is no nominative subject: the prepositional phrase stays and the verb stays in the 3rd person singular.
+A:S. 63 (Familientag)|W|m|Die Angestellten müssen die Kinder dafür anmelden.|Die Kinder|3p|dafür von den Angestellten|angemeldet||The agent (von + Dativ) stays in the passive.
+A:S. 69 (Protokoll)|W|k|Man kann dort auch die Dringlichkeit angeben.|Dort|3s|auch die Dringlichkeit|angegeben|angeben|
+A:S. 69 (Protokoll)|W|m|Man muss noch einige Möbel für den Gemeinschaftsraum kaufen.|Es|3p|noch einige Möbel für den Gemeinschaftsraum|gekauft||Es is only a placeholder; the verb agrees with Möbel (plural).
+A:S. 69 (Protokoll)|W|s|Man soll für Anfang Juni einen ersten Gruppenabend planen.|Für Anfang Juni|3s|ein erster Gruppenabend|geplant|planen|
+A:S. 69 (Protokoll)|W|k|Man kann das Modell auch auf andere Kitas ausweiten.|Das Modell|3s|auch auf andere Kitas|ausgeweitet|ausweiten|
+A:S. 69 (Protokoll)|W|d|Man darf ihn in dringenden Fällen anrufen.|Er|3s|in dringenden Fällen|angerufen||
+A:S. 107 (E-Mail)|W|s|Man soll im Betreff das Anliegen ausführlich erklären.|Im Betreff|3s|das Anliegen ausführlich|erklärt|erklären|
+A:S. 109 (Angebot)|W|k|Man kann die Arbeiten in der KW 40 durchführen.|Die Arbeiten|3p|in der KW 40|durchgeführt|durchführen|
+A:S. 113 (Reklamation)|W|k|Man kann die Akkus nicht einfach austauschen.|Die Akkus|3p|nicht einfach|ausgetauscht|austauschen|
+A:S. 128 (Arbeitszeit)|W|m|Man muss Ruhepausen verpflichtend einhalten.|Ruhepausen|3p|verpflichtend|eingehalten|einhalten|
+A:S. 128 (Arbeitszeit)|W|m|Man muss auch zwischen den Schichten Ruhezeiten einhalten.|Auch zwischen den Schichten|3p|Ruhezeiten|eingehalten|einhalten|
+A:S. 193 (Urlaub)|W|m|Man muss sämtliche Urlaubstage jedes Jahr bis 31.12. nehmen.|Sämtliche Urlaubstage|3p|jedes Jahr bis 31.12.|genommen|nehmen|
+A:S. 203 (Urlaub)|W|m|Man muss Urlaub mindestens zwei Wochen vor dem gewünschten Termin beantragen.|Urlaub|3s|mindestens zwei Wochen vor dem gewünschten Termin|beantragt|beantragen|
+A:S. 209 (Kundenservice)|W|m|Man muss Lösungen schnell finden.|Lösungen|3p|schnell|gefunden|finden|
+A:S. 219 (Konflikte)|W|k|Man kann Konfliktsituationen durch Rücksicht aufeinander vermeiden.|Konfliktsituationen|3p|durch Rücksicht aufeinander|vermieden|vermeiden|
+A:S. 220 (Störung)|W|m|Man muss die Anlage 3 reparieren.|Die Anlage 3|3s||repariert|reparieren|
+A:S. 233 (dm, Ü 3)|D|k|Man kann die vorbestellte Ware einfach im Geschäft abholen.|Die vorbestellte Ware|3s|einfach im Geschäft|abgeholt|abholen|
+A:S. 233 (dm, Ü 3)|D|k|Man kann die Ware auch über eine App vorbestellen.|Die Ware|3s|auch über eine App|vorbestellt|vorbestellen|
+A:S. 233 (dm, Ü 3)|D|k|Man kann Bioprodukte gut verkaufen.|Bioprodukte|3p|gut|verkauft|verkaufen|
+A:S. 233 (Ü 4a)|W|k|Man kann Fehler manchmal nicht vermeiden.|Fehler|3p|manchmal nicht|vermieden|vermeiden|
+A:S. 233 (Ü 4a)|W|k|Man kann die einzelnen Projektschritte gut planen.|Die einzelnen Projektschritte|3p|gut|geplant|planen|
+A:S. 233 (Ü 4a)|W|k|Man kann manche Firmenporträts nicht gut verstehen.|Manche Firmenporträts|3p|nicht gut|verstanden|verstehen|
+A:S. 233 (Ü 4a)|W|k|Man kann nicht alle Komplikationen vorhersehen.|Nicht alle Komplikationen|3p||vorhergesehen|vorhersehen|
+A:S. 233 (Ü 4a)|W|k|Man kann die Gründe für Umsatzverluste manchmal nicht erklären.|Die Gründe für Umsatzverluste|3p|manchmal nicht|erklärt|erklären|
+A:S. 233 (Ü 5)|W|k|Man kann viele Probleme durch Gespräche lösen.|Viele Probleme|3p|durch Gespräche|gelöst|lösen|
+A:S. 233 (Ü 5)|W|k|Alle Mitarbeiter und Mitarbeiterinnen können die Sicherheitsregeln befolgen.|Die Sicherheitsregeln|3p|von allen Mitarbeitern und Mitarbeiterinnen|befolgt||The agent (von + Dativ) stays in the passive. sich lassen is not normally used with an agent.
+A:S. 233 (Ü 5)|W|k|Man kann viele Projektideen wegen hoher Kosten nicht bezahlen.|Viele Projektideen|3p|wegen hoher Kosten nicht|bezahlt|bezahlen|
+A:S. 233 (Ü 5)|W|k|Man kann das Computerprogramm auch nach mehreren Versuchen nicht starten.|Das Computerprogramm|3s|auch nach mehreren Versuchen nicht|gestartet|starten|
+A:S. 233 (Ü 5)|W|k|Man kann manche Ziele trotz großem Engagement nicht erreichen.|Manche Ziele|3p|trotz großem Engagement nicht|erreicht|erreichen|
+A:S. 233 (Ü 5)|W|k|Man kann manche Fachtexte wegen komplizierter Formulierungen schwer verstehen.|Manche Fachtexte|3p|wegen komplizierter Formulierungen schwer|verstanden|verstehen|
+A:S. 254 (Heizung)|D|m|Man muss die Heizung nur entlüften.|Die Heizung|3s|nur|entlüftet|entlüften|
+A:S. 264 (Büro)|W|s|Man soll in den Büros Ihrer Firma neue Steckdosen installieren.|In den Büros Ihrer Firma|3p|neue Steckdosen|installiert|installieren|
+A:S. 281 (Arbeitsweisen)|W|k|Man kann Mitarbeitende jederzeit beobachten.|Mitarbeitende|3p|jederzeit|beobachtet|beobachten|
+A:S. 281 (Arbeitsweisen)|W|s|Man soll Konzepte verbindlich umsetzen.|Konzepte|3p|verbindlich|umgesetzt|umsetzen|
+A:S. 281 (Arbeitsweisen)|W|m|Man muss Konzepte in der Arbeit realisieren.|Konzepte|3p|in der Arbeit|realisiert|realisieren|
+A:S. 283 (Arbeitsunfall)|W|m|Man muss die gesetzliche Unfallversicherung sofort informieren.|Die gesetzliche Unfallversicherung|3s|sofort|informiert|informieren|
+A:S. 283 (Arbeitsunfall)|W|m|Man muss der Unfallversicherung einen Arbeitsunfall telefonisch melden.|Ein Arbeitsunfall|3s|der Unfallversicherung telefonisch|gemeldet|melden|The dative object stays in the passive sentence.
+A:S. 283 (Arbeitsunfall)|W|m|Man muss beteiligte Personen mit Namen und Adressen angeben.|Beteiligte Personen|3p|mit Namen und Adressen|angegeben|angeben|
+A:S. 306 (Klima)|D|k|Man kann durch Energiegewinnung, die die Umwelt schont, die Erderwärmung stoppen.|Durch Energiegewinnung, die die Umwelt schont,|3s|die Erderwärmung|gestoppt|stoppen|
+A:S. 349 (Konflikte)|W|s|Man soll Konflikte schnell zur Sprache bringen.|Konflikte|3p|schnell zur Sprache|gebracht||
+A:S. 138 (Stress im Team)|W|k|Man kann Stress gemeinsam im Team besser bewältigen.|Stress|3s|gemeinsam im Team besser|bewältigt|bewältigen|
+A:S. 88 (Miteinander)|W|k|Man kann ein freundschaftliches Miteinander leider nicht erzwingen.|Ein freundschaftliches Miteinander|3s|leider nicht|erzwungen|erzwingen|

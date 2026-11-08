@@ -1,0 +1,50 @@
+abgeerntet|abernten|erntet ab|erntete ab|to harvest completely|die Ernte (-n); der Erntehelfer (–); die Weinernte (-n)|abgeerntet (harvested)|ernten; einernten
+abgeraten|abraten|rät ab|riet ab|to advise against|der Rat (no plural: advice); der Ratschlag (Ratschläge)|abratend (dissuading)|raten; beraten; zuraten; verraten
+angegeben|angeben|gibt an|gab an|to state, specify; to boast|die Angabe (-n); der Angeber (–)|angegeben (stated); angeberisch (boastful)|geben; abgeben; ausgeben; aufgeben
+angerufen|anrufen|ruft an|rief an|to phone, call|der Anruf (-e); der Anrufer (–); der Anrufbeantworter (–)|angerufen (called)|rufen; aufrufen; zurückrufen; abrufen
+angewendet|anwenden|wendet an|wendete an|to apply, use|die Anwendung (-en); der Anwender (–)|anwendbar (applicable); anwenderfreundlich (user-friendly)|wenden; verwenden; umwenden
+aufgenommen|aufnehmen|nimmt auf|nahm auf|to take up; to record; to admit|die Aufnahme (-n); die Aufnahmeprüfung (-en)|aufnahmefähig (receptive)|nehmen; annehmen; teilnehmen; übernehmen
+ausgetauscht|austauschen|tauscht aus|tauschte aus|to exchange, replace|der Austausch (no plural); der Tausch (-e)|austauschbar (exchangeable)|tauschen; umtauschen; vertauschen
+ausgewechselt|auswechseln|wechselt aus|wechselte aus|to replace, change|der Wechsel (–); die Auswechslung (-en)|auswechselbar (replaceable)|wechseln; einwechseln; umwechseln
+ausgeweitet|ausweiten|weitet aus|weitete aus|to expand|die Ausweitung (-en); die Weite (-n)|weit (wide)|weiten; erweitern; ausdehnen
+beauftragt|beauftragen|beauftragt|beauftragte|to commission, assign|der Auftrag (Aufträge); der Beauftragte (-n); der Auftraggeber (–)|beauftragt (commissioned)|auftragen; auftreten
+beendet|beenden|beendet|beendete|to end, finish|das Ende (-n); die Beendigung (no plural)|endlich (finally); endgültig (final)|enden; vollenden; abschließen
+befolgt|befolgen|befolgt|befolgte|to follow (rules)|die Befolgung (no plural); die Folge (-n)|befolgt (followed)|folgen; verfolgen; nachfolgen
+begonnen|beginnen|beginnt|begann|to begin|der Beginn (no plural); der Anfang (Anfänge)|beginnend (beginning)|anfangen; anbeginnen
+behoben|beheben|behebt|behob|to fix, remedy|die Behebung (-en); die Fehlerbehebung (-en); der Fehler (–); die Störungsbehebung (-en)|behebbar (fixable)|heben; erheben; aufheben; abheben
+bewahrt|bewahren|bewahrt|bewahrte|to preserve, keep|die Bewahrung (no plural); die Aufbewahrung (storage)|bewahrt (preserved)|wahren; aufbewahren; verwahren
+bewältigt|bewältigen|bewältigt|bewältigte|to cope with, manage|die Bewältigung (no plural); die Gewalt (-en)|bewältigbar (manageable)|überwältigen; walten
+eingehalten|einhalten|hält ein|hielt ein|to keep (rules, deadlines)|die Einhaltung (no plural); der Halt (no plural)|einhaltbar (observable)|halten; anhalten; enthalten; behalten
+entfernt|entfernen|entfernt|entfernte|to remove|die Entfernung (-en); die Ferne (no plural)|entfernt (distant; removed); fern (far)|sich entfernen (to move away); wegnehmen
+entlüftet|entlüften|entlüftet|entlüftete|to bleed, vent|die Entlüftung (-en); die Luft (Lüfte)|entlüftet (vented)|lüften; belüften; durchlüften
+ergriffen|ergreifen|ergreift|ergriff|to seize; to take (measures)|das Ergreifen; der Griff (-e)|ergreifend (moving); ergriffen (moved)|greifen; begreifen; angreifen; zugreifen
+erhöht|erhöhen|erhöht|erhöhte|to raise, increase|die Erhöhung (-en); die Höhe (-n)|hoch (high); erhöht (raised)|heben; anheben; steigern
+erklärt|erklären|erklärt|erklärte|to explain|die Erklärung (-en)|erklärbar (explainable); unerklärlich (inexplicable)|klären; aufklären; abklären
+erstattet|erstatten|erstattet|erstattete|to reimburse|die Erstattung (-en); die Rückerstattung (-en)|erstattungsfähig (reimbursable)|rückerstatten; zurückzahlen
+ertragen|ertragen|erträgt|ertrug|to bear, endure|der Ertrag (Erträge)|erträglich (bearable); unerträglich (unbearable)|tragen; vertragen; übertragen
+erzwungen|erzwingen|erzwingt|erzwang|to force, enforce|der Zwang (Zwänge)|erzwungen (forced); zwanghaft (compulsive)|zwingen; bezwingen
+finanziert|finanzieren|finanziert|finanzierte|to finance|die Finanzierung (-en); die Finanzen (pl.)|finanziell (financial)|bezahlen; subventionieren
+gebracht|bringen|bringt|brachte|to bring|die Bringschuld (-en); der Bringdienst (-e)|gebracht (brought)|mitbringen; zurückbringen; verbringen; zur Sprache bringen
+gefunden|finden|findet|fand|to find|der Fund (-e); der Finder (–)|findig (resourceful); auffindbar (findable)|erfinden; empfinden; befinden; auffinden
+geheilt|heilen|heilt|heilte|to heal, cure|die Heilung (-en); das Heilmittel (–)|heil (intact); heilbar (curable); unheilbar (incurable)|verheilen; ausheilen
+gelesen|lesen|liest|las|to read|das Lesen (reading); der Leser (–); die Lesung (-en)|lesbar (legible); leserlich (legible)|vorlesen; ablesen; auslesen
+gemeldet|melden|meldet|meldete|to report|die Meldung (-en); der Melder (–)|gemeldet (registered)|anmelden; abmelden; ummelden
+gestaltet|gestalten|gestaltet|gestaltete|to design, shape|die Gestaltung (-en); die Gestalt (-en)|gestaltet (designed); gestalterisch (design-)|umgestalten; ausgestalten
+gestartet|starten|startet|startete|to start|der Start (-s); der Starter (–)|startklar (ready to start)|neustarten; losstarten
+ignoriert|ignorieren|ignoriert|ignorierte|to ignore|die Ignoranz (no plural); der Ignorant (-en)|ignorant (ignorant)|beachten (opposite)
+koordiniert|koordinieren|koordiniert|koordinierte|to coordinate|die Koordination (-en); der Koordinator (-en)|koordiniert (coordinated)|abstimmen; organisieren
+realisiert|realisieren|realisiert|realisierte|to realise, carry out|die Realisierung (-en); die Realität (-en)|realisierbar (feasible); real (real)|verwirklichen; umsetzen
+umgesetzt|umsetzen|setzt um|setzte um|to implement; to convert|die Umsetzung (-en); der Umsatz (Umsätze)|umsetzbar (feasible)|setzen; einsetzen; absetzen
+unterschätzt|unterschätzen|unterschätzt|unterschätzte|to underestimate|die Unterschätzung (-en); der Schatz (Schätze)|unterschätzt (underestimated)|schätzen; überschätzen; einschätzen
+unterzeichnet|unterzeichnen|unterzeichnet|unterzeichnete|to sign|die Unterzeichnung (-en); der Unterzeichner (–)|unterzeichnet (signed)|zeichnen; bezeichnen; auszeichnen
+verarbeitet|verarbeiten|verarbeitet|verarbeitete|to process|die Verarbeitung (-en); die Arbeit (-en)|verarbeitet (processed); verarbeitbar|bearbeiten; arbeiten; überarbeiten
+vermieden|vermeiden|vermeidet|vermied|to avoid|die Vermeidung (no plural)|vermeidbar (avoidable); unvermeidlich (unavoidable)|meiden
+verschoben|verschieben|verschiebt|verschob|to postpone; to move|die Verschiebung (-en); der Schub (Schübe)|verschiebbar (movable)|schieben; aufschieben; abschieben
+verstaatlicht|verstaatlichen|verstaatlicht|verstaatlichte|to nationalise|die Verstaatlichung (-en); der Staat (-en)|staatlich (state-owned)|privatisieren (opposite)
+verstanden|verstehen|versteht|verstand|to understand|das Verständnis (no plural); der Verstand (no plural)|verständlich (understandable); unverständlich (incomprehensible)|missverstehen; einverstanden sein
+verteidigt|verteidigen|verteidigt|verteidigte|to defend|die Verteidigung (-en); der Verteidiger (–)|verteidigt (defended)|angreifen (opposite)
+verursacht|verursachen|verursacht|verursachte|to cause|die Ursache (-n); der Verursacher (–)|ursächlich (causal)|veranlassen; auslösen
+vorhergesehen|vorhersehen|sieht vorher|sah vorher|to foresee|die Voraussicht (no plural); die Vorhersage (-n)|vorhersehbar (foreseeable); unvorhersehbar (unforeseeable)|sehen; absehen; voraussehen
+zurückgezogen|zurückziehen|zieht zurück|zog zurück|to withdraw, recall|der Rückzug (Rückzüge)|zurückgezogen (secluded)|ziehen; sich zurückziehen
+überdeckt|überdecken|überdeckt|überdeckte|to cover up|die Decke (-n); die Überdeckung (-en)|überdeckt (covered)|decken; zudecken; aufdecken
+überwunden|überwinden|überwindet|überwand|to overcome|die Überwindung (no plural)|überwindbar (surmountable); unüberwindlich (insurmountable)|bewältigen (synonym)

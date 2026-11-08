@@ -1,0 +1,63 @@
+C:1.5.3 Passiv-Ersatzformen (Beispiel)|D|k|Man kann diese Aufgabe leicht lösen.|Diese Aufgabe|3s|leicht|gelöst|lösen|
+C:1.3 Reflexive Verben (sich lassen)|D|k|Man kann die alte Truhe nicht mehr öffnen.|Die alte Truhe|3s|nicht mehr|geöffnet|öffnen|
+C:1.3 Reflexive Verben (sich lassen)|D|k|Man kann das Buch gut lesen.|Das Buch|3s|gut|gelesen|lesen|
+C:4.1 Präpositionen (anhand)|D|k|Man kann den Prozess anhand dieses Beispiels gut erklären.|Der Prozess|3s|anhand dieses Beispiels gut|erklärt|erklären|
+C:1.2 Modalverben (Tabelle)|D|m|Der Arzt muss Franz untersuchen.|Franz|3s|vom Arzt|untersucht|untersuchen|The agent stays in the passive as von + Dativ.
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|k|Man kann die Gesundheitsprobleme der Mitarbeiter in vielen Unternehmen lösen.|Die Gesundheitsprobleme der Mitarbeiter in vielen Unternehmen|3p||gelöst|lösen|
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|m|Man muss das Gesundheitsrisiko für Mitarbeiter, die nur am Schreibtisch arbeiten, sehr ernst nehmen.|Das Gesundheitsrisiko für Mitarbeiter, die nur am Schreibtisch arbeiten,|3s|sehr ernst|genommen|nehmen|
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|k|Man kann die Arbeitsbedingungen in den Büros oft nicht akzeptieren.|Die Arbeitsbedingungen in den Büros|3p|oft nicht|akzeptiert|akzeptieren|
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|m|Man muss die Bewegungslosigkeit und die daraus entstehenden Muskel- und Skeletterkrankungen näher untersuchen.|Die Bewegungslosigkeit und die daraus entstehenden Muskel- und Skeletterkrankungen|3p|näher|untersucht|untersuchen|
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|d|Man darf die Folgen für den oberen Rücken und den Schulter-Nacken-Bereich nicht unterschätzen.|Die Folgen für den oberen Rücken und den Schulter-Nacken-Bereich|3p|nicht|unterschätzt|unterschätzen|
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|k|Man kann viele Nacken- und Schulterbeschwerden nicht von heute auf morgen heilen.|Viele Nacken- und Schulterbeschwerden|3p|nicht von heute auf morgen|geheilt|heilen|
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|k|Man kann das stark belastete Muskel-Skelett-System nicht wie eine alte Batterie auswechseln.|Das stark belastete Muskel-Skelett-System|3s|nicht wie eine alte Batterie|ausgewechselt|auswechseln|
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|k|Man kann Menschen mit starken Rückenproblemen in einigen Berufen nicht einsetzen.|Menschen mit starken Rückenproblemen|3p|in einigen Berufen nicht|eingesetzt|einsetzen|
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|s|Man soll diesen Menschen von monotoner Büroarbeit abraten.|Diesen Menschen|3s|von monotoner Büroarbeit|abgeraten||The dative stays dative in the passive; there is no nominative subject, so the verb stays in the 3rd person singular.
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|m|Man muss den Arbeitsalltag auch vonseiten der Arbeitnehmer abwechslungsreich gestalten.|Der Arbeitsalltag|3s|auch vonseiten der Arbeitnehmer abwechslungsreich|gestaltet|gestalten|
+C:1.5.3 Passiv-Ersatzformen (Übung 1)|W|m|Man muss Tisch und Stuhl an die Bedürfnisse des einzelnen Mitarbeiters anpassen.|Tisch und Stuhl|3p|an die Bedürfnisse des einzelnen Mitarbeiters|angepasst|anpassen|
+C:1.5.3 Passiv-Ersatzformen (Übung 2)|W|k|Man kann die Sitzung nicht verschieben.|Die Sitzung|3s|nicht|verschoben|verschieben|
+C:1.5.3 Passiv-Ersatzformen (Übung 2)|W|k|Man kann den Veränderungsvorschlag nicht akzeptieren.|Der Veränderungsvorschlag|3s|nicht|akzeptiert|akzeptieren|
+C:1.5.3 Passiv-Ersatzformen (Übung 2)|W|m|Man muss die ausstehenden Rechnungen umgehend bezahlen.|Die ausstehenden Rechnungen|3p|umgehend|bezahlt|bezahlen|
+C:1.5.3 Passiv-Ersatzformen (Übung 2)|W|k|Man kann das Problem heute nicht lösen.|Das Problem|3s|heute nicht|gelöst|lösen|
+C:1.5.3 Passiv-Ersatzformen (Übung 2)|W|m|Man muss die Resturlaubstage aus dem alten Jahr bis zum 31. März nehmen.|Die Resturlaubstage aus dem alten Jahr|3p|bis zum 31. März|genommen|nehmen|
+C:1.5.3 Passiv-Ersatzformen (Übung 2)|W|d|Man darf die neuen Sicherheitsbestimmungen nicht ignorieren.|Die neuen Sicherheitsbestimmungen|3p|nicht|ignoriert|ignorieren|
+C:1.5.3 Passiv-Ersatzformen (Übung 2)|W|m|Man muss jedes Gespräch mit dem Kunden protokollieren.|Jedes Gespräch mit dem Kunden|3s||protokolliert|protokollieren|
+C:1.5.3 Passiv-Ersatzformen (Übung 2)|W|k|Man kann die Restbestände der Produkte aus dem letzten Jahr nicht mehr verkaufen.|Die Restbestände der Produkte aus dem letzten Jahr|3p|nicht mehr|verkauft|verkaufen|
+C:1.5.3 Passiv-Ersatzformen (Übung 2)|W|m|Man muss interne Firmenunterlagen mit einem Passwort schützen.|Interne Firmenunterlagen|3p|mit einem Passwort|geschützt|schützen|
+C:1.5.3 Passiv-Ersatzformen (Übung 4)|D|k|Man kann nur mit Parfüm üble Gerüche überdecken.|Nur mit Parfüm|3p|üble Gerüche|überdeckt|überdecken|
+C:1.5 Vorgangspassiv (Weinlese)|D|k|Die Maschinen können einen Hektar Rebfläche in ca. drei Stunden abernten.|Ein Hektar Rebfläche|3s|von den Maschinen in ca. drei Stunden|abgeerntet||The agent (von + Dativ) stays in the passive. sich lassen is not normally used with an agent.
+C:1.5 Vorgangspassiv (Weinlese)|D|k|Man kann den Gärprozess mit Reinzuchthefen besser kontrollieren.|Der Gärprozess|3s|mit Reinzuchthefen besser|kontrolliert|kontrollieren|
+C:1.5 Vorgangspassiv (Weinlese)|D|k|Man kann besondere Weine später entsprechend teuer verkaufen.|Besondere Weine|3p|später entsprechend teuer|verkauft|verkaufen|
+C:1.5 Vorgangspassiv (Kindergartenplätze)|P|m|Man muss neue Kindergartenplätze schaffen.|Neue Kindergartenplätze|3p||geschaffen|schaffen|
+C:Nominalisierung (Übung 2)|P|m|Man muss die Steuern erhöhen.|Die Steuern|3p||erhöht|erhöhen|
+C:Nominalisierung (Übung 2)|P|m|Man muss rechtliche Maßnahmen ergreifen.|Rechtliche Maßnahmen|3p||ergriffen|ergreifen|
+C:Nominalisierung (Übung 2)|P|m|Man muss die Vorfälle sofort aufklären.|Die Vorfälle|3p|sofort|aufgeklärt|aufklären|
+C:Nominalisierung (Übung 2)|P|m|Man muss die Finanzsituation überprüfen.|Die Finanzsituation|3s||überprüft|überprüfen|
+C:Nominalisierung (Übung 2)|P|m|Man muss die Verhandlungen abbrechen.|Die Verhandlungen|3p||abgebrochen|abbrechen|
+C:Nominalisierung (Übung 2)|P|m|Alle Staaten müssen die Resolution unterzeichnen.|Die Resolution|3s|von allen Staaten|unterzeichnet|unterzeichnen|The agent (von + Dativ) stays in the passive.
+C:Nominalisierung (Übung 2)|P|m|Man muss eine Expertenkommission beauftragen.|Eine Expertenkommission|3s||beauftragt|beauftragen|
+C:Nominalisierung (Übung 2)|P|m|Man muss die Sozialpläne an die neue Haushaltslage anpassen.|Die Sozialpläne|3p|an die neue Haushaltslage|angepasst|anpassen|
+C:Nominalisierung (Übung 2)|P|m|Man muss die Wehrpflicht abschaffen.|Die Wehrpflicht|3s||abgeschafft|abschaffen|
+C:Nominalisierung (Übung 2)|P|m|Man muss die Suche nach Beweisen wieder aufnehmen.|Die Suche nach Beweisen|3s|wieder|aufgenommen|aufnehmen|
+C:Nominalisierung (Übung 2)|P|m|Man muss die Diskussion um den Euro beenden.|Die Diskussion um den Euro|3s||beendet|beenden|
+C:Nominalisierung (Übung 2)|P|m|Man muss die maroden Banken verstaatlichen.|Die maroden Banken|3p||verstaatlicht|verstaatlichen|
+C:Nominalisierung (Übung 2)|P|m|Man muss die Situation in den Altenheimen verbessern.|Die Situation in den Altenheimen|3s||verbessert|verbessern|
+C:Nominalisierung (Übung 2)|P|m|Man muss die Aktionen der Sicherheitsorgane besser koordinieren.|Die Aktionen der Sicherheitsorgane|3p|besser|koordiniert|koordinieren|
+C:Nominalisierung (Übung 2)|P|m|Auch die Sicherheitsorgane müssen die Gesetze einhalten.|Die Gesetze|3p|auch von Sicherheitsorganen|eingehalten|einhalten|The agent (von + Dativ) stays in the passive.
+C:Partizipien als Adjektive (Übung)|W|k|Man kann diese Aufgaben problemlos bewältigen.|Diese Aufgaben|3p|problemlos|bewältigt|bewältigen|
+C:Partizipien als Adjektive (Übung)|W|m|Man muss solche Fehler in dieser Situation vermeiden.|Solche Fehler|3p|in dieser Situation|vermieden|vermeiden|
+C:Partizipien als Adjektive (Übung)|P|m|Man muss die Grundsätze unserer Demokratie konsequent verteidigen.|Die Grundsätze unserer Demokratie|3p|konsequent|verteidigt|verteidigen|
+C:Partizipien als Adjektive (Übung)|P|m|Man muss in diesem Verfahren bestimmte Untersuchungsmethoden anwenden.|In diesem Verfahren|3p|bestimmte Untersuchungsmethoden|angewendet|anwenden|
+C:Partizipien als Adjektive (Übung)|D|k|Man kann die Hürden leicht überwinden.|Die Hürden|3p|leicht|überwunden|überwinden|
+C:Partizipien als Adjektive (Übung)|D|k|Man kann diese Grammatikregeln verständlich darstellen.|Diese Grammatikregeln|3p|verständlich|dargestellt|darstellen|
+C:Partizipien als Adjektive (Übung)|P|k|Man kann diese Forderungen nicht akzeptieren.|Diese Forderungen|3p|nicht|akzeptiert|akzeptieren|
+C:Partizipien als Adjektive (Übung)|D|k|Man kann die Zustände in manchen Seniorenheimen nur schwer ertragen.|Die Zustände in manchen Seniorenheimen|3p|nur schwer|ertragen|ertragen|
+C:4.1 Präpositionen (mithilfe)|W|k|Man kann den Fehler nur mithilfe eines Fachmannes beheben.|Der Fehler|3s|nur mithilfe eines Fachmannes|behoben|beheben|
+C:4.1 Präpositionen (durch)|D|k|Viren können viele Krankheiten verursachen.|Viele Krankheiten|3p|durch Viren|verursacht||The cause is introduced by durch. sich lassen is not normally used with an agent.
+C:4.1 Präpositionen (dank)|D|k|Man kann dank dem schnellen Eingreifen der Polizei eine Eskalation verhindern.|Dank dem schnellen Eingreifen der Polizei|3s|eine Eskalation|verhindert|verhindern|
+C:6.2 Adverbiale Nebensätze (final)|P|m|Man muss zur Erreichung des Ziels neue taktische Maßnahmen treffen.|Zur Erreichung des Ziels|3p|neue taktische Maßnahmen|getroffen|treffen|
+C:Modalverben (modalverbähnliche Verben)|W|m|Man muss alle Waren, die heute ausgeliefert wurden, zurückziehen.|Alle Waren, die heute ausgeliefert wurden,|3p||zurückgezogen|zurückziehen|
+C:Konjunktiv II (Übung)|W|m|Man muss den Finanzplan diese Woche noch anpassen.|Der Finanzplan|3s|diese Woche noch|angepasst|anpassen|
+C:Nomen (Singular oder Plural)|D|m|Man muss das Wissen der Antike bewahren.|Das Wissen der Antike|3s||bewahrt|bewahren|
+C:Nomen (Singular oder Plural)|D|m|Man muss die Ferien verschieben.|Die Ferien|3p||verschoben|verschieben|
+C:Partizipialsätze (Übung)|D|m|Man muss das Gemüse sofort verarbeiten.|Das Gemüse|3s|sofort|verarbeitet|verarbeiten|
+C:Position der Verben (Übung)|D|m|Man muss den Motor auswechseln.|Der Motor|3s||ausgewechselt|auswechseln|

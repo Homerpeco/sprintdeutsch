@@ -32,6 +32,8 @@ const TRAINERS = [
     sub: "warten auf · denken an · teilnehmen an — 378 exercises", level: "B2" },
   { id: "passiv", src: "/passiv-trainer.html", title: "Passive Voice",
     sub: "wird gemacht · wurde gemacht · ist gemacht worden — 250 sentences", level: "B2" },
+  { id: "passiv-modal", src: "/passiv-modal-trainer.html", title: "Passive mit Modalverb",
+    sub: "kann gelöst werden · lässt sich lösen — 119 sentences", level: "B2" },
 ];
 
 export function RoadmapView({ state, setState, view, setView, verbs }) {
